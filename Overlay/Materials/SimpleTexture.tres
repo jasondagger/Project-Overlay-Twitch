@@ -1,0 +1,6 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://bbtyto2iasgqf"]
+
+[ext_resource type="Shader" path="res://Overlay/Shaders/SimpleTexture.gdshader" id="1_kboom"]
+
+[resource]
+shader = ExtResource("1_kboom")

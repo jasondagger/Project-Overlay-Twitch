@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://1ihsy4d0bref"
+path="res://.godot/imported/WYS - Snowman.mp3-2210f340512db74e730d87cc8c528199.mp3str"
+
+[deps]
+
+source_file="res://Overlay/Audios/Playlists/Lofi/WYS - Snowman.mp3"
+dest_files=["res://.godot/imported/WYS - Snowman.mp3-2210f340512db74e730d87cc8c528199.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

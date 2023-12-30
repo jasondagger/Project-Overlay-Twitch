@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://dgchkapsh6qrf"
+path="res://.godot/imported/Sleepermane x Casiio - Mockingbird.mp3-b043f9891618291fb4fe4badf10b8b56.mp3str"
+
+[deps]
+
+source_file="res://Overlay/Audios/Playlists/Lofi/Sleepermane x Casiio - Mockingbird.mp3"
+dest_files=["res://.godot/imported/Sleepermane x Casiio - Mockingbird.mp3-b043f9891618291fb4fe4badf10b8b56.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

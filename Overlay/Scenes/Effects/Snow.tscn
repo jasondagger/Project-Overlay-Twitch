@@ -1,0 +1,63 @@
+[gd_scene load_steps=7 format=3 uid="uid://cfmxgdv66tfcs"]
+
+[ext_resource type="Texture2D" uid="uid://csucquuj4wi65" path="res://Overlay/Textures/Particles/Snowflake.png" id="1_onbhw"]
+
+[sub_resource type="Gradient" id="Gradient_euyay"]
+resource_local_to_scene = true
+interpolation_color_space = 1
+offsets = PackedFloat32Array(0, 0.0802752, 0.772936, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_86agt"]
+gradient = SubResource("Gradient_euyay")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_l3n21"]
+emission_shape = 3
+emission_box_extents = Vector3(12, 0, 4)
+particle_flag_align_y = true
+direction = Vector3(0, 1, 0)
+spread = 10.0
+gravity = Vector3(0, 0, 0)
+initial_velocity_min = -0.75
+initial_velocity_max = -0.25
+angular_velocity_min = -5.0
+angular_velocity_max = 5.0
+angle_max = 360.0
+scale_min = 0.03
+scale_max = 0.04
+color_ramp = SubResource("GradientTexture1D_86agt")
+turbulence_noise_strength = 0.0
+turbulence_noise_scale = 0.0
+turbulence_noise_speed = Vector3(0, 1, 0)
+attractor_interaction_enabled = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xibpg"]
+transparency = 1
+shading_mode = 0
+diffuse_mode = 3
+specular_mode = 2
+disable_ambient_light = true
+albedo_texture = ExtResource("1_onbhw")
+billboard_mode = 3
+billboard_keep_scale = true
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_vu2ml"]
+material = SubResource("StandardMaterial3D_xibpg")
+custom_aabb = AABB(0, 0, 0, 100, 100, 100)
+
+[node name="Snow" type="Node3D"]
+
+[node name="Snowflakes" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 15, -10)
+amount = 200
+lifetime = 90.0
+preprocess = 600.0
+fixed_fps = 60
+visibility_aabb = AABB(-10, -17.5, -10, 20, 35, 20)
+draw_order = 3
+trail_lifetime = 1.0
+process_material = SubResource("ParticleProcessMaterial_l3n21")
+draw_pass_1 = SubResource("QuadMesh_vu2ml")

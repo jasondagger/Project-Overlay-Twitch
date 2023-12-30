@@ -1,0 +1,21 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://bicftb2axije3"
+path="res://.godot/imported/Bomber_Cockpit_Base_Cage.obj-38d7ac7452c8bb73bfb4934ee3096c5b.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Bomber_Cockpit_Base_Cage.obj-38d7ac7452c8bb73bfb4934ee3096c5b.mesh"]
+
+source_file="res://Overlay/Models/Bomber/Bomber_Cockpit_Base_Cage.obj"
+dest_files=["res://.godot/imported/Bomber_Cockpit_Base_Cage.obj-38d7ac7452c8bb73bfb4934ee3096c5b.mesh", "res://.godot/imported/Bomber_Cockpit_Base_Cage.obj-38d7ac7452c8bb73bfb4934ee3096c5b.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true

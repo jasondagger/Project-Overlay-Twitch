@@ -1,0 +1,11 @@
+{
+  "profiles": {
+	"Twitch": {
+	  "commandName": "Executable",
+	  "executablePath": "E:\\Programs\\Godot v4.1.2\\Godot v4.1.2.exe",
+	  "commandLineArgs": "--path . --verbose",
+	  "workingDirectory": ".",
+	  "nativeDebugging": true
+	}
+  }
+}

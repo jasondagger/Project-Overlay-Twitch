@@ -1,0 +1,21 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://cm0p2oxqiw4x0"
+path="res://.godot/imported/Bomber_Tailwing_Cap.obj-73a274640648c78eb744fd3dae089a09.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Bomber_Tailwing_Cap.obj-73a274640648c78eb744fd3dae089a09.mesh"]
+
+source_file="res://Overlay/Models/Bomber/Bomber_Tailwing_Cap.obj"
+dest_files=["res://.godot/imported/Bomber_Tailwing_Cap.obj-73a274640648c78eb744fd3dae089a09.mesh", "res://.godot/imported/Bomber_Tailwing_Cap.obj-73a274640648c78eb744fd3dae089a09.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true

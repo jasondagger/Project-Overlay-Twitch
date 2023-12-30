@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://cknqf2277gwi3"
+path="res://.godot/imported/Sleepermane x Casiio - Suntai ft. Odyssee.mp3-dadc1f6eec443968d2f7117f596bb167.mp3str"
+
+[deps]
+
+source_file="res://Overlay/Audios/Playlists/Lofi/Sleepermane x Casiio - Suntai ft. Odyssee.mp3"
+dest_files=["res://.godot/imported/Sleepermane x Casiio - Suntai ft. Odyssee.mp3-dadc1f6eec443968d2f7117f596bb167.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

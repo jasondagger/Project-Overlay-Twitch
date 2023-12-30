@@ -1,0 +1,21 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://bogysme53w7r7"
+path="res://.godot/imported/Bomber_Wing_Trim_Glow_Left.obj-b5180d9df5eb6caefe7ac18fcec330c0.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Bomber_Wing_Trim_Glow_Left.obj-b5180d9df5eb6caefe7ac18fcec330c0.mesh"]
+
+source_file="res://Overlay/Models/Bomber/Bomber_Wing_Trim_Glow_Left.obj"
+dest_files=["res://.godot/imported/Bomber_Wing_Trim_Glow_Left.obj-b5180d9df5eb6caefe7ac18fcec330c0.mesh", "res://.godot/imported/Bomber_Wing_Trim_Glow_Left.obj-b5180d9df5eb6caefe7ac18fcec330c0.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true

@@ -1,0 +1,21 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://c84a21ngy2ffi"
+path="res://.godot/imported/Bomber_Wings.obj-74acc7328ccdc09aed9b02dc5969b29d.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Bomber_Wings.obj-74acc7328ccdc09aed9b02dc5969b29d.mesh"]
+
+source_file="res://Overlay/Models/Bomber/Bomber_Wings.obj"
+dest_files=["res://.godot/imported/Bomber_Wings.obj-74acc7328ccdc09aed9b02dc5969b29d.mesh", "res://.godot/imported/Bomber_Wings.obj-74acc7328ccdc09aed9b02dc5969b29d.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true

@@ -1,0 +1,21 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://s8dpplidtpvc"
+path="res://.godot/imported/Bomber_Nose.obj-fcfaa4af99df1dd89a45dc5cb0761f40.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Bomber_Nose.obj-fcfaa4af99df1dd89a45dc5cb0761f40.mesh"]
+
+source_file="res://Overlay/Models/Bomber/Bomber_Nose.obj"
+dest_files=["res://.godot/imported/Bomber_Nose.obj-fcfaa4af99df1dd89a45dc5cb0761f40.mesh", "res://.godot/imported/Bomber_Nose.obj-fcfaa4af99df1dd89a45dc5cb0761f40.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true

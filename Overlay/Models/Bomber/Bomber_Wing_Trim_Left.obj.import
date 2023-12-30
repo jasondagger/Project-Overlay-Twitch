@@ -1,0 +1,21 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://crtkr6khmhfd"
+path="res://.godot/imported/Bomber_Wing_Trim_Left.obj-7da47b1d38a0b6be21e11a78bc12dc37.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Bomber_Wing_Trim_Left.obj-7da47b1d38a0b6be21e11a78bc12dc37.mesh"]
+
+source_file="res://Overlay/Models/Bomber/Bomber_Wing_Trim_Left.obj"
+dest_files=["res://.godot/imported/Bomber_Wing_Trim_Left.obj-7da47b1d38a0b6be21e11a78bc12dc37.mesh", "res://.godot/imported/Bomber_Wing_Trim_Left.obj-7da47b1d38a0b6be21e11a78bc12dc37.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true

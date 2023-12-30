@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://dvd4djvx5220p"]
+
+[node name="9" type="RichTextLabel"]
+clip_contents = false
+layout_direction = 2
+offset_right = 12.0
+offset_bottom = 24.0
+auto_translate = false
+localize_numeral_system = false
+mouse_force_pass_scroll_events = false
+bbcode_enabled = true
+text = "[font_size=28][font=res://Overlay/Fonts/Roboto-Bold.ttf]9[/font][/font_size]"
+scroll_active = false
+autowrap_mode = 0
+tab_size = 0
+shortcut_keys_enabled = false
+meta_underlined = false
+hint_underlined = false
+deselect_on_focus_loss_enabled = false

@@ -1,0 +1,21 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://bvv00x700qxo1"
+path="res://.godot/imported/Bomber_Propeller_Blade_Trim_Top.obj-70c07f533c963f62acc2b824eff3bccf.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Bomber_Propeller_Blade_Trim_Top.obj-70c07f533c963f62acc2b824eff3bccf.mesh"]
+
+source_file="res://Overlay/Models/Bomber/Bomber_Propeller_Blade_Trim_Top.obj"
+dest_files=["res://.godot/imported/Bomber_Propeller_Blade_Trim_Top.obj-70c07f533c963f62acc2b824eff3bccf.mesh", "res://.godot/imported/Bomber_Propeller_Blade_Trim_Top.obj-70c07f533c963f62acc2b824eff3bccf.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true

@@ -1,0 +1,21 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://cxa3xpstxadl1"
+path="res://.godot/imported/Bomber_Cockpit_Base.obj-93aba0de757a0b078006683180539fc6.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Bomber_Cockpit_Base.obj-93aba0de757a0b078006683180539fc6.mesh"]
+
+source_file="res://Overlay/Models/Bomber/Bomber_Cockpit_Base.obj"
+dest_files=["res://.godot/imported/Bomber_Cockpit_Base.obj-93aba0de757a0b078006683180539fc6.mesh", "res://.godot/imported/Bomber_Cockpit_Base.obj-93aba0de757a0b078006683180539fc6.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true

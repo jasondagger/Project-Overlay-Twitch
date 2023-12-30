@@ -1,0 +1,21 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://biq0snreovnrc"
+path="res://.godot/imported/RainbowOutline.obj-47b515331f4c8ae285d5cb9e62ef0117.mesh"
+
+[deps]
+
+files=["res://.godot/imported/RainbowOutline.obj-47b515331f4c8ae285d5cb9e62ef0117.mesh"]
+
+source_file="res://Emotes/Rainbow/Models/RainbowOutline.obj"
+dest_files=["res://.godot/imported/RainbowOutline.obj-47b515331f4c8ae285d5cb9e62ef0117.mesh", "res://.godot/imported/RainbowOutline.obj-47b515331f4c8ae285d5cb9e62ef0117.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true

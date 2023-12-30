@@ -1,0 +1,21 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://buwp20pe38ewf"
+path="res://.godot/imported/Bomber_Swizzle.obj-a934a85e66e3e7fb15770b2e346a9d92.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Bomber_Swizzle.obj-a934a85e66e3e7fb15770b2e346a9d92.mesh"]
+
+source_file="res://Overlay/Models/Bomber/Bomber_Swizzle.obj"
+dest_files=["res://.godot/imported/Bomber_Swizzle.obj-a934a85e66e3e7fb15770b2e346a9d92.mesh", "res://.godot/imported/Bomber_Swizzle.obj-a934a85e66e3e7fb15770b2e346a9d92.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true

@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://87vxcj1u7vxk"]
+
+[ext_resource type="Script" path="res://Overlay/Scripts/Shelf/RichTextLabelSampler.cs" id="1_cg6ux"]
+
+[node name="RichTextLabelSampler" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_cg6ux")

@@ -1,0 +1,9 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=3 uid="uid://yfsp84t7mxt4"]
+
+[ext_resource type="Shader" path="res://Overlay/Shaders/ShelfAudioWave.gdshader" id="1_aqoek"]
+[ext_resource type="Texture2D" uid="uid://b4gll055xrr02" path="res://Overlay/Textures/Shelf/Noise.png" id="2_abx68"]
+
+[resource]
+shader = ExtResource("1_aqoek")
+shader_parameter/color = null
+shader_parameter/textureNoise = ExtResource("2_abx68")

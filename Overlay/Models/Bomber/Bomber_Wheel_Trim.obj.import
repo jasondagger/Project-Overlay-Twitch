@@ -1,0 +1,21 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://de4g1heikuxd0"
+path="res://.godot/imported/Bomber_Wheel_Trim.obj-44777a0d33188442ae1f8eceac2d51bc.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Bomber_Wheel_Trim.obj-44777a0d33188442ae1f8eceac2d51bc.mesh"]
+
+source_file="res://Overlay/Models/Bomber/Bomber_Wheel_Trim.obj"
+dest_files=["res://.godot/imported/Bomber_Wheel_Trim.obj-44777a0d33188442ae1f8eceac2d51bc.mesh", "res://.godot/imported/Bomber_Wheel_Trim.obj-44777a0d33188442ae1f8eceac2d51bc.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true
