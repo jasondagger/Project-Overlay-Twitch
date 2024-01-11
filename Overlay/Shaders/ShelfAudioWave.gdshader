@@ -349,7 +349,6 @@ void fragment()
 		UV	+ TIME * c_noiseColorSpeed
 	).rgb;
 	
-	vec3 colorMultiplier = color.rgb + colorNoiseAdditive;
 	float hdrModifier = dot(
 		vec3(
 			1.0f

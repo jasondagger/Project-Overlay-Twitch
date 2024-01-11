@@ -65,7 +65,7 @@ public sealed partial class AudioManager : Node
 
     public enum PlaylistType : uint
     {
-        Gaming,
+        Gaming = 0u,
         Lofi,
         Count
     }

@@ -297,9 +297,9 @@ public sealed partial class NameplateController : Control
 				);
 				m_nameplateTitles.Add(
 					new NameplateTitle(
-						"One-Trick Stitches",
+						"Master Stitches",
 						GD.Load<CompressedTexture2D>(
-							"res://Overlay/Textures/Icons/Icon_OneTrickStitches.png"
+							"res://Overlay/Textures/Icons/Icon_MasterStitches.png"
 						)
 					)
 				);

@@ -1,7 +1,6 @@
 using Godot;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading.Tasks;
@@ -86,6 +85,7 @@ public sealed partial class TwitchBot : Node
         Age = 0u,
         Commands,
         CurrentSong,
+        Date,
         Discord,
         FollowAge,
         RequestSong,
@@ -93,6 +93,7 @@ public sealed partial class TwitchBot : Node
         SetPlaylist,
         SkipSong,
         TextToSpeech,
+        Time,
         YouTube
     }
 
@@ -110,6 +111,7 @@ public sealed partial class TwitchBot : Node
         { CommandType.Age,          "!age"},
         { CommandType.Commands,     "!commands"},
         { CommandType.CurrentSong,  "!currentsong"},
+        { CommandType.Date,         "!date" },
         { CommandType.Discord,      "!discord"},
         { CommandType.FollowAge,    "!followage"},
         { CommandType.RequestSong,  "!requestsong"},
@@ -117,22 +119,24 @@ public sealed partial class TwitchBot : Node
         { CommandType.SetPlaylist,  "!setplaylist"},
         { CommandType.SkipSong,     "!skipsong"},
         { CommandType.TextToSpeech, "!tts" },
-        { CommandType.YouTube,      "!youtube"}
+        { CommandType.Time,         "!time" },
+        { CommandType.YouTube,      "!youtube" }
     };
 
     private readonly Dictionary<AutomatedMessageType, string> c_automatedMessages = new()
     {
         { AutomatedMessageType.Commands, "Check the Socials section below for a list of available bot commands @ https://www.twitch.tv/SmoothDagger/About" },
-        { AutomatedMessageType.Discord,  "Join the Discord @ https://www.discord.gg/SmoothCrew" },
+        { AutomatedMessageType.Discord,  "Join the Discord @ \nhttps://www.discord.gg/SmoothCrew" },
         { AutomatedMessageType.Rules,    "Make sure you're following the rules! Find them below in the rules section @ https://www.twitch.tv/SmoothDagger/About" },
         { AutomatedMessageType.Twitch,   "Enjoying the stream? Tap that follow button to get notified for any live streams!" },
-        { AutomatedMessageType.YouTube,  "Subscribe on YouTube @ https://www.youtube.com/@SmoothDagger" },
+        { AutomatedMessageType.YouTube,  "Subscribe on YouTube @ \nhttps://www.youtube.com/@SmoothDagger" },
     };
     private readonly Dictionary<CommandType, double> c_commandTimers = new()
     {
         { CommandType.Age,          0d },
         { CommandType.Commands,     0d },
         { CommandType.CurrentSong,  0d },
+        { CommandType.Date,         0d },
         { CommandType.Discord,      0d },
         { CommandType.FollowAge,    0d },
         { CommandType.RequestSong,  0d },
@@ -140,6 +144,7 @@ public sealed partial class TwitchBot : Node
         { CommandType.SetPlaylist,  0d },
         { CommandType.SkipSong,     0d },
         { CommandType.TextToSpeech, 0d },
+        { CommandType.Time,         0d },
         { CommandType.YouTube,      0d },
     };
     private readonly Dictionary<CommandType, double> c_commandCooldowns = new()
@@ -147,6 +152,7 @@ public sealed partial class TwitchBot : Node
         { CommandType.Age,          1d   },
         { CommandType.Commands,     30d  },
         { CommandType.CurrentSong,  10d  },
+        { CommandType.Date,         10d  },
         { CommandType.Discord,      30d  },
         { CommandType.FollowAge,    1d   },
         { CommandType.RequestSong,  10d  },
@@ -154,6 +160,7 @@ public sealed partial class TwitchBot : Node
         { CommandType.SetPlaylist,  300d },
         { CommandType.SkipSong,     30d  },
         { CommandType.TextToSpeech, 1d   },
+        { CommandType.Time,         10d  },
         { CommandType.YouTube,      30d  },
     };
 
@@ -568,6 +575,66 @@ public sealed partial class TwitchBot : Node
         );
     }
 
+    private async void HandleWebSocketMessagePrivMsgDate(
+        WebSocketMessage webSocketMessage    
+    )
+    {
+        string text = webSocketMessage.text;
+        text = text.Replace(
+            c_commands[CommandType.Date],
+            string.Empty
+        );
+        text = text.Replace(
+            "\r\n", 
+            string.Empty
+        );
+        if (
+            string.IsNullOrEmpty(
+                text
+            )
+        )
+        {
+            DateTime dateTime = DateTime.UtcNow;
+            string message = $"The current date in UTC is {dateTime.ToString("d-MMM-yyyy")}.";
+            message = message.Replace(
+                '-',
+                ' '
+            );
+            await SendWebSocketMessage(
+                $"@reply-parent-msg-id={webSocketMessage.tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{message}"
+            );
+            AddBotChatMessage(
+                message
+            );
+        }
+        else
+        {
+            text = text.Replace(
+                " ",
+                string.Empty
+            ).ToUpper();
+
+            TimeZoneInfo timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(
+                text
+            );
+            DateTime dateTime = TimeZoneInfo.ConvertTimeFromUtc(
+                DateTime.UtcNow, 
+                timeZoneInfo
+            );
+            string message = $"The current date in {text} is {dateTime.ToString("d-MMM-yyyy")}.";
+            message = message.Replace(
+                '-',
+                ' '
+            );
+            await SendWebSocketMessage(
+                $"@reply-parent-msg-id={webSocketMessage.tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{message}"
+            );
+            AddBotChatMessage(
+                message
+            );
+        }
+    }
+
     private async void HandleWebSocketMessagePrivMsgDiscord(
         WebSocketMessage webSocketMessage
     )
@@ -775,7 +842,7 @@ public sealed partial class TwitchBot : Node
         {
             string text = webSocketMessage.text;
             text = text.Replace(
-                c_commands[CommandType.TextToSpeech],
+                c_commands[CommandType.TextToSpeech] + ' ',
                 string.Empty
             );
             m_audioManager.PlayTextToSpeech(
@@ -831,6 +898,59 @@ public sealed partial class TwitchBot : Node
             message
         );
     }
+
+    private async void HandleWebSocketMessagePrivMsgTime(
+        WebSocketMessage webSocketMessage
+    )
+    {
+        string text = webSocketMessage.text;
+        text = text.Replace(
+            c_commands[CommandType.Time],
+            string.Empty
+        );
+        text = text.Replace(
+            "\r\n",
+            string.Empty
+        );
+        if (
+            string.IsNullOrEmpty(
+                text
+            )
+        )
+        {
+            DateTime dateTime = DateTime.UtcNow;
+            string message = $"The current time in UTC is {dateTime.ToString("HH:mm:ss")}.";
+            await SendWebSocketMessage(
+                $"@reply-parent-msg-id={webSocketMessage.tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{message}"
+            );
+            AddBotChatMessage(
+                message
+            );
+        }
+        else
+        {
+            text = text.Replace(
+                " ",
+                string.Empty
+            ).ToUpper();
+
+            TimeZoneInfo timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(
+                text
+            );
+            DateTime dateTime = TimeZoneInfo.ConvertTimeFromUtc(
+                DateTime.UtcNow,
+                timeZoneInfo
+            );
+            string message = $"The current time in {text} is {dateTime.ToString("HH:mm:ss")}.";
+            await SendWebSocketMessage(
+                $"@reply-parent-msg-id={webSocketMessage.tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{message}"
+            );
+            AddBotChatMessage(
+                message
+            );
+        }
+    }
+
     private async void HandleWebSocketMessagePrivMsgYouTube(
         WebSocketMessage webSocketMessage
     )
@@ -849,6 +969,7 @@ public sealed partial class TwitchBot : Node
         string text
     )
     {
+        const int twitchMessageDelimiterLength = 2;
         string commandText = c_commands[commandType];
         int commandLength = commandText.Length;
         switch (commandType)
@@ -861,7 +982,6 @@ public sealed partial class TwitchBot : Node
             case CommandType.Rules:
             case CommandType.YouTube:
                 // \n\r
-                const int twitchMessageDelimiterLength = 2;
                 return
                     text.Length - twitchMessageDelimiterLength == commandLength &&
                     string.Compare(
@@ -871,6 +991,43 @@ public sealed partial class TwitchBot : Node
                         ).ToLower(),
                         c_commands[commandType]
                     ) == 0;
+
+            case CommandType.Date:
+            case CommandType.Time:
+                const int dateTimeExactLength = 9;
+                const int dateTimeSpaceIndex = 5;
+                const int dateTimeAbbreviationLength = 3;
+                int textLength = text.Length - twitchMessageDelimiterLength;
+                return 
+                    (
+                        textLength == commandLength &&
+                        string.Compare(
+                            text.Substr(
+                                0,
+                                commandLength
+                            ).ToLower(),
+                            c_commands[commandType]
+                        ) == 0
+                    ) ||
+                    (
+                        textLength == dateTimeExactLength &&
+                        text[dateTimeSpaceIndex] == ' ' &&
+                        string.Compare(
+                            text.Substr(
+                                0,
+                                commandLength
+                            ).ToLower(),
+                            c_commands[commandType]
+                        ) == 0 &&
+                        TimeZones.IsTimeZoneAbbreviationValid(
+                            text.Split(
+                                ' '
+                            )[1].Substr(
+                                0, 
+                                dateTimeAbbreviationLength
+                            ).ToUpper()
+                        )
+                    );
 
             case CommandType.TextToSpeech:
                 const int ttsMinimumLength = 6;
@@ -1207,6 +1364,12 @@ public sealed partial class TwitchBot : Node
                                 );
                                 break;
 
+                            case CommandType.Date:
+                                HandleWebSocketMessagePrivMsgDate(
+                                    webSocketMessage
+                                );
+                                break;
+
                             case CommandType.Discord:
                                 HandleWebSocketMessagePrivMsgDiscord(
                                     webSocketMessage
@@ -1237,6 +1400,12 @@ public sealed partial class TwitchBot : Node
                             case CommandType.TextToSpeech:
                                 HandleWebSocketMessagePrivMsgTextToSpeech(
                                     webSocketMessage
+                                );
+                                break;
+
+                            case CommandType.Time:
+                                HandleWebSocketMessagePrivMsgTime(
+                                    webSocketMessage    
                                 );
                                 break;
 

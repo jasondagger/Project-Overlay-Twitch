@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dg2tuwr23i3wt"
-path="res://.godot/imported/Icon_OneTrickStitches.png-28a02ce5991691f759fd1a39e69a9f93.ctex"
+path="res://.godot/imported/Icon_MasterStitches.png-65ac7173890ca1cb3bd77f98cf66a53e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Overlay/Textures/Icons/Icon_OneTrickStitches.png"
-dest_files=["res://.godot/imported/Icon_OneTrickStitches.png-28a02ce5991691f759fd1a39e69a9f93.ctex"]
+source_file="res://Overlay/Textures/Icons/Icon_MasterStitches.png"
+dest_files=["res://.godot/imported/Icon_MasterStitches.png-65ac7173890ca1cb3bd77f98cf66a53e.ctex"]
 
 [params]
 

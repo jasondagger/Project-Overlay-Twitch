@@ -1,4 +1,4 @@
-[gd_scene load_steps=101 format=3 uid="uid://r2tmjbhme8io"]
+[gd_scene load_steps=100 format=3 uid="uid://r2tmjbhme8io"]
 
 [ext_resource type="Script" path="res://Overlay/Scripts/Core/ApplicationManager.cs" id="1_qamig"]
 [ext_resource type="Script" path="res://Overlay/Scripts/Core/AudioManager.cs" id="2_62y76"]
