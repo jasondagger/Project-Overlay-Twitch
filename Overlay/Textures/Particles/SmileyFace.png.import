@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bl1htidfh6hrn"
-path="res://.godot/imported/RainbowL.png-c5701c5afa73add5bf38ed38fc5c8ac7.ctex"
+uid="uid://o6tx1u7yhfbq"
+path="res://.godot/imported/SmileyFace.png-761c45a6715412bed20fe06b20f8b8d2.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Emotes/Exports/RainbowL.png"
-dest_files=["res://.godot/imported/RainbowL.png-c5701c5afa73add5bf38ed38fc5c8ac7.ctex"]
+source_file="res://Overlay/Textures/Particles/SmileyFace.png"
+dest_files=["res://.godot/imported/SmileyFace.png-761c45a6715412bed20fe06b20f8b8d2.ctex"]
 
 [params]
 

@@ -1,7 +1,7 @@
 
 // https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelchatnotification
 [System.Serializable]
-public sealed partial class TwitchRequestEventSubChannelChatNotification
+public sealed class TwitchRequestEventSubChannelChatNotification
 {
     public string type { get; set; } = $"channel.chat.notification";
     public string version { get; set; } = $"1";

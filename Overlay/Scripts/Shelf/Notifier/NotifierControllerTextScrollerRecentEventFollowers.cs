@@ -1,3 +1,4 @@
+using System.Linq;
 using NodeType = NodeDirectory.NodeType;
 
 public sealed partial class NotifierControllerTextScrollerRecentEventFollowers : NotifierControllerTextScrollerRecentEvent
@@ -33,9 +34,17 @@ public sealed partial class NotifierControllerTextScrollerRecentEventFollowers :
         while (m_names.Count < c_maxNameCount)
         {
             string name = response[index++].user_name;
-            if (name.ToLower() == TwitchData.AccountUsername.ToLower())
+            if (name == TwitchData.AccountUsername)
             {
                 continue;
+            }
+            else if (
+                !name.All(
+                    char.IsAscii
+                )
+            )
+            {
+                name = response[index].user_login;
             }
 
             m_names.Enqueue(

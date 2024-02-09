@@ -549,7 +549,7 @@ public sealed partial class AudioManager : Node
 
     private void SetAudioBusVolume(
         int audioBusIndex,
-        float volume    
+        float volume
     )
     {
         float decibels = Mathf.LinearToDb(

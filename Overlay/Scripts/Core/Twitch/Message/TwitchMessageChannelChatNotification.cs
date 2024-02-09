@@ -1,4 +1,5 @@
 
+[System.Serializable]
 public sealed class TwitchMessageChannelChatNotification : TwitchMessage
 {
     public TwitchWebSocketMessagePayloadEventChannelChatNotification @event { get; set; } = new();

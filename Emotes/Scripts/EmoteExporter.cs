@@ -104,36 +104,36 @@ public sealed partial class EmoteExporter : Node
                 for (int i = 0; i < m_imageLayers.Count; i++)
                 {
                     Image imageEmote = m_imageLayers[i].emote;
-                    //Image imageOutline = m_imageLayers[i].outline;
-                    //Image imageOutput = Image.Create(
-                    //    c_textureWidth,
-                    //    c_textureHeight,
-                    //    false,
-                    //    Image.Format.Rgba8
-                    //);
-                    //
-                    //for (int x = 0; x < c_textureWidth; x++)
-                    //{
-                    //    for (int y = 0; y < c_textureHeight; y++)
-                    //    {
-                    //        Color pixelColorEmote = imageEmote.GetPixel(
-                    //            x,
-                    //            y
-                    //        );
-                    //        Color pixelColorOutline = imageOutline.GetPixel(
-                    //            x,
-                    //            y
-                    //        );
-                    //
-                    //        imageOutput.SetPixel(
-                    //            x,
-                    //            y,
-                    //            pixelColorEmote == c_imageBackgroundColorEmote ? pixelColorOutline : pixelColorEmote
-                    //        );
-                    //    }
-                    //}
+                    Image imageOutline = m_imageLayers[i].outline;
+                    Image imageOutput = Image.Create(
+                        c_textureWidth,
+                        c_textureHeight,
+                        false,
+                        Image.Format.Rgba8
+                    );
+                    
+                    for (int x = 0; x < c_textureWidth; x++)
+                    {
+                        for (int y = 0; y < c_textureHeight; y++)
+                        {
+                            Color pixelColorEmote = imageEmote.GetPixel(
+                                x,
+                                y
+                            );
+                            Color pixelColorOutline = imageOutline.GetPixel(
+                                x,
+                                y
+                            );
+                    
+                            imageOutput.SetPixel(
+                                x,
+                                y,
+                                pixelColorEmote == c_imageBackgroundColorEmote ? pixelColorOutline : pixelColorEmote
+                            );
+                        }
+                    }
 
-                    imageEmote.SavePng(
+                    imageOutput.SavePng(
                         $"{m_exportPath}/{EmoteName}_{i}.png"
                     );
                 }

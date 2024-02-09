@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://baqbfhv7pa45i"]
+[gd_scene load_steps=14 format=3 uid="uid://baqbfhv7pa45i"]
 
 [ext_resource type="Script" path="res://Emotes/Scripts/EmoteExporter.cs" id="1_upon2"]
 [ext_resource type="ArrayMesh" uid="uid://difpmkxs5w4ft" path="res://Emotes/Rainbow/Models/Rainbow.obj" id="3_yv8fo"]
@@ -8,40 +8,26 @@
 [ext_resource type="Material" uid="uid://c0apcbu4xjur4" path="res://Emotes/Rainbow/Materials/RainbowCyan.tres" id="7_scwgj"]
 [ext_resource type="Material" uid="uid://bukxgstyjcubi" path="res://Emotes/Rainbow/Materials/RainbowBlue.tres" id="8_5romk"]
 [ext_resource type="Material" uid="uid://cq15rsxbmhny4" path="res://Emotes/Rainbow/Materials/RainbowMagenta.tres" id="9_a7jfc"]
+[ext_resource type="Material" uid="uid://cimrcssk82ttk" path="res://Emotes/Rainbow/Materials/RainbowOutline.tres" id="11_2ffy1"]
 [ext_resource type="ArrayMesh" uid="uid://mmvsj2y2ggnr" path="res://Emotes/Rainbow/Models/Clouds.obj" id="11_gl1md"]
 [ext_resource type="Material" uid="uid://c8y17myv12eim" path="res://Emotes/Rainbow/Materials/Clouds.tres" id="12_c4jxe"]
-
-[sub_resource type="Environment" id="Environment_36igw"]
-background_mode = 1
-ambient_light_source = 3
-ambient_light_color = Color(1, 1, 1, 1)
-reflected_light_source = 2
 
 [sub_resource type="Environment" id="Environment_st341"]
 background_mode = 1
 background_color = Color(0, 1, 0, 1)
+
+[sub_resource type="Environment" id="Environment_36igw"]
+background_mode = 1
+background_color = Color(0, 0, 0, 0)
+ambient_light_source = 3
+ambient_light_color = Color(1, 1, 1, 1)
+reflected_light_source = 2
 
 [node name="Main" type="Node"]
 
 [node name="SubViewportContainer" type="SubViewportContainer" parent="."]
 offset_right = 1024.0
 offset_bottom = 1024.0
-
-[node name="SubViewportEmote" type="SubViewport" parent="SubViewportContainer"]
-handle_input_locally = false
-msaa_2d = 3
-screen_space_aa = 1
-size = Vector2i(1024, 1024)
-render_target_update_mode = 4
-
-[node name="Camera3D" type="Camera3D" parent="SubViewportContainer/SubViewportEmote"]
-transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 5, 0)
-keep_aspect = 0
-cull_mask = 1048573
-environment = SubResource("Environment_36igw")
-projection = 1
-current = true
-size = 10.0
 
 [node name="SubViewportOutline" type="SubViewport" parent="SubViewportContainer"]
 handle_input_locally = false
@@ -59,6 +45,22 @@ projection = 1
 current = true
 size = 10.0
 
+[node name="SubViewportEmote" type="SubViewport" parent="SubViewportContainer"]
+handle_input_locally = false
+msaa_2d = 3
+screen_space_aa = 1
+size = Vector2i(1024, 1024)
+render_target_update_mode = 4
+
+[node name="Camera3D" type="Camera3D" parent="SubViewportContainer/SubViewportEmote"]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 5, 0)
+keep_aspect = 0
+cull_mask = 1048573
+environment = SubResource("Environment_36igw")
+projection = 1
+current = true
+size = 10.0
+
 [node name="Core" type="Node" parent="."]
 
 [node name="EmoteExporter" type="Node" parent="Core"]
@@ -67,10 +69,10 @@ EmoteName = "Rainbow"
 
 [node name="3D" type="Node3D" parent="."]
 
-[node name="Rainbow" type="Node3D" parent="3D"]
+[node name="Rainbow2" type="Node3D" parent="3D"]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.26346, 0, 10)
 
-[node name="Rainbow" type="MeshInstance3D" parent="3D/Rainbow"]
+[node name="Rainbow" type="MeshInstance3D" parent="3D/Rainbow2"]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, 0)
 mesh = ExtResource("3_yv8fo")
 skeleton = NodePath("../..")
@@ -81,8 +83,30 @@ surface_material_override/3 = ExtResource("9_a7jfc")
 surface_material_override/4 = ExtResource("4_5gdhj")
 surface_material_override/5 = ExtResource("5_nrqo4")
 
-[node name="Clouds" type="MeshInstance3D" parent="3D/Rainbow"]
+[node name="Clouds" type="MeshInstance3D" parent="3D/Rainbow2"]
 transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 1.07287, 0, 6)
 mesh = ExtResource("11_gl1md")
 skeleton = NodePath("../..")
 surface_material_override/0 = ExtResource("12_c4jxe")
+
+[node name="Outline" type="Node3D" parent="3D"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.26346, 0, 10)
+
+[node name="Rainbow" type="MeshInstance3D" parent="3D/Outline"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, 0)
+layers = 2
+mesh = ExtResource("3_yv8fo")
+skeleton = NodePath("../../Rainbow2")
+surface_material_override/0 = ExtResource("11_2ffy1")
+surface_material_override/1 = ExtResource("11_2ffy1")
+surface_material_override/2 = ExtResource("11_2ffy1")
+surface_material_override/3 = ExtResource("11_2ffy1")
+surface_material_override/4 = ExtResource("11_2ffy1")
+surface_material_override/5 = ExtResource("11_2ffy1")
+
+[node name="Clouds" type="MeshInstance3D" parent="3D/Outline"]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 1.07287, 0, 6)
+layers = 2
+mesh = ExtResource("11_gl1md")
+skeleton = NodePath("../../Rainbow2")
+surface_material_override/0 = ExtResource("11_2ffy1")

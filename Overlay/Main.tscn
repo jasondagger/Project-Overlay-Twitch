@@ -1,4 +1,4 @@
-[gd_scene load_steps=100 format=3 uid="uid://r2tmjbhme8io"]
+[gd_scene load_steps=108 format=3 uid="uid://r2tmjbhme8io"]
 
 [ext_resource type="Script" path="res://Overlay/Scripts/Core/ApplicationManager.cs" id="1_qamig"]
 [ext_resource type="Script" path="res://Overlay/Scripts/Core/AudioManager.cs" id="2_62y76"]
@@ -52,12 +52,12 @@
 [ext_resource type="Script" path="res://Overlay/Scripts/Shelf/Notifier/NotifierControllerTextScrollerSocialYoutube.cs" id="60_qst2h"]
 [ext_resource type="ArrayMesh" uid="uid://b54pl52qywtdv" path="res://Overlay/Models/Bomber/Bomber_Blades.obj" id="62_bjbhb"]
 [ext_resource type="ArrayMesh" uid="uid://doy0ba8xpwocb" path="res://Overlay/Models/Bomber/Bomber_Body.obj" id="63_a1lr4"]
-[ext_resource type="Script" path="res://Overlay/Scripts/SimpleMath/SimpleRotateX.cs" id="64_7f67j"]
-[ext_resource type="Script" path="res://Overlay/Scripts/SimpleMath/SimpleTranslateX.cs" id="64_a2lxk"]
 [ext_resource type="ArrayMesh" uid="uid://cxa3xpstxadl1" path="res://Overlay/Models/Bomber/Bomber_Cockpit_Base.obj" id="64_g08td"]
 [ext_resource type="ArrayMesh" uid="uid://bjqppcp052o04" path="res://Overlay/Models/Bomber/Bomber_Cockpit_Glass.obj" id="65_8jtph"]
 [ext_resource type="Texture2D" uid="uid://caui8s0umkv3n" path="res://Overlay/Textures/Icons/Icon_Discord.png" id="65_omfnm"]
+[ext_resource type="Texture2D" uid="uid://dyou01qmkpw3e" path="res://Overlay/Textures/Particles/Cloud.png" id="65_yx55p"]
 [ext_resource type="Texture2D" uid="uid://d4ap28lomghor" path="res://Overlay/Textures/Icons/Icon_Cheer.png" id="66_iq8kd"]
+[ext_resource type="Texture2D" uid="uid://o6tx1u7yhfbq" path="res://Overlay/Textures/Particles/SmileyFace.png" id="66_ri0vm"]
 [ext_resource type="ArrayMesh" uid="uid://s8dpplidtpvc" path="res://Overlay/Models/Bomber/Bomber_Nose.obj" id="66_t02fj"]
 [ext_resource type="ArrayMesh" uid="uid://6ov2qiod0xu6" path="res://Overlay/Models/Bomber/Bomber_Propeller_Rivot.obj" id="67_1b61q"]
 [ext_resource type="Script" path="res://Overlay/Scripts/Shelf/Notifier/NotifierControllerTextScrollerEventNewCheer.cs" id="67_k6j3w"]
@@ -94,7 +94,9 @@
 [ext_resource type="ArrayMesh" uid="uid://dpqdp1kmxekp0" path="res://Overlay/Models/Bomber/Bomber_Wheel_Axel.obj" id="93_0qg4b"]
 [ext_resource type="ArrayMesh" uid="uid://dn64urcpr22yd" path="res://Overlay/Models/Bomber/Bomber_Wheel_Connector.obj" id="94_tv208"]
 [ext_resource type="ArrayMesh" uid="uid://bd52vv52irimr" path="res://Overlay/Models/Bomber/Bomber_Wheel_Rubber.obj" id="95_hsmim"]
+[ext_resource type="Material" uid="uid://f2eqaashm5fq" path="res://Overlay/Materials/Bomber/Bomber_Glass.tres" id="96_p1w3n"]
 [ext_resource type="ArrayMesh" uid="uid://de4g1heikuxd0" path="res://Overlay/Models/Bomber/Bomber_Wheel_Trim.obj" id="97_ac2pr"]
+[ext_resource type="Material" uid="uid://bgspcf0pohs23" path="res://Overlay/Materials/Bomber/Bomber_Trim.tres" id="97_ktbad"]
 
 [sub_resource type="Environment" id="Environment_mpp48"]
 background_mode = 1
@@ -113,21 +115,64 @@ data = PackedByteArray(73, 68, 51, 3, 0, 0, 0, 0, 0, 33, 84, 88, 88, 88, 0, 0, 0
 default_font = ExtResource("31_j7pkr")
 default_font_size = 3
 
+[sub_resource type="Gradient" id="Gradient_241n5"]
+offsets = PackedFloat32Array(0, 0.119705, 0.526703, 1)
+colors = PackedColorArray(1, 1, 1, 0, 0.964716, 1, 0.999942, 1, 0.721569, 1, 0.996078, 0.772549, 0.588235, 1, 0.996078, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_jj2xw"]
+gradient = SubResource("Gradient_241n5")
+
+[sub_resource type="Curve" id="Curve_yk22y"]
+_data = [Vector2(0, 0.863158), 0.0, 0.138288, 0, 0, Vector2(0.989547, 1), 0.138288, 0.0, 1, 0, Vector2(1, 1), 0.0, 0.0, 1, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_tfa1j"]
+curve = SubResource("Curve_yk22y")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_oalth"]
+lifetime_randomness = 0.2
+particle_flag_disable_z = true
+direction = Vector3(0, 0, 0)
+gravity = Vector3(0, 0, 0)
+angular_velocity_min = -2.0
+angular_velocity_max = 2.0
+orbit_velocity_min = 0.0
+orbit_velocity_max = 0.0
+angle_min = -10.0
+angle_max = 10.0
+scale_min = 0.05
+scale_max = 0.06
+scale_curve = SubResource("CurveTexture_tfa1j")
+color_ramp = SubResource("GradientTexture1D_jj2xw")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_ju1eo"]
+particle_flag_disable_z = true
+direction = Vector3(0, 0, 0)
+gravity = Vector3(0, 0, 0)
+orbit_velocity_min = 0.0
+orbit_velocity_max = 0.0
+scale_min = 0.05
+scale_max = 0.05
+color = Color(0.819608, 0.964706, 1, 1)
+
 [node name="Main" type="Node"]
 
 [node name="SubViewportContainer" type="SubViewportContainer" parent="."]
+visible = false
 offset_right = 1920.0
 offset_bottom = 1080.0
 
 [node name="SubViewport" type="SubViewport" parent="SubViewportContainer"]
+transparent_bg = true
 handle_input_locally = false
 msaa_2d = 3
 screen_space_aa = 1
 size = Vector2i(2560, 1440)
-render_target_update_mode = 4
+render_target_update_mode = 0
 
 [node name="Camera3D" type="Camera3D" parent="SubViewportContainer/SubViewport"]
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0)
+visible = false
 keep_aspect = 0
 environment = SubResource("Environment_mpp48")
 projection = 1
@@ -1134,16 +1179,37 @@ pivot_offset = Vector2(13, 13)
 texture = ExtResource("88_qtord")
 expand_mode = 1
 
+[node name="Node2D" type="Node2D" parent="2D"]
+position = Vector2(2407, 1192)
+
+[node name="GPUParticles2D" type="GPUParticles2D" parent="2D/Node2D"]
+position = Vector2(0, 1)
+amount = 30
+process_material = SubResource("ParticleProcessMaterial_oalth")
+texture = ExtResource("65_yx55p")
+lifetime = 5.0
+fixed_fps = 0
+local_coords = true
+
+[node name="GPUParticles2D2" type="GPUParticles2D" parent="2D/Node2D/GPUParticles2D"]
+position = Vector2(1, 20)
+amount = 1
+process_material = SubResource("ParticleProcessMaterial_ju1eo")
+texture = ExtResource("66_ri0vm")
+lifetime = 5.0
+fixed_fps = 0
+local_coords = true
+
 [node name="3D" type="Node3D" parent="."]
 visible = false
 
 [node name="ChannelPointRewards" type="Node3D" parent="3D"]
+visible = false
 
 [node name="FirstBlood" type="Node3D" parent="3D/ChannelPointRewards"]
 
 [node name="Bomber2" type="Node3D" parent="3D/ChannelPointRewards/FirstBlood"]
 transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 22.2875, 4.35425, 35.637)
-script = ExtResource("64_a2lxk")
 
 [node name="Bomber_Body" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2"]
 mesh = ExtResource("63_a1lr4")
@@ -1165,8 +1231,6 @@ mesh = ExtResource("65_8jtph")
 skeleton = NodePath("../Bomber_Cockpit_Base")
 
 [node name="Bomber_Propeller" type="Node3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2"]
-script = ExtResource("64_7f67j")
-Speed = 720.0
 
 [node name="Bomber_Propeller_Rivot" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2/Bomber_Propeller"]
 mesh = ExtResource("67_1b61q")
@@ -1276,7 +1340,6 @@ skeleton = NodePath("../../Bomber_Tailwing/Bomber_Tailwing")
 
 [node name="Bomber3" type="Node3D" parent="3D/ChannelPointRewards/FirstBlood"]
 transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, -13.0287, 14.6901, 35.637)
-script = ExtResource("64_a2lxk")
 
 [node name="Bomber_Body" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3"]
 mesh = ExtResource("63_a1lr4")
@@ -1298,8 +1361,6 @@ mesh = ExtResource("65_8jtph")
 skeleton = NodePath("../Bomber_Cockpit_Base")
 
 [node name="Bomber_Propeller" type="Node3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3"]
-script = ExtResource("64_7f67j")
-Speed = 720.0
 
 [node name="Bomber_Propeller_Rivot" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3/Bomber_Propeller"]
 mesh = ExtResource("67_1b61q")
@@ -1408,8 +1469,7 @@ mesh = ExtResource("83_4h6d7")
 skeleton = NodePath("../../Bomber_Tailwing/Bomber_Tailwing")
 
 [node name="Bomber4" type="Node3D" parent="3D/ChannelPointRewards/FirstBlood"]
-transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, -0.0222082, -14.4678, 35.637)
-script = ExtResource("64_a2lxk")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0222082, -14.4678, 35.637)
 
 [node name="Bomber_Body" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4"]
 mesh = ExtResource("63_a1lr4")
@@ -1429,34 +1489,39 @@ skeleton = NodePath("../../Bomber_Tailwing/Bomber_Tailwing")
 [node name="Bomber_Cockpit_Glass" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Cockpit"]
 mesh = ExtResource("65_8jtph")
 skeleton = NodePath("../Bomber_Cockpit_Base")
+surface_material_override/0 = ExtResource("96_p1w3n")
 
 [node name="Bomber_Propeller" type="Node3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4"]
-script = ExtResource("64_7f67j")
-Speed = 720.0
 
 [node name="Bomber_Propeller_Rivot" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Propeller"]
 mesh = ExtResource("67_1b61q")
 skeleton = NodePath(".")
+surface_material_override/0 = ExtResource("97_ktbad")
 
 [node name="Bomber_Blades" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Propeller"]
 mesh = ExtResource("62_bjbhb")
 skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("97_ktbad")
 
 [node name="Bomber_Propeller_Blade_Trim_Bottom" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Propeller/Bomber_Blades"]
 mesh = ExtResource("81_cywhw")
 skeleton = NodePath("../../../Bomber_Tailwing/Bomber_Tailwing")
+surface_material_override/0 = ExtResource("67_oxxao")
 
 [node name="Bomber_Propeller_Blade_Trim_Left" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Propeller/Bomber_Blades"]
 mesh = ExtResource("82_g5bqx")
 skeleton = NodePath("../../../Bomber_Tailwing/Bomber_Tailwing")
+surface_material_override/0 = ExtResource("67_oxxao")
 
 [node name="Bomber_Propeller_Blade_Trim_Right" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Propeller/Bomber_Blades"]
 mesh = ExtResource("83_7sjk6")
 skeleton = NodePath("../../../Bomber_Tailwing/Bomber_Tailwing")
+surface_material_override/0 = ExtResource("67_oxxao")
 
 [node name="Bomber_Propeller_Blade_Trim_Top" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Propeller/Bomber_Blades"]
 mesh = ExtResource("84_r36kg")
 skeleton = NodePath("../../../Bomber_Tailwing/Bomber_Tailwing")
+surface_material_override/0 = ExtResource("67_oxxao")
 
 [node name="Bomber_Nose" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Propeller"]
 mesh = ExtResource("66_t02fj")

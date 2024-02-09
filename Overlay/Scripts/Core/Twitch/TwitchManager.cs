@@ -13,17 +13,37 @@ using PlaylistType = AudioManager.PlaylistType;
 
 public sealed partial class TwitchManager : Node
 {
-    public Action<TwitchWebSocketMessagePayloadEventChannelChatNotification> ChannelChatNotification = null;
-    public Action<TwitchWebSocketMessagePayloadEventChannelCheer> ChannelCheered = null;
-    public Action<TwitchWebSocketMessagePayloadEventChannelFollow> ChannelFollowed = null;
-    public Action<TwitchWebSocketMessagePayloadEventChannelPointsCustomRewardRedeemed> ChannelPointsCustomRewardRedeemed = null;
-    public Action<TwitchWebSocketMessagePayloadEventChannelRaid> ChannelRaided = null;
-    public Action<TwitchWebSocketMessagePayloadEventChannelSubscribe> ChannelSubscribed = null;
-    public Action<TwitchWebSocketMessagePayloadEventChannelSubscriptionGift> ChannelSubscriptionGifted = null;
+    public Action<
+        TwitchWebSocketMessagePayloadEventChannelChatNotification
+    > ChannelChatNotification = null;
+    public Action<
+        TwitchWebSocketMessagePayloadEventChannelCheer
+    > ChannelCheered = null;
+    public Action<
+        TwitchWebSocketMessagePayloadEventChannelFollow
+    > ChannelFollowed = null;
+    public Action<
+        TwitchWebSocketMessagePayloadEventChannelPointsCustomRewardRedeemed
+    > ChannelPointsCustomRewardRedeemed = null;
+    public Action<
+        TwitchWebSocketMessagePayloadEventChannelRaid
+    > ChannelRaided = null;
+    public Action<
+        TwitchWebSocketMessagePayloadEventChannelSubscribe
+    > ChannelSubscribed = null;
+    public Action<
+        TwitchWebSocketMessagePayloadEventChannelSubscriptionGift
+    > ChannelSubscriptionGifted = null;
 
-    public Action<TwitchResponseChannelFollowersData[]> FollowersRetrieved = null;
-    public Action<TwitchResponseUsersSubscribersData[]> GiftedSubscribersRetrieved = null;
-    public Action<TwitchResponseUsersSubscribersData[]> SubscribersRetrieved = null;
+    public Action<
+        TwitchResponseChannelFollowersData[]
+    > FollowersRetrieved = null;
+    public Action<
+        TwitchResponseUsersSubscribersData[]
+    > GiftedSubscribersRetrieved = null;
+    public Action<
+        TwitchResponseUsersSubscribersData[]
+    > SubscribersRetrieved = null;
 
     public override void _EnterTree()
     {
@@ -67,7 +87,7 @@ public sealed partial class TwitchManager : Node
                 case TwitchEventSubSubscriptionType.ChannelChatNotification:
                     var messageChannelNotification = message as TwitchMessageChannelChatNotification;
                     ChannelChatNotification?.Invoke(
-                        messageChannelNotification.@event    
+                        messageChannelNotification.@event
                     );
                     break;
 
@@ -460,7 +480,7 @@ public sealed partial class TwitchManager : Node
         );
     }
 
-    private bool IsHttpResponseSuccessful(
+    private bool WasHttpResponseSuccessful(
         long responseCode    
     )
     {
@@ -483,7 +503,7 @@ public sealed partial class TwitchManager : Node
     {
 #if DEBUG
         if (
-            IsHttpResponseSuccessful(
+            WasHttpResponseSuccessful(
                 responseCode
             )
         )
@@ -510,7 +530,7 @@ public sealed partial class TwitchManager : Node
     {
 #if DEBUG
         if (
-            IsHttpResponseSuccessful(
+            WasHttpResponseSuccessful(
                 responseCode
             )
         )
@@ -536,7 +556,7 @@ public sealed partial class TwitchManager : Node
     )
     {
         if (
-            IsHttpResponseSuccessful(
+            WasHttpResponseSuccessful(
                 responseCode
             )
         )
@@ -585,7 +605,7 @@ public sealed partial class TwitchManager : Node
     {
 #if DEBUG
         if (
-            IsHttpResponseSuccessful(
+            WasHttpResponseSuccessful(
                 responseCode
             )
         )
@@ -612,7 +632,7 @@ public sealed partial class TwitchManager : Node
     {
 #if DEBUG
         if (
-            IsHttpResponseSuccessful(
+            WasHttpResponseSuccessful(
                 responseCode
             )
         )
@@ -639,7 +659,7 @@ public sealed partial class TwitchManager : Node
     {
 #if DEBUG
         if (
-            IsHttpResponseSuccessful(
+            WasHttpResponseSuccessful(
                 responseCode
             )
         )
@@ -666,7 +686,7 @@ public sealed partial class TwitchManager : Node
     {
 #if DEBUG
         if (
-            IsHttpResponseSuccessful(
+            WasHttpResponseSuccessful(
                 responseCode
             )
         )
@@ -692,7 +712,7 @@ public sealed partial class TwitchManager : Node
     )
     {
         if (
-            IsHttpResponseSuccessful(
+            WasHttpResponseSuccessful(
                 responseCode
             )
         )
@@ -760,7 +780,7 @@ public sealed partial class TwitchManager : Node
     )
     {
         if (
-            IsHttpResponseSuccessful(
+            WasHttpResponseSuccessful(
                 responseCode
             )
         )
@@ -841,7 +861,7 @@ public sealed partial class TwitchManager : Node
     )
     {
         if (
-            IsHttpResponseSuccessful(
+            WasHttpResponseSuccessful(
                 responseCode
             )
         )
@@ -888,7 +908,7 @@ public sealed partial class TwitchManager : Node
     {
 #if DEBUG
         if (
-            IsHttpResponseSuccessful(
+            WasHttpResponseSuccessful(
                 responseCode
             )
         )
@@ -914,7 +934,7 @@ public sealed partial class TwitchManager : Node
     )
     {
         if (
-            IsHttpResponseSuccessful(
+            WasHttpResponseSuccessful(
                 responseCode
             )
         )
@@ -978,7 +998,7 @@ public sealed partial class TwitchManager : Node
     )
     {
         if (
-            IsHttpResponseSuccessful(
+            WasHttpResponseSuccessful(
                 responseCode
             )
         )

@@ -3,7 +3,7 @@
 [ext_resource type="Shader" path="res://Overlay/Shaders/OutlineShader.gdshader" id="1_x3djo"]
 
 [resource]
-render_priority = 0
+render_priority = -5
 shader = ExtResource("1_x3djo")
-shader_parameter/color = Color(0.0313726, 0.0431373, 0.0588235, 1)
-shader_parameter/outline = 0.3
+shader_parameter/color = Color(1, 1, 1, 1)
+shader_parameter/outline = 0.125

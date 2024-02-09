@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.WebSockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using ChannelPointRewardsType = TwitchChannelPointRewardsManager.ChannelPointRewardsType;
 using FragmentType = TwitchWebSocketMessagePayloadEventChannelChatNotificationMessageFragment.FragmentType;
@@ -23,7 +24,6 @@ public sealed partial class TwitchBot : Node
         //        $"chat%3Aread%20" +    // chat:read
         //        $"chat%3Aedit"         // chat:edit
         //);
-
         RetrieveResources();
     }
 
@@ -1575,23 +1575,27 @@ public sealed partial class TwitchBot : Node
                 );
 #endif
 
+                CancellationToken cancellationToken = new();
                 while (!m_shutdown)
                 {
-                    if (m_webSocket.State == WebSocketState.Open)
+                    if (m_webSocket.State == WebSocketState.Open && !cancellationToken.IsCancellationRequested)
                     {
                         var bytes = new byte[c_maxPacketSize];
                         var result = await m_webSocket.ReceiveAsync(
                             bytes,
-                            default
+                            cancellationToken
                         );
 
-                        HandleWebSocketMessage(
-                            Encoding.UTF8.GetString(
-                                bytes,
-                                0,
-                                result.Count
-                            )
-                        );
+                        if (result.Count > 0u)
+                        {
+                            HandleWebSocketMessage(
+                                Encoding.UTF8.GetString(
+                                    bytes,
+                                    0,
+                                    result.Count
+                                )
+                            );
+                        }
                     }
                 }
             }

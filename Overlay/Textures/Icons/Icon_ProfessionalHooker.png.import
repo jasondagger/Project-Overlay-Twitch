@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bljy4sxm3xvpp"
-path="res://.godot/imported/RainbowR.png-8e4a913310775f7c5852bd53291d3d6b.ctex"
+uid="uid://dg2tuwr23i3wt"
+path="res://.godot/imported/Icon_ProfessionalHooker.png-c9ea5284709360663b710df924bee5af.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Emotes/Exports/RainbowR.png"
-dest_files=["res://.godot/imported/RainbowR.png-8e4a913310775f7c5852bd53291d3d6b.ctex"]
+source_file="res://Overlay/Textures/Icons/Icon_ProfessionalHooker.png"
+dest_files=["res://.godot/imported/Icon_ProfessionalHooker.png-c9ea5284709360663b710df924bee5af.ctex"]
 
 [params]
 
