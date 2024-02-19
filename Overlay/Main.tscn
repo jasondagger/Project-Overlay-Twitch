@@ -116,14 +116,15 @@ default_font = ExtResource("31_j7pkr")
 default_font_size = 3
 
 [sub_resource type="Gradient" id="Gradient_241n5"]
-offsets = PackedFloat32Array(0, 0.119705, 0.526703, 1)
-colors = PackedColorArray(1, 1, 1, 0, 0.964716, 1, 0.999942, 1, 0.721569, 1, 0.996078, 0.772549, 0.588235, 1, 0.996078, 0)
+offsets = PackedFloat32Array(0, 0.119705, 0.335677, 1)
+colors = PackedColorArray(1, 1, 1, 0, 0.964716, 1, 0.999942, 1, 0.721569, 1, 0.996078, 0.772549, 0, 0.715586, 0.715851, 0)
 
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_jj2xw"]
 gradient = SubResource("Gradient_241n5")
+use_hdr = true
 
 [sub_resource type="Curve" id="Curve_yk22y"]
-_data = [Vector2(0, 0.863158), 0.0, 0.138288, 0, 0, Vector2(0.989547, 1), 0.138288, 0.0, 1, 0, Vector2(1, 1), 0.0, 0.0, 1, 0]
+_data = [Vector2(0, 0.8), 0.0, 0.138288, 0, 0, Vector2(0.989547, 1), 0.202113, 0.0, 1, 0, Vector2(1, 1), 0.0, 0.0, 1, 0]
 point_count = 3
 
 [sub_resource type="CurveTexture" id="CurveTexture_tfa1j"]
@@ -140,10 +141,12 @@ orbit_velocity_min = 0.0
 orbit_velocity_max = 0.0
 angle_min = -10.0
 angle_max = 10.0
-scale_min = 0.05
+scale_min = 0.06
 scale_max = 0.06
 scale_curve = SubResource("CurveTexture_tfa1j")
 color_ramp = SubResource("GradientTexture1D_jj2xw")
+hue_variation_min = 1.0
+hue_variation_max = 1.0
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_ju1eo"]
 particle_flag_disable_z = true
@@ -307,6 +310,7 @@ position = Vector2(32, 906)
 script = ExtResource("25_3slto")
 
 [node name="ChatPivot" type="Control" parent="2D/TwitchChatManager"]
+visible = false
 layout_mode = 3
 anchors_preset = 0
 offset_left = 6.0
@@ -1182,7 +1186,7 @@ expand_mode = 1
 [node name="Node2D" type="Node2D" parent="2D"]
 position = Vector2(2407, 1192)
 
-[node name="GPUParticles2D" type="GPUParticles2D" parent="2D/Node2D"]
+[node name="Cloud" type="GPUParticles2D" parent="2D/Node2D"]
 position = Vector2(0, 1)
 amount = 30
 process_material = SubResource("ParticleProcessMaterial_oalth")
@@ -1190,8 +1194,9 @@ texture = ExtResource("65_yx55p")
 lifetime = 5.0
 fixed_fps = 0
 local_coords = true
+trail_lifetime = 0.17
 
-[node name="GPUParticles2D2" type="GPUParticles2D" parent="2D/Node2D/GPUParticles2D"]
+[node name="Smile" type="GPUParticles2D" parent="2D/Node2D/Cloud"]
 position = Vector2(1, 20)
 amount = 1
 process_material = SubResource("ParticleProcessMaterial_ju1eo")
@@ -1204,7 +1209,6 @@ local_coords = true
 visible = false
 
 [node name="ChannelPointRewards" type="Node3D" parent="3D"]
-visible = false
 
 [node name="FirstBlood" type="Node3D" parent="3D/ChannelPointRewards"]
 

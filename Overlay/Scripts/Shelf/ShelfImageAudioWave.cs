@@ -38,8 +38,6 @@ public sealed partial class ShelfImageAudioWave : ShelfImage
     private const int c_waveDataSampleCount = 64;
     private const int c_waveDataCount = c_waveDataSampleCount * 2;
 
-    private AudioEffectSpectrumAnalyzerInstance m_audioEffectInstance = null;
-    private AudioManager m_audioManager = null;
     private PastelInterpolator m_pastelInterpolator = null;
     private Image m_imageMask = null;
     private Image m_imageWave = null;
@@ -61,48 +59,13 @@ public sealed partial class ShelfImageAudioWave : ShelfImage
 
     private void CalculateSoundtrackSoundWaveData()
     {
-        bool hasSoundPlaying = !m_audioManager.IsMuted();
-        if (hasSoundPlaying)
+        for (int i = 0; i < c_waveDataSampleCount; i++)
         {
-            const float maxFrequency = 5750f;
-            const float minDecibels = 82f;
+            int leftWaveIndex = i;
+            m_waveData[leftWaveIndex] = 0f;
 
-            float hertzPrevious = 0f;
-            for (int i = 0; i < c_waveDataSampleCount; i++)
-            {
-                float hertzCurrent = (i + 1u) * maxFrequency / c_waveDataSampleCount;
-                Vector2 magnitude = m_audioEffectInstance.GetMagnitudeForFrequencyRange(
-                    hertzPrevious,
-                    hertzCurrent
-                );
-                float currentDecibels = Mathf.LinearToDb(
-                    magnitude.Length()
-                );
-                float energy = Mathf.Clamp(
-                    (minDecibels + currentDecibels) / minDecibels,
-                    0f,
-                    1f
-                );
-
-                hertzPrevious = hertzCurrent;
-
-                int leftWaveIndex = i;
-                m_waveData[leftWaveIndex] = energy;
-
-                int rightWaveIndex = c_waveDataCount - 1 - i;
-                m_waveData[rightWaveIndex] = energy;
-            }
-        }
-        else
-        {
-            for (int i = 0; i < c_waveDataSampleCount; i++)
-            {
-                int leftWaveIndex = i;
-                m_waveData[leftWaveIndex] = 0f;
-
-                int rightWaveIndex = c_waveDataCount - 1 - i;
-                m_waveData[rightWaveIndex] = 0f;
-            }
+            int rightWaveIndex = c_waveDataCount - 1 - i;
+            m_waveData[rightWaveIndex] = 0f;
         }
     }
 
@@ -197,13 +160,6 @@ public sealed partial class ShelfImageAudioWave : ShelfImage
 
     private void RetrieveResources()
     {
-        m_audioEffectInstance = (AudioEffectSpectrumAnalyzerInstance)AudioServer.GetBusEffectInstance(
-            (int)BusLayoutType.Soundtrack,
-            (int)BusLayoutSoundtrackEffectType.SpectrumAnalyzer
-        );
-        m_audioManager = GetNode<AudioManager>(
-            NodeDirectory.NodePaths[NodeType.AudioManager]
-        );
         m_pastelInterpolator = GetNode<PastelInterpolator>(
             NodeDirectory.NodePaths[NodeType.PastelInterpolator]
         );

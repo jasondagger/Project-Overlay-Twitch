@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using ChannelPointRewardsType = TwitchChannelPointRewardsManager.ChannelPointRewardsType;
 using FragmentType = TwitchWebSocketMessagePayloadEventChannelChatNotificationMessageFragment.FragmentType;
 using NodeType = NodeDirectory.NodeType;
-using PlaylistType = AudioManager.PlaylistType;
 
 public sealed partial class TwitchBot : Node
 {
@@ -84,14 +83,10 @@ public sealed partial class TwitchBot : Node
     {
         Age = 0u,
         Commands,
-        CurrentSong,
         Date,
         Discord,
         FollowAge,
-        RequestSong,
         Rules,
-        SetPlaylist,
-        SkipSong,
         TextToSpeech,
         Time,
         YouTube
@@ -110,14 +105,10 @@ public sealed partial class TwitchBot : Node
     {
         { CommandType.Age,          "!age"},
         { CommandType.Commands,     "!commands"},
-        { CommandType.CurrentSong,  "!currentsong"},
         { CommandType.Date,         "!date" },
         { CommandType.Discord,      "!discord"},
         { CommandType.FollowAge,    "!followage"},
-        { CommandType.RequestSong,  "!requestsong"},
         { CommandType.Rules,        "!rules"},
-        { CommandType.SetPlaylist,  "!setplaylist"},
-        { CommandType.SkipSong,     "!skipsong"},
         { CommandType.TextToSpeech, "!tts" },
         { CommandType.Time,         "!time" },
         { CommandType.YouTube,      "!youtube" }
@@ -135,14 +126,10 @@ public sealed partial class TwitchBot : Node
     {
         { CommandType.Age,          0d },
         { CommandType.Commands,     0d },
-        { CommandType.CurrentSong,  0d },
         { CommandType.Date,         0d },
         { CommandType.Discord,      0d },
         { CommandType.FollowAge,    0d },
-        { CommandType.RequestSong,  0d },
         { CommandType.Rules,        0d },
-        { CommandType.SetPlaylist,  0d },
-        { CommandType.SkipSong,     0d },
         { CommandType.TextToSpeech, 0d },
         { CommandType.Time,         0d },
         { CommandType.YouTube,      0d },
@@ -151,14 +138,10 @@ public sealed partial class TwitchBot : Node
     {
         { CommandType.Age,          1d   },
         { CommandType.Commands,     30d  },
-        { CommandType.CurrentSong,  10d  },
         { CommandType.Date,         10d  },
         { CommandType.Discord,      30d  },
         { CommandType.FollowAge,    1d   },
-        { CommandType.RequestSong,  10d  },
         { CommandType.Rules,        30d  },
-        { CommandType.SetPlaylist,  300d },
-        { CommandType.SkipSong,     30d  },
         { CommandType.TextToSpeech, 1d   },
         { CommandType.Time,         10d  },
         { CommandType.YouTube,      30d  },
@@ -562,19 +545,6 @@ public sealed partial class TwitchBot : Node
         );
     }
 
-    private async void HandleWebSocketMessagePrivMsgCurrentSong(
-        WebSocketMessage webSocketMessage
-    )
-    {
-        string message = $"Current Song: '{m_audioManager.GetCurrentSongName()}'";
-        await SendWebSocketMessage(
-            $"@reply-parent-msg-id={webSocketMessage.tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{message}"
-        );
-        AddBotChatMessage(
-            message
-        );
-    }
-
     private async void HandleWebSocketMessagePrivMsgDate(
         WebSocketMessage webSocketMessage    
     )
@@ -718,19 +688,6 @@ public sealed partial class TwitchBot : Node
         );
     }
 
-    private async void HandleWebSocketMessagePrivMsgRequestSong(
-        WebSocketMessage webSocketMessage
-    )
-    {
-        string message = $"Current Song: '{m_audioManager.GetCurrentSongName()}'";
-        await SendWebSocketMessage(
-            $"@reply-parent-msg-id={webSocketMessage.tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{message}"
-        );
-        AddBotChatMessage(
-            message
-        );
-    }
-
     private async void HandleWebSocketMessagePrivMsgRules(
         WebSocketMessage webSocketMessage
     )
@@ -742,94 +699,6 @@ public sealed partial class TwitchBot : Node
         AddBotChatMessage(
             message
         );
-    }
-
-    private async void HandleWebSocketMessagePrivMsgSetPlaylist(
-        WebSocketMessage webSocketMessage
-    )
-    {
-        if (
-            m_twitchChannelPointRewardsManager.HasRewardAvailable(
-                webSocketMessage.username,
-                ChannelPointRewardsType.CommandSetPlaylist
-            )
-        )
-        {
-            string subCommand = ParseTextSubCommand(
-                webSocketMessage.text
-            );
-
-            var currentPlaylistName = m_audioManager.GetCurrentPlaylistName();
-            if (subCommand == currentPlaylistName)
-            {
-                m_twitchManager.RefundCustomChannelPointReward(
-                    ChannelPointRewardsType.CommandSetPlaylist,
-                    webSocketMessage.tags["id"]
-                );
-                await SendWebSocketMessage(
-                    $"@reply-parent-msg-id={webSocketMessage.tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :This playlist is already playing. Your points have been refunded. Please check for valid playlist names in the Channel Point Reward prompt."
-                );
-                return;
-            }
-
-            bool isSubCommandValid = false;
-            PlaylistType targetPlaylistType = PlaylistType.Count;
-            var playlistTypes = Enum.GetValues<PlaylistType>();
-            foreach (var playlistType in playlistTypes)
-            {
-                if (playlistType == PlaylistType.Count)
-                {
-                    continue;
-                }
-
-                if (subCommand.ToLower() == playlistType.ToString().ToLower())
-                {
-                    isSubCommandValid = true;
-                    targetPlaylistType = playlistType;
-                    break;
-                }
-            }
-
-            string id = m_twitchChannelPointRewardsManager.GetRewardId(
-                webSocketMessage.username,
-                ChannelPointRewardsType.CommandSetPlaylist
-            );
-            if (isSubCommandValid)
-            {
-                m_audioManager.QueuePlaylist(
-                    targetPlaylistType
-                );
-                m_twitchManager.ClaimCustomChannelPointReward(
-                    ChannelPointRewardsType.CommandSetPlaylist,
-                    id
-                );
-                await SendWebSocketMessage(
-                    $"@reply-parent-msg-id={webSocketMessage.tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :Playlist updated to '{targetPlaylistType}'."
-                );
-                c_commandTimers[CommandType.SetPlaylist] = c_commandCooldowns[CommandType.SetPlaylist];
-            }
-            else
-            {
-                m_twitchManager.RefundCustomChannelPointReward(
-                    ChannelPointRewardsType.CommandSetPlaylist,
-                    id
-                );
-                await SendWebSocketMessage(
-                    $"@reply-parent-msg-id={webSocketMessage.tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :Invalid playlist name. Your points have been refunded. Please check for valid playlist names in the Channel Point Reward prompt."
-                );
-            }
-
-            m_twitchChannelPointRewardsManager.ClaimReward(
-                webSocketMessage.username,
-                id
-            );
-        }
-        else
-        {
-            await SendWebSocketMessage(
-                $"@reply-parent-msg-id={webSocketMessage.tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :Claim Channel Point Reward 'Set Playlist' to use this command."
-            );
-        }
     }
 
     private async void HandleWebSocketMessagePrivMsgTextToSpeech(
@@ -975,7 +844,6 @@ public sealed partial class TwitchBot : Node
         switch (commandType)
         {
             case CommandType.Age:
-            case CommandType.CurrentSong:
             case CommandType.Discord:
             case CommandType.Commands:
             case CommandType.FollowAge:
@@ -1047,7 +915,6 @@ public sealed partial class TwitchBot : Node
                         text[ttsFirstCharacterIndex]
                     );
 
-            case CommandType.SetPlaylist:
             default:
                 return false;
         }
@@ -1358,12 +1225,6 @@ public sealed partial class TwitchBot : Node
                                 );
                                 break;
 
-                            case CommandType.CurrentSong:
-                                HandleWebSocketMessagePrivMsgCurrentSong(
-                                    webSocketMessage
-                                );
-                                break;
-
                             case CommandType.Date:
                                 HandleWebSocketMessagePrivMsgDate(
                                     webSocketMessage
@@ -1376,25 +1237,10 @@ public sealed partial class TwitchBot : Node
                                 );
                                 break;
 
-                            case CommandType.RequestSong:
-                                HandleWebSocketMessagePrivMsgRequestSong(
-                                    webSocketMessage
-                                );
-                                break;
-
                             case CommandType.Rules:
                                 HandleWebSocketMessagePrivMsgRules(
                                     webSocketMessage
                                 );
-                                break;
-
-                            case CommandType.SetPlaylist:
-                                HandleWebSocketMessagePrivMsgSetPlaylist(
-                                    webSocketMessage
-                                );
-                                break;
-
-                            case CommandType.SkipSong:
                                 break;
 
                             case CommandType.TextToSpeech:

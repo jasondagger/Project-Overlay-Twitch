@@ -13,8 +13,6 @@ public sealed partial class AudioManager : Node
     {
         RetrieveResources();
         RetrieveSoundAlerts();
-        RetrievePlaylists();
-        BindInputEvents();
         BindTwitchChannelPointRewards();
         BindTwitchCheer();
     }
@@ -30,44 +28,12 @@ public sealed partial class AudioManager : Node
                 soundAlertType
             );
         }
-
-        if (m_isPlaylistQueued)
-        {
-            PlayQueuedPlaylist(
-                m_queuedPlaylistType    
-            );
-        }
-        else if (!m_currentSong.Playing)
-        {
-            PlayNextSong();
-        }
-    }
-
-    public override void _Ready()
-    {
-        PlaylistType randomPlaylist = (PlaylistType)(GD.Randi() % (uint)PlaylistType.Count);
-        PlayQueuedPlaylist(
-            randomPlaylist
-        );
     }
 
     public enum BusLayoutType : uint
     {
         Master = 0u,
-        Soundtrack,
         SoundAlert
-    }
-
-    public enum BusLayoutSoundtrackEffectType : uint
-    {
-        SpectrumAnalyzer = 0u
-    }
-
-    public enum PlaylistType : uint
-    {
-        Gaming = 0u,
-        Lofi,
-        Count
     }
 
     public enum SoundAlertType : uint
@@ -83,28 +49,7 @@ public sealed partial class AudioManager : Node
         Nice,
     }
 
-    public Action ChangedPlaylist = null;
     public Action ChangedSoundtrack = null;
-
-    public string GetCurrentPlaylistName()
-    {
-        return m_currentPlaylistType.ToString();
-    }
-
-    public PlaylistType GetCurrentPlaylistType()
-    {
-        return m_currentPlaylistType;
-    }
-
-    public string GetCurrentSongName()
-    {
-        return m_playlists[m_currentPlaylistType][m_currentSongIndex].Name;
-    }
-
-    public bool IsMuted()
-    {
-        return m_isMuted || m_currentVolume == 0f;
-    }
 
     public void PlayTextToSpeech(
         string text    
@@ -116,52 +61,14 @@ public sealed partial class AudioManager : Node
         );
     }
 
-    public void QueuePlaylist(
-        PlaylistType playlistType
-    )
-    {
-        m_queuedPlaylistType = playlistType;
-        m_isPlaylistQueued = true;
-    }
-
-    public void SkipSong()
-    {
-        StopCurrentSong();
-    }
-
-    private const float c_volumeIncrement = 0.0075f;
     private const int c_minimumBitsForTextToSpeech = 50;
     private const int c_soundAlertDelayInMilliseconds = 1000;
     private const int c_songStartIndex = -1;
-    private const string c_audioBusSong = "Song";
 
-    private Dictionary<PlaylistType, List<AudioStreamPlayer>> m_playlists = new();
     private Dictionary<SoundAlertType, AudioStreamPlayer> m_soundAlerts = new();
     private Queue<SoundAlertType> m_soundAlertsQueue = new();
-    private PlaylistType m_currentPlaylistType = PlaylistType.Lofi;
-    private PlaylistType m_queuedPlaylistType = PlaylistType.Lofi;
-    private AudioStreamPlayer m_currentSong = null;
-    private bool m_isMuted = false;
     private bool m_isSoundAlertPlaying = false;
-    private bool m_isPlaylistQueued = false;
-    private float m_currentVolume = 1f;
-    private int m_audioBusIndexSong = 0;
-    private int m_currentSongIndex = c_songStartIndex;
     private string m_textToSpeechId = string.Empty;
-
-    private void BindInputEvents()
-    {
-        var inputManager = GetNode<InputManager>(
-            NodeDirectory.NodePaths[NodeType.InputManager]
-        );
-
-        inputManager.KeyBindPressed[KeyBindType.AudioManagerPlaylistGaming] += OnPressedPlaylistGaming;
-        inputManager.KeyBindPressed[KeyBindType.AudioManagerPlaylistLofi] += OnPressedPlaylistLofi;
-        inputManager.KeyBindPressed[KeyBindType.AudioManagerSoundtrackNext] += OnPressedSongNext;
-        inputManager.KeyBindPressed[KeyBindType.AudioManagerToggleMute] += OnPressedSongToggleMute;
-        inputManager.KeyBindPressing[KeyBindType.AudioManagerVolumeDown] += OnPressingSongVolumeDecrease;
-        inputManager.KeyBindPressing[KeyBindType.AudioManagerVolumeUp] += OnPressingSongVolumeIncrease;
-    }
 
     private void BindTwitchChannelPointRewards()
     {
@@ -196,7 +103,7 @@ public sealed partial class AudioManager : Node
         const int secondsToMilliseconds = 1000;
         double length = stream.GetLength();
         return Mathf.RoundToInt(
-           stream.GetLength() * secondsToMilliseconds
+           length * secondsToMilliseconds
         );
     }
 
@@ -294,107 +201,6 @@ public sealed partial class AudioManager : Node
         );
     }
 
-    private void OnPressedPlaylistGaming()
-    {
-        QueuePlaylist(
-            PlaylistType.Gaming
-        );
-    }
-
-    private void OnPressedPlaylistLofi()
-    {
-        QueuePlaylist(
-            PlaylistType.Lofi
-        );
-    }
-
-    private void OnPressedSongNext()
-    {
-        StopCurrentSong();
-    }
-
-    private void OnPressedSongToggleMute()
-    {
-        SetAudioBusVolume(
-            m_audioBusIndexSong,
-            m_isMuted ? m_currentVolume : 0f
-        );
-        m_isMuted = !m_isMuted;
-
-#if DEBUG
-        GD.Print(
-            $"{nameof(AudioManager)}.{nameof(OnPressedSongToggleMute)}() - Song {(m_isMuted ? "muted" : "unmuted")}."
-        );
-#endif
-    }
-
-    private void OnPressingSongVolumeIncrease()
-    {
-        if (m_currentVolume < 1f)
-        {
-            m_currentVolume += c_volumeIncrement;
-            if (m_currentVolume > 1f)
-            {
-                m_currentVolume = 1f;
-            }
-
-            SetAudioBusVolume(
-                m_audioBusIndexSong,
-                m_currentVolume
-            );
-        }
-    }
-
-    private void OnPressingSongVolumeDecrease()
-    {
-        if (m_currentVolume > 0f)
-        {
-            m_currentVolume -= c_volumeIncrement;
-            if (m_currentVolume < 0f)
-            {
-                m_currentVolume = 0f;
-            }
-
-            SetAudioBusVolume(
-                m_audioBusIndexSong,
-                m_currentVolume
-            );
-        }
-    }
-
-    private void PlayNextSong()
-    {
-        if (++m_currentSongIndex == m_playlists[m_currentPlaylistType].Count)
-        {
-            m_currentSongIndex = 0;
-        }
-
-        m_currentSong = m_playlists[m_currentPlaylistType][m_currentSongIndex];
-        m_currentSong.Play();
-        ChangedSoundtrack?.Invoke();
-
-#if DEBUG
-        GD.Print(
-            $"{nameof(AudioManager)}.{nameof(PlayNextSong)}() - Playing song '{m_currentSong.Name}'."
-        );
-#endif
-    }
-
-    private void PlayQueuedPlaylist(
-        PlaylistType playlistType
-    )
-    {
-        StopCurrentSong();
-
-        m_currentPlaylistType = playlistType;
-        m_currentSongIndex = c_songStartIndex;
-        m_isPlaylistQueued = false;
-
-        PlayNextSong();
-
-        ChangedPlaylist?.Invoke();
-    }
-
     private async void PlaySoundAlert(
         SoundAlertType soundAlertType
     )
@@ -419,89 +225,8 @@ public sealed partial class AudioManager : Node
         m_isSoundAlertPlaying = false;
     }
 
-    private void RetrievePlaylists()
-    {
-#if DEBUG
-        GD.Print(
-            $"{nameof(AudioManager)}.{nameof(RetrievePlaylists)}() - Retrieving playlists."
-        );
-#endif
-
-        Random random = new();
-        const string nodeNamePlaylists = "Playlists";
-        var nodePlaylists = GetNode(
-            nodeNamePlaylists
-        );
-        var playlistTypes = Enum.GetValues<PlaylistType>();
-        foreach (var playlistType in playlistTypes)
-        {
-            if (playlistType == PlaylistType.Count)
-            {
-                continue;
-            }
-
-            var nodes = nodePlaylists.GetNode(
-                playlistType.ToString()
-            ).GetChildren();
-
-            m_playlists.Add(
-                playlistType,
-                new()
-            );
-
-            List<AudioStreamPlayer> randomizedList = new();
-            foreach (var node in nodes)
-            {
-                var song = node as AudioStreamPlayer;
-
-                randomizedList.Add(
-                    song
-                );
-
-#if DEBUG
-                GD.Print(
-                    $"{nameof(AudioManager)}.{nameof(RetrievePlaylists)}() - Song retrieved: {song.Name}."
-                );
-#endif
-            }
-
-            while (randomizedList.Count > 0)
-            {
-                int randomIndex = (int)(GD.Randi() % randomizedList.Count);
-                var song = randomizedList[randomIndex];
-                m_playlists[playlistType].Add(
-                    song
-                );
-
-#if DEBUG
-                GD.Print(
-                    $"{nameof(AudioManager)}.{nameof(RetrievePlaylists)}() - Song added: {song.Name}."
-                );
-#endif
-
-                randomizedList.RemoveAt(randomIndex);
-            }
-
-#if DEBUG
-            GD.Print(
-                $"{nameof(AudioManager)}.{nameof(RetrievePlaylists)}() - Number of {playlistType} Soundtracks: {m_playlists[playlistType].Count}."
-            );
-#endif
-        }
-
-#if DEBUG
-        GD.Print(
-            $"{nameof(AudioManager)}.{nameof(RetrievePlaylists)}() - Number of playlists: {m_playlists.Count}."
-        );
-#endif
-    }
-
     private void RetrieveResources()
     {
-        m_audioBusIndexSong = AudioServer.GetBusIndex(
-            c_audioBusSong
-        );
-
         var voices = DisplayServer.TtsGetVoicesForLanguage(
             "en"
         );
@@ -559,24 +284,5 @@ public sealed partial class AudioManager : Node
             audioBusIndex,
             decibels
         );
-    }
-
-    private void StopCurrentSong()
-    {
-        if (m_currentSongIndex == c_songStartIndex)
-        {
-            return;
-        }
-
-        AudioStreamPlayer songPrevious = m_playlists[m_currentPlaylistType][m_currentSongIndex];
-        if (songPrevious.Playing)
-        {
-#if DEBUG
-            GD.Print(
-                $"{nameof(AudioManager)}.{nameof(PlayQueuedPlaylist)}() - Stopping previous playlist song '{songPrevious.Name}'."
-            );
-#endif
-            songPrevious.Stop();
-        }
     }
 }

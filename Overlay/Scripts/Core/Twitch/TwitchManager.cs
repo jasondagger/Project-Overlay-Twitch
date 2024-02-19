@@ -9,7 +9,6 @@ using static Godot.HttpClient;
 using ChannelPointReward = TwitchChannelPointRewardsManager.ChannelPointReward;
 using ChannelPointRewardType = TwitchChannelPointRewardsManager.ChannelPointRewardsType;
 using NodeType = NodeDirectory.NodeType;
-using PlaylistType = AudioManager.PlaylistType;
 
 public sealed partial class TwitchManager : Node
 {
@@ -163,7 +162,6 @@ public sealed partial class TwitchManager : Node
         ConnectWebSocket();
 
         RequestChannelPointRewardAdd();
-        RequestChannelPointRewardUpdateSetPlaylist();
         RequestFollowers(
             string.Empty
         );
@@ -268,8 +266,6 @@ public sealed partial class TwitchManager : Node
         m_twitchChannelPointRewardsManager = GetNode<TwitchChannelPointRewardsManager>(
             NodeDirectory.NodePaths[NodeType.TwitchChannelPointRewardsManager]
         );
-
-        m_audioManager.ChangedPlaylist += OnAudioManagerPlaylistChanged;
     }
 
     private async void ConnectWebSocket()
@@ -487,13 +483,6 @@ public sealed partial class TwitchManager : Node
         return responseCode >= 200u && responseCode < 300u;
     }
 
-    private void OnAudioManagerPlaylistChanged()
-    {
-        Task.Run(
-            RequestChannelPointRewardUpdateSetPlaylist
-        );
-    }
-
     private void OnDeletedEventSubSubscription(
         long result,
         long responseCode,
@@ -672,33 +661,6 @@ public sealed partial class TwitchManager : Node
         {
             GD.PrintErr(
                 $"{nameof(TwitchManager)}.{nameof(RequestChannelPointRewardPatchRedeemSetPlaylist)}() - Web request POST failed with {responseCode}."
-            );
-        }
-#endif
-    }
-
-    private void OnRequestChannelPointRewardUpdatedSetPlaylist(
-        long result,
-        long responseCode,
-        string[] headers,
-        byte[] body
-    )
-    {
-#if DEBUG
-        if (
-            WasHttpResponseSuccessful(
-                responseCode
-            )
-        )
-        {
-            GD.Print(
-                $"{nameof(TwitchManager)}.{nameof(RequestChannelPointRewardUpdateSetPlaylist)}() - Web request {responseCode} POST successful."
-            );
-        }
-        else
-        {
-            GD.PrintErr(
-                $"{nameof(TwitchManager)}.{nameof(RequestChannelPointRewardUpdateSetPlaylist)}() - Web request POST failed with {responseCode}."
             );
         }
 #endif
@@ -1373,49 +1335,6 @@ public sealed partial class TwitchManager : Node
             Method.Patch,
             payload,
             OnRequestChannelPointRewardRedeemedSetPlaylist
-        );
-    }
-
-    private void RequestChannelPointRewardUpdateSetPlaylist()
-    {
-        string availablePlaylists = string.Empty;
-        var currentPlaylistType = m_audioManager.GetCurrentPlaylistType();
-        var playlistTypes = Enum.GetValues<PlaylistType>();
-        for (int i = 0; i < playlistTypes.Length; i++)
-        {
-            if (playlistTypes[i] == currentPlaylistType || playlistTypes[i] == PlaylistType.Count)
-            {
-                continue;
-            }
-
-            availablePlaylists += playlistTypes[i].ToString();
-
-            PlaylistType nextPlaylistType = playlistTypes[i + 1u];
-            if (nextPlaylistType == PlaylistType.Count)
-            {
-                break;
-            }
-            else if (nextPlaylistType != currentPlaylistType)
-            {
-                availablePlaylists += ", ";
-            }
-        }
-
-        string[] headers = new string[]
-        {
-            $"Authorization: Bearer {TwitchData.AccountAccessToken}",
-            $"Client-Id: {TwitchData.ClientId}",
-            $"Content-Type: application/json"
-        };
-        string payload = "{" +
-            $"\"prompt\":\"Type !setplaylist followed by the playlist name in chat. Available Playlists: {availablePlaylists}\"" +
-        "}";
-        m_httpManager.SendHttpRequest(
-            $"{c_urlAPI}/channel_points/custom_rewards?broadcaster_id={TwitchData.AccountId}&id={m_channelPointRewardIds[ChannelPointRewardType.CommandSetPlaylist]}",
-            headers,
-            Method.Patch,
-            payload,
-            OnRequestChannelPointRewardUpdatedSetPlaylist
         );
     }
 
