@@ -1,15 +1,36 @@
+using Newtonsoft.Json.Linq;
+using System.IO;
 
-public struct TwitchData
+public sealed class TwitchData
 {
-    public const string TwitchChannel = "SmoothDagger";
+    public static string TwitchChannel { get; private set; } = string.Empty;
 
-    public const string AccountUsername = "smoothdagger";
-    public const string AccountAccessToken = "z651h4oj43mk9m5b4cki7s1zcxq4ev";
-    public const string AccountId = "98978880";
+    public static string AccountUsername { get; private set; } = string.Empty;
+    public static string AccountAccessToken { get; private set; } = string.Empty;
+    public static string AccountId { get; private set; } = string.Empty;
 
-    public const string BotUsername = "smoothgpt";
-    public const string BotAccessToken = "hfhzuwhuxd99539hlsf9jh0te4hhd6";
+    public static string BotUsername { get; private set; } = string.Empty;
+    public static string BotAccessToken { get; private set; } = string.Empty;
 
-    public const string ClientSecret = "czufv1swolivg4935zhssyb816wozh";
-    public const string ClientId = "vf0zlx9k3mnijlxyychhuw3z5ls8km";
+    public static string ClientSecret { get; private set; } = string.Empty;
+    public static string ClientId { get; private set; } = string.Empty;
+
+    public static void Load()
+    {
+        const string path = "Resources\\Twitch\\TwitchData.json";
+        string json = File.ReadAllText(
+            path    
+        );
+        JToken jsonParse = JToken.Parse(
+            json
+        );
+        TwitchChannel      = (string)jsonParse["TwitchChannel"];
+        AccountUsername    = (string)jsonParse["AccountUsername"];
+        AccountAccessToken = (string)jsonParse["AccountAccessToken"];
+        AccountId          = (string)jsonParse["AccountId"];
+        BotUsername        = (string)jsonParse["BotUsername"];
+        BotAccessToken     = (string)jsonParse["BotAccessToken"];
+        ClientSecret       = (string)jsonParse["ClientSecret"];
+        ClientId           = (string)jsonParse["ClientId"];
+    }
 }

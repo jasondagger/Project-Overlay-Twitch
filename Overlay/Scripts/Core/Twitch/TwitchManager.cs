@@ -51,6 +51,7 @@ public sealed partial class TwitchManager : Node
         //    $"https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=vf0zlx9k3mnijlxyychhuw3z5ls8km&redirect_uri=http://localhost:3000&scope=bits%3Aread%20channel%3Aread%3Asubscriptions%20channel%3Amanage%3Aredemptions%20moderator%3Aread%3Afollowers%20user%3Aread%3Achat"
         //);
 
+        TwitchData.Load();
         RetrieveResources();
     }
 
