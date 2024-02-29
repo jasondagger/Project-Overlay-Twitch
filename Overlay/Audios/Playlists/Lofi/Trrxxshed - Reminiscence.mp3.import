@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://cmf2sfrbjrp8o"
+path="res://.godot/imported/Trrxxshed - Reminiscence.mp3-43d1713211490b8c608bfd0f3e1e02ca.mp3str"
+
+[deps]
+
+source_file="res://Overlay/Audios/Playlists/Lofi/Trrxxshed - Reminiscence.mp3"
+dest_files=["res://.godot/imported/Trrxxshed - Reminiscence.mp3-43d1713211490b8c608bfd0f3e1e02ca.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

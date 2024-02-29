@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://b6w4stncsc67a"
+path="res://.godot/imported/Glimlip x Yasper - I'm Sorry.mp3-0b1ce9c8bf9062f8b0b0389739b41162.mp3str"
+
+[deps]
+
+source_file="res://Overlay/Audios/Playlists/Lofi/Glimlip x Yasper - I'm Sorry.mp3"
+dest_files=["res://.godot/imported/Glimlip x Yasper - I'm Sorry.mp3-0b1ce9c8bf9062f8b0b0389739b41162.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

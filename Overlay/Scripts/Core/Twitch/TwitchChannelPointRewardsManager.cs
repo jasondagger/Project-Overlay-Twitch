@@ -13,7 +13,6 @@ public partial class TwitchChannelPointRewardsManager : Node
     public enum ChannelPointRewardsType : uint
     {
         CommandRequestSong = 0u,
-        CommandSetPlaylist,
 
         IRLHydrate,
         IRLNoCursing,
@@ -31,6 +30,8 @@ public partial class TwitchChannelPointRewardsManager : Node
         SoundAlertKegExplosion,
         SoundAlertKegFuse,
         SoundAlertNice,
+
+        TextToSpeech,
     }
 
     public struct ChannelPointRewardData
@@ -118,25 +119,6 @@ public partial class TwitchChannelPointRewardsManager : Node
                 string.Empty,
                 false,
                 c_channelRewardPointNames[ChannelPointRewardsType.CommandRequestSong]
-            )
-        },
-        {
-            ChannelPointRewardsType.CommandSetPlaylist,
-            new(
-                c_channelRewardPointColorTypes[ChannelRewardPointColorType.Command],
-                2000,
-                0,
-                true,
-                false,
-                false,
-                false,
-                false,
-                false,
-                0,
-                0,
-                "Set the current playlist. Read the prompt for available playlists.",
-                false,
-                c_channelRewardPointNames[ChannelPointRewardsType.CommandSetPlaylist]
             )
         },
         {
@@ -424,12 +406,29 @@ public partial class TwitchChannelPointRewardsManager : Node
                 c_channelRewardPointNames[ChannelPointRewardsType.SoundAlertNice]
             )
         },
+        {
+            ChannelPointRewardsType.TextToSpeech,
+            new(
+                c_channelRewardPointColorTypes[ChannelRewardPointColorType.TextToSpeech],
+                2000,
+                5,
+                true,
+                true,
+                false,
+                false,
+                false,
+                true,
+                0,
+                0,
+                "What would you like to hear?",
+                false,
+                c_channelRewardPointNames[ChannelPointRewardsType.TextToSpeech]
+            )
+        },
     };
 
-    public readonly Dictionary<ChannelPointRewardsType, Action> RedeemableRewards = new()
+    public readonly Dictionary<ChannelPointRewardsType, Action> RedeemableRewardsWithNoInput = new()
     {
-        { ChannelPointRewardsType.CommandRequestSong,     null },
-        { ChannelPointRewardsType.CommandSetPlaylist,     null },
         { ChannelPointRewardsType.IRLHydrate,             null },
         { ChannelPointRewardsType.IRLNoCursing,           null },
         { ChannelPointRewardsType.IRLPostureCheck,        null },
@@ -445,6 +444,12 @@ public partial class TwitchChannelPointRewardsManager : Node
         { ChannelPointRewardsType.SoundAlertKegExplosion, null },
         { ChannelPointRewardsType.SoundAlertKegFuse,      null },
         { ChannelPointRewardsType.SoundAlertNice,         null },
+    };
+
+    public readonly Dictionary<ChannelPointRewardsType, Action<string>> ReedambleRewardsWithStringInput = new()
+    {
+        { ChannelPointRewardsType.CommandRequestSong, null },
+        { ChannelPointRewardsType.TextToSpeech,       null },
     };
 
     public void ClaimReward(
@@ -542,23 +547,22 @@ public partial class TwitchChannelPointRewardsManager : Node
     private enum ChannelRewardPointColorType : uint
     {
         Command = 0u,
-        Effect,
         IRL,
-        SoundAlert,       
+        SoundAlert,    
+        TextToSpeech,
     }
 
     private static readonly Dictionary<ChannelRewardPointColorType, string> c_channelRewardPointColorTypes = new()
     {
-        { ChannelRewardPointColorType.Command,    "#FFA9FF" },
-        { ChannelRewardPointColorType.Effect,     "#FFA9A9" },
-        { ChannelRewardPointColorType.IRL,        "#FFFFA9" },
-        { ChannelRewardPointColorType.SoundAlert, "#A9FFFF" },
+        { ChannelRewardPointColorType.Command,      "#FFA9FF" },
+        { ChannelRewardPointColorType.IRL,          "#FFFFA9" },
+        { ChannelRewardPointColorType.SoundAlert,   "#A9FFFF" },
+        { ChannelRewardPointColorType.TextToSpeech, "#FFA9A9" },
     };
 
     private static readonly Dictionary<ChannelPointRewardsType, string> c_channelRewardPointNames = new()
     {
         { ChannelPointRewardsType.CommandRequestSong,     "Command: Request Song"      },
-        { ChannelPointRewardsType.CommandSetPlaylist,     "Command: Set Playlist"      },
         { ChannelPointRewardsType.IRLHydrate,             "IRL: Hydrate"               },
         { ChannelPointRewardsType.IRLNoCursing,           "IRL: No Cursing"            },
         { ChannelPointRewardsType.IRLPostureCheck,        "IRL: Posture Check"         },
@@ -574,6 +578,7 @@ public partial class TwitchChannelPointRewardsManager : Node
         { ChannelPointRewardsType.SoundAlertKegExplosion, "Sound Alert: Keg Explosion" },
         { ChannelPointRewardsType.SoundAlertKegFuse,      "Sound Alert: Keg Fuse"      },
         { ChannelPointRewardsType.SoundAlertNice,         "Sound Alert: Nice"          },
+        { ChannelPointRewardsType.TextToSpeech,           "Text To Speech"             },
     };
 
     private Dictionary<string, List<ChannelPointRewardData>> m_pendingUserRewards = new();
@@ -594,67 +599,67 @@ public partial class TwitchChannelPointRewardsManager : Node
         switch (@event.reward.title)
         {
             case "Command: Request Song":
-                RedeemableRewards[ChannelPointRewardsType.CommandRequestSong]?.Invoke();
-                break;
-
-            case "Command: Set Playlist":
-                AddPendingUserReward(
-                    @event.user_name.ToLower(),
-                    ChannelPointRewardsType.CommandSetPlaylist,
-                    @event.id
+                ReedambleRewardsWithStringInput[ChannelPointRewardsType.CommandRequestSong]?.Invoke(
+                    @event.user_input    
                 );
                 break;
 
             case "IRL: Hydrate":
-                RedeemableRewards[ChannelPointRewardsType.IRLHydrate]?.Invoke();
+                RedeemableRewardsWithNoInput[ChannelPointRewardsType.IRLHydrate]?.Invoke();
                 break;
 
             case "IRL: No Cursing":
-                RedeemableRewards[ChannelPointRewardsType.IRLNoCursing]?.Invoke();
+                RedeemableRewardsWithNoInput[ChannelPointRewardsType.IRLNoCursing]?.Invoke();
                 break;
 
             case "IRL: Posture Check":
-                RedeemableRewards[ChannelPointRewardsType.IRLPostureCheck]?.Invoke();
+                RedeemableRewardsWithNoInput[ChannelPointRewardsType.IRLPostureCheck]?.Invoke();
                 break;
 
             case "IRL: Streeeeeetch":
-                RedeemableRewards[ChannelPointRewardsType.IRLStreeeeeetch]?.Invoke();
+                RedeemableRewardsWithNoInput[ChannelPointRewardsType.IRLStreeeeeetch]?.Invoke();
                 break;
 
             case "Sound Alert: Applause":
-                RedeemableRewards[ChannelPointRewardsType.SoundAlertApplause]?.Invoke();
+                RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertApplause]?.Invoke();
                 break;
 
             case "Sound Alert: First Blood":
-                RedeemableRewards[ChannelPointRewardsType.SoundAlertFirstBlood]?.Invoke();
+                RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertFirstBlood]?.Invoke();
                 break;
 
             case "Sound Alert: Godlike":
-                RedeemableRewards[ChannelPointRewardsType.SoundAlertGodlike]?.Invoke();
+                RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertGodlike]?.Invoke();
                 break;
 
             case "Sound Alert: Heartbeat":
-                RedeemableRewards[ChannelPointRewardsType.SoundAlertHeartbeat]?.Invoke();
+                RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertHeartbeat]?.Invoke();
                 break;
 
             case "Sound Alert: Holy Shit":
-                RedeemableRewards[ChannelPointRewardsType.SoundAlertHolyShit]?.Invoke();
+                RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertHolyShit]?.Invoke();
                 break;
 
             case "Sound Alert: Howdy":
-                RedeemableRewards[ChannelPointRewardsType.SoundAlertHowdy]?.Invoke();
+                RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertHowdy]?.Invoke();
                 break;
 
             case "Sound Alert: Keg Explosion":
-                RedeemableRewards[ChannelPointRewardsType.SoundAlertKegExplosion]?.Invoke();
+                RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertKegExplosion]?.Invoke();
                 break;
 
             case "Sound Alert: Keg Fuse":
-                RedeemableRewards[ChannelPointRewardsType.SoundAlertKegFuse]?.Invoke();
+                RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertKegFuse]?.Invoke();
                 break;
 
             case "Sound Alert: Nice":
-                RedeemableRewards[ChannelPointRewardsType.SoundAlertNice]?.Invoke();
+                RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertNice]?.Invoke();
+                break;
+
+            case "Text To Speech":
+                ReedambleRewardsWithStringInput[ChannelPointRewardsType.TextToSpeech]?.Invoke(
+                    @event.user_input
+                );
                 break;
 
             default:

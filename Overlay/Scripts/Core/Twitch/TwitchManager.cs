@@ -138,25 +138,6 @@ public sealed partial class TwitchManager : Node
         }
     }
 
-    public void ClaimCustomChannelPointReward(
-        ChannelPointRewardType channelPointRewardsType,
-        string id
-    )
-    {
-        switch (channelPointRewardsType)
-        {
-            case ChannelPointRewardType.CommandSetPlaylist:
-                RequestChannelPointRewardPatchRedeemSetPlaylist(
-                    id,
-                    true
-                );
-                break;
-
-            default:
-                break;
-        }
-    }
-
     public override void _Ready()
     {
         ConnectWebSocket();
@@ -168,25 +149,6 @@ public sealed partial class TwitchManager : Node
         RequestSubscribers(
             string.Empty
         );
-    }
-
-    public void RefundCustomChannelPointReward(
-        ChannelPointRewardType channelPointRewardsType,
-        string id
-    )
-    {
-        switch (channelPointRewardsType)
-        {
-            case ChannelPointRewardType.CommandSetPlaylist:
-                RequestChannelPointRewardPatchRedeemSetPlaylist(
-                    id,
-                    false
-                );
-                break;
-
-            default:
-                break;
-        }
     }
 
     public List<TwitchResponseChannelFollowersData> GetChannelFollowers()
@@ -207,8 +169,7 @@ public sealed partial class TwitchManager : Node
 
     private readonly Dictionary<ChannelPointRewardType, string> m_channelPointRewardIds = new()
     {
-        { ChannelPointRewardType.CommandRequestSong,     "219af672-853c-438f-8d09-54b7fad7af49" },
-        { ChannelPointRewardType.CommandSetPlaylist,     "ab04cb34-6b69-4082-b632-06b18453d412" },
+        { ChannelPointRewardType.CommandRequestSong,     "dfab89a2-0015-4a1e-9cb2-456fcc5e452b" },
         { ChannelPointRewardType.IRLHydrate,             "583a4ba8-ed2d-45c7-820a-588a0c2e8a15" },
         { ChannelPointRewardType.IRLNoCursing,           "41628d62-a144-4bad-98be-99f0dabcdd02" },
         { ChannelPointRewardType.IRLPostureCheck,        "21bf998e-41e3-45ec-9d28-f54c3de85f41" },
@@ -224,6 +185,7 @@ public sealed partial class TwitchManager : Node
         { ChannelPointRewardType.SoundAlertKegExplosion, "eead1d30-b76c-40f9-9454-7872944d4281" },
         { ChannelPointRewardType.SoundAlertKegFuse,      "94e3188e-51af-4377-9815-cb8b385f669e" },
         { ChannelPointRewardType.SoundAlertNice,         "162c662b-e007-49d0-b91c-0fccd8ba9f3b" },
+        { ChannelPointRewardType.TextToSpeech,           "fef9d5e7-6482-4bf5-82cf-f63a5cb08118" },
     };
 
     private struct SubscriptionGift
@@ -612,33 +574,6 @@ public sealed partial class TwitchManager : Node
 #endif
     }
 
-    private void OnRequestChannelPointRewardRedeemedSetPlaylist(
-        long result,
-        long responseCode,
-        string[] headers,
-        byte[] body
-    )
-    {
-#if DEBUG
-        if (
-            WasHttpResponseSuccessful(
-                responseCode
-            )
-        )
-        {
-            GD.Print(
-                $"{nameof(TwitchManager)}.{nameof(RequestChannelPointRewardPatchRedeemSetPlaylist)}() - Web request {responseCode} POST successful."
-            );
-        }
-        else
-        {
-            GD.PrintErr(
-                $"{nameof(TwitchManager)}.{nameof(RequestChannelPointRewardPatchRedeemSetPlaylist)}() - Web request POST failed with {responseCode}."
-            );
-        }
-#endif
-    }
-
     private void OnRequestChannelPointRewardRedeemCanceled(
         long result,
         long responseCode,
@@ -654,13 +589,13 @@ public sealed partial class TwitchManager : Node
         )
         {
             GD.Print(
-                $"{nameof(TwitchManager)}.{nameof(RequestChannelPointRewardPatchRedeemSetPlaylist)}() - Web request {responseCode} POST successful."
+                $"{nameof(TwitchManager)}.{nameof(RequestChannelPointRewardPatchRedeemCanceled)}() - Web request {responseCode} POST successful."
             );
         }
         else
         {
             GD.PrintErr(
-                $"{nameof(TwitchManager)}.{nameof(RequestChannelPointRewardPatchRedeemSetPlaylist)}() - Web request POST failed with {responseCode}."
+                $"{nameof(TwitchManager)}.{nameof(RequestChannelPointRewardPatchRedeemCanceled)}() - Web request POST failed with {responseCode}."
             );
         }
 #endif
@@ -1313,29 +1248,6 @@ public sealed partial class TwitchManager : Node
                 OnRequestChannelPointRewardRedeemCanceled
             );
         }
-    }
-
-    private void RequestChannelPointRewardPatchRedeemSetPlaylist(
-        string id,
-        bool redeemed
-    )
-    {
-        string[] headers = new string[]
-        {
-            $"Authorization: Bearer {TwitchData.AccountAccessToken}",
-            $"Client-Id: {TwitchData.ClientId}",
-            $"Content-Type: application/json"
-        };
-        string payload = "{" +
-            $"\"status\":\"{(redeemed ? "FULFILLED" : "CANCELED")}\"" +
-        "}";
-        m_httpManager.SendHttpRequest(
-            $"{c_urlAPI}/channel_points/custom_rewards/redemptions?broadcaster_id={TwitchData.AccountId}&reward_id={m_channelPointRewardIds[ChannelPointRewardType.CommandSetPlaylist]}&id={id}",
-            headers,
-            Method.Patch,
-            payload,
-            OnRequestChannelPointRewardRedeemedSetPlaylist
-        );
     }
 
     private void RequestFollowers(

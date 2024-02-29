@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://c3c6ld641pyh4"
+path="res://.godot/imported/Mello - Nova.mp3-7952f8b6e7c6848a6e1c781c6aea0ae2.mp3str"
+
+[deps]
+
+source_file="res://Overlay/Audios/Playlists/Lofi/Mello - Nova.mp3"
+dest_files=["res://.godot/imported/Mello - Nova.mp3-7952f8b6e7c6848a6e1c781c6aea0ae2.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

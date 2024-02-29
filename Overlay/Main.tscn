@@ -310,7 +310,6 @@ position = Vector2(32, 906)
 script = ExtResource("25_3slto")
 
 [node name="ChatPivot" type="Control" parent="2D/TwitchChatManager"]
-visible = false
 layout_mode = 3
 anchors_preset = 0
 offset_left = 6.0

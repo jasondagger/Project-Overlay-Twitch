@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://c2mfbaiaskodx"
+path="res://.godot/imported/HM Surf - Single Phial.mp3-c6eb742f165c226566749d7d2c3be596.mp3str"
+
+[deps]
+
+source_file="res://Overlay/Audios/Playlists/Lofi/HM Surf - Single Phial.mp3"
+dest_files=["res://.godot/imported/HM Surf - Single Phial.mp3-c6eb742f165c226566749d7d2c3be596.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

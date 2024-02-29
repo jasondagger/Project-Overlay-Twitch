@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://capeuwtrwuqnn"
+path="res://.godot/imported/Pollux Terminus - Clouded Thoughts.mp3-d4007f3da37a5e791f32b97e2c1a3ebc.mp3str"
+
+[deps]
+
+source_file="res://Overlay/Audios/Playlists/Lofi/Pollux Terminus - Clouded Thoughts.mp3"
+dest_files=["res://.godot/imported/Pollux Terminus - Clouded Thoughts.mp3-d4007f3da37a5e791f32b97e2c1a3ebc.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

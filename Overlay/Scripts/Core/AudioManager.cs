@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using ChannelPointRewardsType = TwitchChannelPointRewardsManager.ChannelPointRewardsType;
 using FragmentType = TwitchWebSocketMessagePayloadEventChannelChatNotificationMessageFragment.FragmentType;
-using KeyBindType = InputManager.KeyBindType;
 using NodeType = NodeDirectory.NodeType;
 
 public sealed partial class AudioManager : Node
@@ -52,7 +51,7 @@ public sealed partial class AudioManager : Node
     public Action ChangedSoundtrack = null;
 
     public void PlayTextToSpeech(
-        string text    
+        string text
     )
     {
         DisplayServer.TtsSpeak(
@@ -76,15 +75,17 @@ public sealed partial class AudioManager : Node
             NodeDirectory.NodePaths[NodeType.TwitchChannelPointRewardsManager]
         );
 
-        twitchChannelPointRewardsManager.RedeemableRewards[ChannelPointRewardsType.SoundAlertApplause] = OnChannelPointRewardsRedeemedApplause;
-        twitchChannelPointRewardsManager.RedeemableRewards[ChannelPointRewardsType.SoundAlertFirstBlood] = OnChannelPointRewardsRedeemedFirstBlood;
-        twitchChannelPointRewardsManager.RedeemableRewards[ChannelPointRewardsType.SoundAlertGodlike] = OnChannelPointRewardsRedeemedGodlike;
-        twitchChannelPointRewardsManager.RedeemableRewards[ChannelPointRewardsType.SoundAlertHeartbeat] = OnChannelPointRewardsRedeemedHeartbeat;
-        twitchChannelPointRewardsManager.RedeemableRewards[ChannelPointRewardsType.SoundAlertHolyShit] = OnChannelPointRewardsRedeemedHolyShit;
-        twitchChannelPointRewardsManager.RedeemableRewards[ChannelPointRewardsType.SoundAlertHowdy] = OnChannelPointRewardsRedeemedHowdy;
-        twitchChannelPointRewardsManager.RedeemableRewards[ChannelPointRewardsType.SoundAlertKegExplosion] = OnChannelPointRewardsRedeemedKegExplosion;
-        twitchChannelPointRewardsManager.RedeemableRewards[ChannelPointRewardsType.SoundAlertKegFuse] = OnChannelPointRewardsRedeemedKegFuse;
-        twitchChannelPointRewardsManager.RedeemableRewards[ChannelPointRewardsType.SoundAlertNice] = OnChannelPointRewardsRedeemedNice;
+        twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertApplause] = OnChannelPointRewardsRedeemedApplause;
+        twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertFirstBlood] = OnChannelPointRewardsRedeemedFirstBlood;
+        twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertGodlike] = OnChannelPointRewardsRedeemedGodlike;
+        twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertHeartbeat] = OnChannelPointRewardsRedeemedHeartbeat;
+        twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertHolyShit] = OnChannelPointRewardsRedeemedHolyShit;
+        twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertHowdy] = OnChannelPointRewardsRedeemedHowdy;
+        twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertKegExplosion] = OnChannelPointRewardsRedeemedKegExplosion;
+        twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertKegFuse] = OnChannelPointRewardsRedeemedKegFuse;
+        twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertNice] = OnChannelPointRewardsRedeemedNice;
+
+        twitchChannelPointRewardsManager.ReedambleRewardsWithStringInput[ChannelPointRewardsType.TextToSpeech] = OnChannelPointRewardsRedeemedTextToSpeech;
     }
 
     private void BindTwitchCheer()
@@ -201,6 +202,15 @@ public sealed partial class AudioManager : Node
         );
     }
 
+    private void OnChannelPointRewardsRedeemedTextToSpeech(
+        string text    
+    )
+    {
+        PlayTextToSpeech(
+            text    
+        );
+    }
+
     private async void PlaySoundAlert(
         SoundAlertType soundAlertType
     )
@@ -270,19 +280,5 @@ public sealed partial class AudioManager : Node
             $"{nameof(AudioManager)}.{nameof(RetrieveSoundAlerts)}() - Number of Sound Alerts: {m_soundAlerts.Count}."
         );
 #endif
-    }
-
-    private void SetAudioBusVolume(
-        int audioBusIndex,
-        float volume
-    )
-    {
-        float decibels = Mathf.LinearToDb(
-            volume
-        );
-        AudioServer.SetBusVolumeDb(
-            audioBusIndex,
-            decibels
-        );
     }
 }
