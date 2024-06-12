@@ -1,4 +1,4 @@
-[gd_scene load_steps=77 format=3 uid="uid://r2tmjbhme8io"]
+[gd_scene load_steps=78 format=3 uid="uid://sb1smb8j0dq7"]
 
 [ext_resource type="Script" path="res://Overlay/Scripts/Core/ApplicationManager.cs" id="1_qamig"]
 [ext_resource type="Script" path="res://Overlay/Scripts/Core/AudioManager.cs" id="2_62y76"]
@@ -32,12 +32,12 @@
 [ext_resource type="Script" path="res://Overlay/Scripts/Shelf/ShelfImageAudioWave.cs" id="27_ivx7r"]
 [ext_resource type="Script" path="res://Overlay/Scripts/Shelf/NameplateController.cs" id="28_grdrh"]
 [ext_resource type="PackedScene" uid="uid://87vxcj1u7vxk" path="res://Overlay/Scenes/RichTextLabelSampler.tscn" id="29_qwike"]
-[ext_resource type="Material" uid="uid://dxom8k60dfo8h" path="res://Overlay/Materials/NameplateGradient.tres" id="30_3qkub"]
 [ext_resource type="PackedScene" uid="uid://cdloqdmjtfn8g" path="res://Resources/Letters/NameplateName/UpperCase/S.tscn" id="30_7endr"]
 [ext_resource type="FontFile" uid="uid://beb0qxmiiif1t" path="res://Overlay/Fonts/Roboto-Bold.ttf" id="31_j7pkr"]
 [ext_resource type="PackedScene" uid="uid://dkh3py2sgoo0w" path="res://Resources/Letters/NotifierHeader/UpperCase/M.tscn" id="32_rwwr7"]
 [ext_resource type="PackedScene" uid="uid://bs7qucp574k08" path="res://Resources/Letters/NotifierHeader/UpperCase/O.tscn" id="33_dwyab"]
 [ext_resource type="PackedScene" uid="uid://bb5r02pf2m07w" path="res://Resources/Letters/NotifierHeader/UpperCase/T.tscn" id="34_xt0gm"]
+[ext_resource type="Shader" path="res://Overlay/Shaders/TextGradient.gdshader" id="35_f1jv4"]
 [ext_resource type="PackedScene" uid="uid://d3huacqas7oaw" path="res://Resources/Letters/NotifierHeader/UpperCase/H.tscn" id="35_yb8go"]
 [ext_resource type="PackedScene" uid="uid://dntomxubjr7vx" path="res://Resources/Letters/NotifierHeader/UpperCase/D.tscn" id="36_rv6a5"]
 [ext_resource type="PackedScene" uid="uid://bpw81g6orj3c0" path="res://Resources/Letters/NameplateName/UpperCase/A.tscn" id="37_pk85l"]
@@ -83,6 +83,9 @@ data = PackedByteArray(73, 68, 51, 3, 0, 0, 0, 0, 0, 33, 84, 88, 88, 88, 0, 0, 0
 [sub_resource type="Theme" id="Theme_4prug"]
 default_font = ExtResource("31_j7pkr")
 default_font_size = 3
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_igs6p"]
+shader = ExtResource("35_f1jv4")
 
 [sub_resource type="Gradient" id="Gradient_241n5"]
 offsets = PackedFloat32Array(0, 0.119705, 0.335677, 1)
@@ -320,7 +323,7 @@ script = ExtResource("28_grdrh")
 [node name="RichTextLabelSampler" parent="2D/Shelf/NameplateController" instance=ExtResource("29_qwike")]
 
 [node name="NameViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NameplateController"]
-material = ExtResource("30_3qkub")
+material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_right = 258.0
 offset_bottom = 28.0
@@ -428,7 +431,7 @@ text = "[font_size=28][font=res://Overlay/Fonts/Roboto-Black.ttf][outline_size=1
 visible_characters_behavior = 0
 
 [node name="TitleViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NameplateController"]
-material = ExtResource("30_3qkub")
+material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_left = 26.0
 offset_top = 32.0
@@ -449,7 +452,7 @@ offset_left = 232.0
 offset_right = 232.0
 
 [node name="ImageViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NameplateController"]
-material = ExtResource("30_3qkub")
+material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_top = 32.0
 offset_right = 26.0
@@ -491,7 +494,7 @@ offset_right = 0.0
 offset_bottom = 0.0
 
 [node name="HeaderViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerDiscord"]
-material = ExtResource("30_3qkub")
+material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_right = 276.0
 offset_bottom = 28.0
@@ -507,7 +510,7 @@ layout_mode = 3
 anchors_preset = 0
 
 [node name="FooterViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerDiscord"]
-material = ExtResource("30_3qkub")
+material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_left = 26.0
 offset_top = 32.0
@@ -525,7 +528,7 @@ layout_mode = 3
 anchors_preset = 0
 
 [node name="ImageViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerDiscord"]
-material = ExtResource("30_3qkub")
+material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_top = 32.0
 offset_right = 26.0
@@ -558,7 +561,7 @@ offset_right = 0.0
 offset_bottom = 0.0
 
 [node name="HeaderViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerNewCheer"]
-material = ExtResource("30_3qkub")
+material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_right = 276.0
 offset_bottom = 28.0
@@ -574,7 +577,7 @@ layout_mode = 3
 anchors_preset = 0
 
 [node name="FooterViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerNewCheer"]
-material = ExtResource("30_3qkub")
+material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_left = 26.0
 offset_top = 32.0
@@ -592,7 +595,7 @@ layout_mode = 3
 anchors_preset = 0
 
 [node name="ImageViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerNewCheer"]
-material = ExtResource("30_3qkub")
+material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_top = 32.0
 offset_right = 26.0
@@ -625,7 +628,7 @@ offset_right = 0.0
 offset_bottom = 0.0
 
 [node name="HeaderViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerNewFollower"]
-material = ExtResource("30_3qkub")
+material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_right = 276.0
 offset_bottom = 28.0
@@ -641,7 +644,7 @@ layout_mode = 3
 anchors_preset = 0
 
 [node name="FooterViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerNewFollower"]
-material = ExtResource("30_3qkub")
+material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_left = 26.0
 offset_top = 32.0
@@ -659,7 +662,7 @@ layout_mode = 3
 anchors_preset = 0
 
 [node name="ImageViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerNewFollower"]
-material = ExtResource("30_3qkub")
+material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_top = 32.0
 offset_right = 26.0
@@ -690,7 +693,7 @@ offset_bottom = 0.0
 [node name="RichTextLabelSamplerFooter" parent="2D/Shelf/NotifierController/NotifierControllerNewGiftedSubscription" instance=ExtResource("29_qwike")]
 
 [node name="HeaderViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerNewGiftedSubscription"]
-material = ExtResource("30_3qkub")
+material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_right = 276.0
 offset_bottom = 28.0
@@ -706,7 +709,7 @@ layout_mode = 3
 anchors_preset = 0
 
 [node name="FooterViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerNewGiftedSubscription"]
-material = ExtResource("30_3qkub")
+material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_left = 26.0
 offset_top = 32.0
@@ -724,7 +727,7 @@ layout_mode = 3
 anchors_preset = 0
 
 [node name="ImageViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerNewGiftedSubscription"]
-material = ExtResource("30_3qkub")
+material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_top = 32.0
 offset_right = 26.0
@@ -757,7 +760,7 @@ offset_right = 0.0
 offset_bottom = 0.0
 
 [node name="HeaderViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerNewSubscriber"]
-material = ExtResource("30_3qkub")
+material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_right = 276.0
 offset_bottom = 28.0
@@ -773,7 +776,7 @@ layout_mode = 3
 anchors_preset = 0
 
 [node name="FooterViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerNewSubscriber"]
-material = ExtResource("30_3qkub")
+material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_left = 26.0
 offset_top = 32.0
@@ -791,7 +794,7 @@ layout_mode = 3
 anchors_preset = 0
 
 [node name="ImageViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerNewSubscriber"]
-material = ExtResource("30_3qkub")
+material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_top = 32.0
 offset_right = 26.0
@@ -824,7 +827,7 @@ offset_right = 0.0
 offset_bottom = 0.0
 
 [node name="HeaderViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerRecentFollowers"]
-material = ExtResource("30_3qkub")
+material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_right = 276.0
 offset_bottom = 28.0
@@ -840,7 +843,7 @@ layout_mode = 3
 anchors_preset = 0
 
 [node name="FooterViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerRecentFollowers"]
-material = ExtResource("30_3qkub")
+material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_left = 26.0
 offset_top = 32.0
@@ -858,7 +861,7 @@ layout_mode = 3
 anchors_preset = 0
 
 [node name="ImageViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerRecentFollowers"]
-material = ExtResource("30_3qkub")
+material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_top = 32.0
 offset_right = 26.0
@@ -891,7 +894,7 @@ offset_right = 0.0
 offset_bottom = 0.0
 
 [node name="HeaderViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerRecentSubscribers"]
-material = ExtResource("30_3qkub")
+material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_right = 276.0
 offset_bottom = 28.0
@@ -907,7 +910,7 @@ layout_mode = 3
 anchors_preset = 0
 
 [node name="FooterViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerRecentSubscribers"]
-material = ExtResource("30_3qkub")
+material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_left = 26.0
 offset_top = 32.0
@@ -925,7 +928,7 @@ layout_mode = 3
 anchors_preset = 0
 
 [node name="ImageViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerRecentSubscribers"]
-material = ExtResource("30_3qkub")
+material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_top = 32.0
 offset_right = 26.0
@@ -958,7 +961,7 @@ offset_right = 0.0
 offset_bottom = 0.0
 
 [node name="HeaderViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerReddit"]
-material = ExtResource("30_3qkub")
+material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_right = 276.0
 offset_bottom = 28.0
@@ -974,7 +977,7 @@ layout_mode = 3
 anchors_preset = 0
 
 [node name="FooterViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerReddit"]
-material = ExtResource("30_3qkub")
+material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_left = 26.0
 offset_top = 32.0
@@ -992,7 +995,7 @@ layout_mode = 3
 anchors_preset = 0
 
 [node name="ImageViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerReddit"]
-material = ExtResource("30_3qkub")
+material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_top = 32.0
 offset_right = 26.0
@@ -1026,7 +1029,7 @@ offset_right = 0.0
 offset_bottom = 0.0
 
 [node name="HeaderViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerTwitch"]
-material = ExtResource("30_3qkub")
+material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_right = 276.0
 offset_bottom = 28.0
@@ -1042,7 +1045,7 @@ layout_mode = 3
 anchors_preset = 0
 
 [node name="FooterViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerTwitch"]
-material = ExtResource("30_3qkub")
+material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_left = 26.0
 offset_top = 32.0
@@ -1060,7 +1063,7 @@ layout_mode = 3
 anchors_preset = 0
 
 [node name="ImageViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerTwitch"]
-material = ExtResource("30_3qkub")
+material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_top = 32.0
 offset_right = 26.0
@@ -1093,7 +1096,7 @@ offset_right = 0.0
 offset_bottom = 0.0
 
 [node name="HeaderViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerYouTube"]
-material = ExtResource("30_3qkub")
+material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_right = 276.0
 offset_bottom = 28.0
@@ -1109,7 +1112,7 @@ layout_mode = 3
 anchors_preset = 0
 
 [node name="FooterViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerYouTube"]
-material = ExtResource("30_3qkub")
+material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_left = 26.0
 offset_top = 32.0
@@ -1127,7 +1130,7 @@ layout_mode = 3
 anchors_preset = 0
 
 [node name="ImageViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerYouTube"]
-material = ExtResource("30_3qkub")
+material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_top = 32.0
 offset_right = 26.0

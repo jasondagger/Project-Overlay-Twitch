@@ -22,7 +22,7 @@ namespace Overlay
         public string RedeemedAt { get; set; } = string.Empty;
 
         [JsonPropertyName("reward")]
-        public TwitchEventSubReward Reward { get; set; } = new();
+        public TwitchEventSubReward Reward { get; set; } = null;
 
         [JsonPropertyName("status")]
         public string Status { get; set; } = string.Empty;

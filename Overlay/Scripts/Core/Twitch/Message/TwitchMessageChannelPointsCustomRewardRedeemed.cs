@@ -5,7 +5,7 @@ namespace Overlay
     public sealed class TwitchMessageChannelPointsCustomRewardRedeemed : TwitchMessage
 	{
         [JsonPropertyName("event")]
-        public TwitchWebSocketMessagePayloadEventChannelPointsCustomRewardRedeemed Event { get; set; } = new();
+        public TwitchWebSocketMessagePayloadEventChannelPointsCustomRewardRedeemed Event { get; set; } = null;
 
 		public TwitchMessageChannelPointsCustomRewardRedeemed(
 			TwitchWebSocketMessagePayloadEventChannelPointsCustomRewardRedeemed @event

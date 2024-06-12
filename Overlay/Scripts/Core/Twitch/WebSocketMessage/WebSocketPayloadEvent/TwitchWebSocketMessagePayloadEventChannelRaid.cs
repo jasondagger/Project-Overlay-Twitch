@@ -7,24 +7,24 @@ namespace Overlay
 	public sealed class TwitchWebSocketMessagePayloadEventChannelRaid : TwitchWebSocketMessagePayloadEvent
 	{
         [JsonPropertyName("from_broadcaster_user_id")]
-        public string from_broadcaster_user_id { get; set; } = string.Empty;
+        public string FromBroadcasterUserId { get; set; } = string.Empty;
 
         [JsonPropertyName("from_broadcaster_user_login")]
-        public string from_broadcaster_user_login { get; set; } = string.Empty;
+        public string FromBroadcasterUserLogin { get; set; } = string.Empty;
 
         [JsonPropertyName("from_broadcaster_user_name")]
-        public string from_broadcaster_user_name { get; set; } = string.Empty;
+        public string FromBroadcasterUsername { get; set; } = string.Empty;
 
         [JsonPropertyName("to_broadcaster_user_id")]
-        public string to_broadcaster_user_id { get; set; } = string.Empty;
+        public string ToBroadcasterUserId { get; set; } = string.Empty;
 
         [JsonPropertyName("to_broadcaster_user_login")]
-        public string to_broadcaster_user_login { get; set; } = string.Empty;
+        public string ToBroadcasterUserLogin { get; set; } = string.Empty;
 
         [JsonPropertyName("to_broadcaster_user_name")]
-        public string to_broadcaster_user_name { get; set; } = string.Empty;
+        public string ToBroadcasterUsername { get; set; } = string.Empty;
 
         [JsonPropertyName("viewers")]
-        public int? viewers { get; set; } = 0;
+        public int? Viewers { get; set; } = 0;
 	}
 }

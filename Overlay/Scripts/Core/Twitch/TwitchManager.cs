@@ -1238,19 +1238,19 @@ namespace Overlay
 
 				var channelPointRewardData = channelPointReward.Value;
 				var payload = "{" +
-																					$"\"background_color\":\"{channelPointRewardData.background_color}\"," +
-																					$"\"cost\":\"{channelPointRewardData.cost}\"," +
-					(channelPointRewardData.global_cooldown_seconds > 0 ?			$"\"global_cooldown_seconds\":\"{channelPointRewardData.global_cooldown_seconds}\"," : "") +
-					(channelPointRewardData.is_enabled == false ?					$"\"is_enabled\":\"{channelPointRewardData.is_enabled}\"," : "") +
-					(channelPointRewardData.is_global_cooldown_enabled ?			$"\"is_global_cooldown_enabled\":\"{channelPointRewardData.is_global_cooldown_enabled}\"," : "") +
-					(channelPointRewardData.is_max_per_stream_enabled ?				$"\"is_max_per_stream_enabled\":\"{channelPointRewardData.is_max_per_stream_enabled}\"," : "") +
-					(channelPointRewardData.is_max_per_user_per_stream_enabled ?	$"\"is_max_per_user_per_stream_enabled\":\"{channelPointRewardData.is_max_per_user_per_stream_enabled}\"," : "") +
-					(channelPointRewardData.is_user_input_required ?				$"\"is_user_input_required\":\"{channelPointRewardData.is_user_input_required}\"," : "") +
-					(channelPointRewardData.is_max_per_stream_enabled ?				$"\"max_per_stream\":\"{channelPointRewardData.max_per_stream}\"," : "") +
-					(channelPointRewardData.is_max_per_user_per_stream_enabled ?	$"\"max_per_user_per_stream\":\"{channelPointRewardData.max_per_user_per_stream}\"," : "") +
-					(channelPointRewardData.prompt != string.Empty ?				$"\"prompt\":\"{channelPointRewardData.prompt}\"," : "") +
-					(channelPointRewardData.should_redemptions_skip_request_queue ? $"\"should_redemptions_skip_request_queue\":\"{channelPointRewardData.should_redemptions_skip_request_queue}\"," : "") +
-																					$"\"title\":\"{channelPointRewardData.title}\"" +
+																				$"\"background_color\":\"{channelPointRewardData.BackgroundColor}\"," +
+																				$"\"cost\":\"{channelPointRewardData.Cost}\"," +
+					(channelPointRewardData.GlobalCooldownSeconds > 0 ?			$"\"global_cooldown_seconds\":\"{channelPointRewardData.GlobalCooldownSeconds}\"," : "") +
+					(channelPointRewardData.IsEnabled == false ?				$"\"is_enabled\":\"{channelPointRewardData.IsEnabled}\"," : "") +
+					(channelPointRewardData.IsGlobalCooldownEnabled ?			$"\"is_global_cooldown_enabled\":\"{channelPointRewardData.IsGlobalCooldownEnabled}\"," : "") +
+					(channelPointRewardData.IsMaxPerStreamEnabled ?				$"\"is_max_per_stream_enabled\":\"{channelPointRewardData.IsMaxPerStreamEnabled}\"," : "") +
+					(channelPointRewardData.IsMaxPerUserPerStreamEnabled ?		$"\"is_max_per_user_per_stream_enabled\":\"{channelPointRewardData.IsMaxPerUserPerStreamEnabled}\"," : "") +
+					(channelPointRewardData.IsUserInputRequired ?				$"\"is_user_input_required\":\"{channelPointRewardData.IsUserInputRequired}\"," : "") +
+					(channelPointRewardData.IsMaxPerStreamEnabled ?				$"\"max_per_stream\":\"{channelPointRewardData.MaxPerStream}\"," : "") +
+					(channelPointRewardData.IsMaxPerUserPerStreamEnabled ?		$"\"max_per_user_per_stream\":\"{channelPointRewardData.MaxPerUserPerStream}\"," : "") +
+					(channelPointRewardData.Prompt != string.Empty ?			$"\"prompt\":\"{channelPointRewardData.Prompt}\"," : "") +
+					(channelPointRewardData.ShouldRedemptionsSkipRequestQueue ? $"\"should_redemptions_skip_request_queue\":\"{channelPointRewardData.ShouldRedemptionsSkipRequestQueue}\"," : "") +
+																				$"\"title\":\"{channelPointRewardData.Title}\"" +
 				"}";
 				m_httpManager.SendHttpRequest(
 					url: $"{c_urlAPI}/channel_points/custom_rewards?broadcaster_id={TwitchData.AccountId}",
@@ -1300,7 +1300,7 @@ namespace Overlay
 			foreach (var pendingReward in pendingRewards)
 			{
 				m_httpManager.SendHttpRequest(
-                    url: $"{c_urlAPI}/channel_points/custom_rewards/redemptions?broadcaster_id={TwitchData.AccountId}&reward_id={m_channelPointRewardIds[pendingReward.twitchChannelPointRewardsType]}&id={pendingReward.id}",
+                    url: $"{c_urlAPI}/channel_points/custom_rewards/redemptions?broadcaster_id={TwitchData.AccountId}&reward_id={m_channelPointRewardIds[pendingReward.TwitchChannelPointRewardsType]}&id={pendingReward.Id}",
                     headers: headers,
                     method: Method.Patch,
                     json: payload,

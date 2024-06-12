@@ -22,11 +22,11 @@ namespace Overlay
 			double delta
 		)
 		{
-			if (m_soundAlertsQueue.Count > 0u && !m_isSoundAlertPlaying)
+			if (m_soundAlertsQueue.Count > 0u && m_isSoundAlertPlaying is false)
 			{
-				SoundAlertType soundAlertType = m_soundAlertsQueue.Dequeue();
+				var soundAlertType = m_soundAlertsQueue.Dequeue();
 				PlaySoundAlert(
-					soundAlertType
+					soundAlertType: soundAlertType
 				);
 			}
 		}
@@ -57,8 +57,13 @@ namespace Overlay
 		)
 		{
 			DisplayServer.TtsSpeak(
-				text,
-				m_textToSpeechId
+				text: text,
+				voice: m_textToSpeechId,
+				volume: 100,
+				pitch: 1.3f,
+				rate: 1.2f,
+				utteranceId: 0,
+				interrupt: false
 			);
 		}
 
@@ -66,15 +71,16 @@ namespace Overlay
 		private const int c_soundAlertDelayInMilliseconds = 1000;
 		private const int c_songStartIndex = -1;
 
-		private Dictionary<SoundAlertType, AudioStreamPlayer> m_soundAlerts = new();
-		private Queue<SoundAlertType> m_soundAlertsQueue = new();
+		private readonly Dictionary<SoundAlertType, AudioStreamPlayer> m_soundAlerts = new();
+		private readonly Queue<SoundAlertType> m_soundAlertsQueue = new();
+
 		private bool m_isSoundAlertPlaying = false;
 		private string m_textToSpeechId = string.Empty;
 
 		private void BindTwitchChannelPointRewards()
 		{
 			var twitchChannelPointRewardsManager = GetNode<TwitchChannelPointRewardsManager>(
-				NodeDirectory.NodePaths[NodeType.TwitchChannelPointRewardsManager]
+				path: NodeDirectory.NodePaths[NodeType.TwitchChannelPointRewardsManager]
 			);
 
 			twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertApplause] = OnChannelPointRewardsRedeemedApplause;
@@ -87,13 +93,13 @@ namespace Overlay
 			twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertKegFuse] = OnChannelPointRewardsRedeemedKegFuse;
 			twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertNice] = OnChannelPointRewardsRedeemedNice;
 
-			twitchChannelPointRewardsManager.ReedambleRewardsWithStringInput[ChannelPointRewardsType.TextToSpeech] = OnChannelPointRewardsRedeemedTextToSpeech;
+			twitchChannelPointRewardsManager.RedeemableRewardsWithStringInput[ChannelPointRewardsType.TextToSpeech] = OnChannelPointRewardsRedeemedTextToSpeech;
 		}
 
 		private void BindTwitchCheer()
 		{
 			var twitchManager = GetNode<TwitchManager>(
-				NodeDirectory.NodePaths[NodeType.TwitchManager]
+				path: NodeDirectory.NodePaths[NodeType.TwitchManager]
 			);
 
 			twitchManager.ChannelChatNotification += OnChannelChatNotification;
@@ -104,9 +110,9 @@ namespace Overlay
 		)
 		{
 			const int secondsToMilliseconds = 1000;
-			double length = stream.GetLength();
+			var length = stream.GetLength();
 			return Mathf.RoundToInt(
-			   length * secondsToMilliseconds
+			   s: length * secondsToMilliseconds
 			);
 		}
 
@@ -115,20 +121,20 @@ namespace Overlay
 		)
 		{
 			var message = @event.Message;
-			int totalBits = 0;
-			string text = message.Text;
+			var totalBits = 0;
+			var text = message.Text;
 
 			foreach (var fragment in message.Fragments)
 			{
 				var fragmentType = fragment.GetFragmentType();
-				if (fragmentType == FragmentType.Cheermote)
+				if (fragmentType is FragmentType.Cheermote)
 				{
 					var cheermote = fragment.Cheermote;
 					totalBits += cheermote.Bits ?? 0;
 
 					text = text.Replace(
-						cheermote.Prefix,
-						string.Empty
+						oldValue: cheermote.Prefix,
+						newValue: string.Empty
 					);
 				}
 			}
@@ -136,7 +142,7 @@ namespace Overlay
 			if (totalBits >= c_minimumBitsForTextToSpeech)
 			{
 				PlayTextToSpeech(
-					text
+					text: text
 				);
 			}
 		}
@@ -144,63 +150,63 @@ namespace Overlay
 		private void OnChannelPointRewardsRedeemedApplause()
 		{
 			m_soundAlertsQueue.Enqueue(
-				SoundAlertType.Applause
+                item: SoundAlertType.Applause
 			);
 		}
 
 		private void OnChannelPointRewardsRedeemedFirstBlood()
 		{
 			m_soundAlertsQueue.Enqueue(
-				SoundAlertType.FirstBlood
+                item: SoundAlertType.FirstBlood
 			);
 		}
 
 		private void OnChannelPointRewardsRedeemedGodlike()
 		{
 			m_soundAlertsQueue.Enqueue(
-				SoundAlertType.Godlike
+                item: SoundAlertType.Godlike
 			);
 		}
 
 		private void OnChannelPointRewardsRedeemedHeartbeat()
 		{
 			m_soundAlertsQueue.Enqueue(
-				SoundAlertType.Heartbeat
+                item: SoundAlertType.Heartbeat
 			);
 		}
 
 		private void OnChannelPointRewardsRedeemedHolyShit()
 		{
 			m_soundAlertsQueue.Enqueue(
-				SoundAlertType.HolyShit
+                item: SoundAlertType.HolyShit
 			);
 		}
 
 		private void OnChannelPointRewardsRedeemedHowdy()
 		{
 			m_soundAlertsQueue.Enqueue(
-				SoundAlertType.Howdy
+                item: SoundAlertType.Howdy
 			);
 		}
 
 		private void OnChannelPointRewardsRedeemedKegExplosion()
 		{
 			m_soundAlertsQueue.Enqueue(
-				SoundAlertType.KegExplosion
+                item: SoundAlertType.KegExplosion
 			);
 		}
 
 		private void OnChannelPointRewardsRedeemedKegFuse()
 		{
 			m_soundAlertsQueue.Enqueue(
-				SoundAlertType.KegFuse
+                item: SoundAlertType.KegFuse
 			);
 		}
 
 		private void OnChannelPointRewardsRedeemedNice()
 		{
 			m_soundAlertsQueue.Enqueue(
-				SoundAlertType.Nice
+				item: SoundAlertType.Nice
 			);
 		}
 
@@ -209,7 +215,7 @@ namespace Overlay
 		)
 		{
 			PlayTextToSpeech(
-				text
+				text: text
 			);
 		}
 
@@ -217,21 +223,21 @@ namespace Overlay
 			SoundAlertType soundAlertType
 		)
 		{
-			AudioStreamPlayer soundAlert = m_soundAlerts[soundAlertType];
+			var soundAlert = m_soundAlerts[soundAlertType];
 			soundAlert.Play();
 			m_isSoundAlertPlaying = true;
 
-			int streamLength = GetStreamLengthInMilliseconds(
-				soundAlert.Stream
+			var streamLength = GetStreamLengthInMilliseconds(
+				stream: soundAlert.Stream
 			);
 			await Task.Delay(
-				streamLength
+				millisecondsDelay: streamLength
 			);
 
 			soundAlert.Stop();
 
 			await Task.Delay(
-				c_soundAlertDelayInMilliseconds
+				millisecondsDelay: c_soundAlertDelayInMilliseconds
 			);
 
 			m_isSoundAlertPlaying = false;
@@ -240,7 +246,7 @@ namespace Overlay
 		private void RetrieveResources()
 		{
 			var voices = DisplayServer.TtsGetVoicesForLanguage(
-				"en"
+				language: "en"
 			);
 			m_textToSpeechId = voices[0u];
 		}
@@ -249,37 +255,37 @@ namespace Overlay
 		{
 #if DEBUG
 			GD.Print(
-				$"{nameof(AudioManager)}.{nameof(RetrieveSoundAlerts)}() - Retrieving sound alerts."
+				what: $"{nameof(AudioManager)}.{nameof(RetrieveSoundAlerts)}() - Retrieving sound alerts."
 			);
 #endif
 
 			const string nodeNameSoundAlerts = "SoundAlerts";
 			var soundAlertsNode = GetNode(
-				nodeNameSoundAlerts
+				path: nodeNameSoundAlerts
 			);
 
 			var soundAlertTypes = Enum.GetValues<SoundAlertType>();
 			foreach (var soundAlertType in soundAlertTypes)
 			{
 				var soundAlert = soundAlertsNode.GetNode<AudioStreamPlayer>(
-					soundAlertType.ToString()
+					path: soundAlertType.ToString()
 				);
 
 				m_soundAlerts.Add(
-					soundAlertType,
-					soundAlert
+					key: soundAlertType,
+					value: soundAlert
 				);
 
 #if DEBUG
 				GD.Print(
-					$"{nameof(AudioManager)}.{nameof(RetrieveSoundAlerts)}() - Sound Alert retrieved: {soundAlert.Name}."
+					what: $"{nameof(AudioManager)}.{nameof(RetrieveSoundAlerts)}() - Sound Alert retrieved: {soundAlert.Name}."
 				);
 #endif
 			}
 
 #if DEBUG
 			GD.Print(
-				$"{nameof(AudioManager)}.{nameof(RetrieveSoundAlerts)}() - Number of Sound Alerts: {m_soundAlerts.Count}."
+				what: $"{nameof(AudioManager)}.{nameof(RetrieveSoundAlerts)}() - Number of Sound Alerts: {m_soundAlerts.Count}."
 			);
 #endif
 		}

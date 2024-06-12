@@ -1,9 +1,0 @@
-[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://jgcrew0u2f1j"]
-
-[ext_resource type="Shader" path="res://Overlay/Shaders/OutlineShader.gdshader" id="1_wm3gy"]
-
-[resource]
-render_priority = 0
-shader = ExtResource("1_wm3gy")
-shader_parameter/color = Color(0.0313726, 0.0431373, 0.0588235, 1)
-shader_parameter/outline = 0.1

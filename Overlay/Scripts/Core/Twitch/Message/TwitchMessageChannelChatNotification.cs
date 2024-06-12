@@ -6,7 +6,7 @@ namespace Overlay
 	public sealed class TwitchMessageChannelChatNotification : TwitchMessage
 	{
         [JsonPropertyName("event")]
-        public TwitchWebSocketMessagePayloadEventChannelChatNotification Event { get; set; } = new();
+        public TwitchWebSocketMessagePayloadEventChannelChatNotification Event { get; set; } = null;
 
 		public TwitchMessageChannelChatNotification(
 			TwitchWebSocketMessagePayloadEventChannelChatNotification @event
