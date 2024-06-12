@@ -1,6 +1,12 @@
 
-[System.Serializable]
-public sealed class TwitchResponseChannelFollowersPagination
+namespace Overlay
 {
-    public string cursor = string.Empty;
+    using System.Text.Json.Serialization;
+
+    [System.Serializable]
+    public sealed class TwitchResponseChannelFollowersPagination
+    {
+        [JsonPropertyName("cursor")]
+        public string Cursor { get; set; } = string.Empty;
+    }
 }

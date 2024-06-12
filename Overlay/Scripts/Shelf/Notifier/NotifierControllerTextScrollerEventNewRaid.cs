@@ -1,25 +1,29 @@
-using NodeType = NodeDirectory.NodeType;
 
-public sealed partial class NotifierControllerTextScrollerEventNewRaid : NotifierControllerTextScrollerEvent
+namespace Overlay
 {
-    public override void _EnterTree()
-    {
-        var twitchManager = GetNode<TwitchManager>(
-            NodeDirectory.NodePaths[NodeType.TwitchManager]
-        );
-        twitchManager.ChannelRaided += OnChannelRaided;
+	using NodeType = NodeDirectory.NodeType;
 
-        base._EnterTree();
-    }
+	public sealed partial class NotifierControllerTextScrollerEventNewRaid : NotifierControllerTextScrollerEvent
+	{
+		public override void _EnterTree()
+		{
+			var twitchManager = GetNode<TwitchManager>(
+				NodeDirectory.NodePaths[NodeType.TwitchManager]
+			);
+			twitchManager.ChannelRaided += OnChannelRaided;
 
-    protected override string HeaderText { get; set; } = "Raid HYPE!";
+			base._EnterTree();
+		}
 
-    private void OnChannelRaided(
-        TwitchWebSocketMessagePayloadEventChannelRaid payload
-    )
-    {
-        m_pendingNames.Enqueue(
-            payload.from_broadcaster_user_name
-        );
-    }
+		protected override string HeaderText { get; set; } = "Raid HYPE!";
+
+		private void OnChannelRaided(
+			TwitchWebSocketMessagePayloadEventChannelRaid payload
+		)
+		{
+			m_pendingNames.Enqueue(
+				payload.from_broadcaster_user_name
+			);
+		}
+	}
 }

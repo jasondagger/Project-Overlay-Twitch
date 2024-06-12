@@ -1,14 +1,19 @@
-
-public sealed class TwitchMessageChannelPointsCustomRewardRedeemed : TwitchMessage
+namespace Overlay
 {
-    public TwitchWebSocketMessagePayloadEventChannelPointsCustomRewardRedeemed @event { get; set; } = new();
+    using System.Text.Json.Serialization;
 
-    public TwitchMessageChannelPointsCustomRewardRedeemed(
-        TwitchWebSocketMessagePayloadEventChannelPointsCustomRewardRedeemed @event
-    ) : base(
-        TwitchEventSubSubscriptionType.ChannelPointsCustomRewardRedeemed
-    )
-    {
-        this.@event = @event;
-    }
+    public sealed class TwitchMessageChannelPointsCustomRewardRedeemed : TwitchMessage
+	{
+        [JsonPropertyName("event")]
+        public TwitchWebSocketMessagePayloadEventChannelPointsCustomRewardRedeemed Event { get; set; } = new();
+
+		public TwitchMessageChannelPointsCustomRewardRedeemed(
+			TwitchWebSocketMessagePayloadEventChannelPointsCustomRewardRedeemed @event
+		) : base(
+			TwitchEventSubSubscriptionType.ChannelPointsCustomRewardRedeemed
+		)
+		{
+			this.Event = @event;
+		}
+	}
 }

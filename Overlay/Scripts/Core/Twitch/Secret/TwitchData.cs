@@ -17,12 +17,11 @@ public sealed class TwitchData
 
     public static void Load()
     {
-        const string path = "Resources\\Twitch\\TwitchData.json";
-        string json = File.ReadAllText(
-            path    
+        var json = File.ReadAllText(
+            path: c_twitchDataPath
         );
-        JToken jsonParse = JToken.Parse(
-            json
+        var jsonParse = JToken.Parse(
+            json: json
         );
         TwitchChannel      = (string)jsonParse["TwitchChannel"];
         AccountUsername    = (string)jsonParse["AccountUsername"];
@@ -33,4 +32,6 @@ public sealed class TwitchData
         ClientSecret       = (string)jsonParse["ClientSecret"];
         ClientId           = (string)jsonParse["ClientId"];
     }
+
+    private const string c_twitchDataPath = "Resources\\Twitch\\TwitchData.json";
 }

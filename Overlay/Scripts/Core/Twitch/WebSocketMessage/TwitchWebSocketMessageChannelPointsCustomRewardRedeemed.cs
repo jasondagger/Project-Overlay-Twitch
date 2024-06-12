@@ -1,6 +1,12 @@
 
-[System.Serializable]
-public sealed class TwitchWebSocketMessageChannelPointsCustomRewardRedeemed : TwitchWebSocketMessage
+namespace Overlay
 {
-    public new TwitchWebSocketMessagePayloadChannelPointsCustomRewardRedeemed payload { get; set; } = new();
+    using System.Text.Json.Serialization;
+
+    [System.Serializable]
+	public sealed class TwitchWebSocketMessageChannelPointsCustomRewardRedeemed : TwitchWebSocketMessage
+	{
+        [JsonPropertyName("payload")]
+        public new TwitchWebSocketMessagePayloadChannelPointsCustomRewardRedeemed Payload { get; set; } = new();
+	}
 }

@@ -1,284 +1,287 @@
-using Godot;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using ChannelPointRewardsType = TwitchChannelPointRewardsManager.ChannelPointRewardsType;
-using FragmentType = TwitchWebSocketMessagePayloadEventChannelChatNotificationMessageFragment.FragmentType;
-using NodeType = NodeDirectory.NodeType;
-
-public sealed partial class AudioManager : Node
+namespace Overlay
 {
-    public override void _EnterTree()
-    {
-        RetrieveResources();
-        RetrieveSoundAlerts();
-        BindTwitchChannelPointRewards();
-        BindTwitchCheer();
-    }
+	using Godot;
+	using System;
+	using System.Collections.Generic;
+	using System.Threading.Tasks;
+	using ChannelPointRewardsType = TwitchChannelPointRewardsManager.ChannelPointRewardsType;
+	using FragmentType = TwitchWebSocketMessagePayloadEventChannelChatNotificationMessageFragment.FragmentType;
+	using NodeType = NodeDirectory.NodeType;
 
-    public override void _Process(
-        double delta
-    )
-    {
-        if (m_soundAlertsQueue.Count > 0u && !m_isSoundAlertPlaying)
-        {
-            SoundAlertType soundAlertType = m_soundAlertsQueue.Dequeue();
-            PlaySoundAlert(
-                soundAlertType
-            );
-        }
-    }
+	public sealed partial class AudioManager : Node
+	{
+		public override void _EnterTree()
+		{
+			RetrieveResources();
+			RetrieveSoundAlerts();
+			BindTwitchChannelPointRewards();
+			BindTwitchCheer();
+		}
 
-    public enum BusLayoutType : uint
-    {
-        Master = 0u,
-        SoundAlert
-    }
+		public override void _Process(
+			double delta
+		)
+		{
+			if (m_soundAlertsQueue.Count > 0u && !m_isSoundAlertPlaying)
+			{
+				SoundAlertType soundAlertType = m_soundAlertsQueue.Dequeue();
+				PlaySoundAlert(
+					soundAlertType
+				);
+			}
+		}
 
-    public enum SoundAlertType : uint
-    {
-        Applause = 0u,
-        FirstBlood,
-        Godlike,
-        Heartbeat,
-        HolyShit,
-        Howdy,
-        KegExplosion,
-        KegFuse,
-        Nice,
-    }
+		public enum BusLayoutType : uint
+		{
+			Master = 0u,
+			SoundAlert
+		}
 
-    public Action ChangedSoundtrack = null;
+		public enum SoundAlertType : uint
+		{
+			Applause = 0u,
+			FirstBlood,
+			Godlike,
+			Heartbeat,
+			HolyShit,
+			Howdy,
+			KegExplosion,
+			KegFuse,
+			Nice,
+		}
 
-    public void PlayTextToSpeech(
-        string text
-    )
-    {
-        DisplayServer.TtsSpeak(
-            text,
-            m_textToSpeechId
-        );
-    }
+		public Action ChangedSoundtrack = null;
 
-    private const int c_minimumBitsForTextToSpeech = 50;
-    private const int c_soundAlertDelayInMilliseconds = 1000;
-    private const int c_songStartIndex = -1;
+		public void PlayTextToSpeech(
+			string text
+		)
+		{
+			DisplayServer.TtsSpeak(
+				text,
+				m_textToSpeechId
+			);
+		}
 
-    private Dictionary<SoundAlertType, AudioStreamPlayer> m_soundAlerts = new();
-    private Queue<SoundAlertType> m_soundAlertsQueue = new();
-    private bool m_isSoundAlertPlaying = false;
-    private string m_textToSpeechId = string.Empty;
+		private const int c_minimumBitsForTextToSpeech = 50;
+		private const int c_soundAlertDelayInMilliseconds = 1000;
+		private const int c_songStartIndex = -1;
 
-    private void BindTwitchChannelPointRewards()
-    {
-        var twitchChannelPointRewardsManager = GetNode<TwitchChannelPointRewardsManager>(
-            NodeDirectory.NodePaths[NodeType.TwitchChannelPointRewardsManager]
-        );
+		private Dictionary<SoundAlertType, AudioStreamPlayer> m_soundAlerts = new();
+		private Queue<SoundAlertType> m_soundAlertsQueue = new();
+		private bool m_isSoundAlertPlaying = false;
+		private string m_textToSpeechId = string.Empty;
 
-        twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertApplause] = OnChannelPointRewardsRedeemedApplause;
-        twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertFirstBlood] = OnChannelPointRewardsRedeemedFirstBlood;
-        twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertGodlike] = OnChannelPointRewardsRedeemedGodlike;
-        twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertHeartbeat] = OnChannelPointRewardsRedeemedHeartbeat;
-        twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertHolyShit] = OnChannelPointRewardsRedeemedHolyShit;
-        twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertHowdy] = OnChannelPointRewardsRedeemedHowdy;
-        twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertKegExplosion] = OnChannelPointRewardsRedeemedKegExplosion;
-        twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertKegFuse] = OnChannelPointRewardsRedeemedKegFuse;
-        twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertNice] = OnChannelPointRewardsRedeemedNice;
+		private void BindTwitchChannelPointRewards()
+		{
+			var twitchChannelPointRewardsManager = GetNode<TwitchChannelPointRewardsManager>(
+				NodeDirectory.NodePaths[NodeType.TwitchChannelPointRewardsManager]
+			);
 
-        twitchChannelPointRewardsManager.ReedambleRewardsWithStringInput[ChannelPointRewardsType.TextToSpeech] = OnChannelPointRewardsRedeemedTextToSpeech;
-    }
+			twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertApplause] = OnChannelPointRewardsRedeemedApplause;
+			twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertFirstBlood] = OnChannelPointRewardsRedeemedFirstBlood;
+			twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertGodlike] = OnChannelPointRewardsRedeemedGodlike;
+			twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertHeartbeat] = OnChannelPointRewardsRedeemedHeartbeat;
+			twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertHolyShit] = OnChannelPointRewardsRedeemedHolyShit;
+			twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertHowdy] = OnChannelPointRewardsRedeemedHowdy;
+			twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertKegExplosion] = OnChannelPointRewardsRedeemedKegExplosion;
+			twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertKegFuse] = OnChannelPointRewardsRedeemedKegFuse;
+			twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertNice] = OnChannelPointRewardsRedeemedNice;
 
-    private void BindTwitchCheer()
-    {
-        var twitchManager = GetNode<TwitchManager>(
-            NodeDirectory.NodePaths[NodeType.TwitchManager]
-        );
+			twitchChannelPointRewardsManager.ReedambleRewardsWithStringInput[ChannelPointRewardsType.TextToSpeech] = OnChannelPointRewardsRedeemedTextToSpeech;
+		}
 
-        twitchManager.ChannelChatNotification += OnChannelChatNotification;
-    }
+		private void BindTwitchCheer()
+		{
+			var twitchManager = GetNode<TwitchManager>(
+				NodeDirectory.NodePaths[NodeType.TwitchManager]
+			);
 
-    private int GetStreamLengthInMilliseconds(
-        AudioStream stream
-    )
-    {
-        const int secondsToMilliseconds = 1000;
-        double length = stream.GetLength();
-        return Mathf.RoundToInt(
-           length * secondsToMilliseconds
-        );
-    }
+			twitchManager.ChannelChatNotification += OnChannelChatNotification;
+		}
 
-    private void OnChannelChatNotification(
-        TwitchWebSocketMessagePayloadEventChannelChatNotification @event
-    )
-    {
-        var message = @event.message;
-        int totalBits = 0;
-        string text = message.text;
+		private int GetStreamLengthInMilliseconds(
+			AudioStream stream
+		)
+		{
+			const int secondsToMilliseconds = 1000;
+			double length = stream.GetLength();
+			return Mathf.RoundToInt(
+			   length * secondsToMilliseconds
+			);
+		}
 
-        foreach (var fragment in message.fragments)
-        {
-            var fragmentType = fragment.GetFragmentType();
-            if (fragmentType == FragmentType.Cheermote)
-            {
-                var cheermote = fragment.cheermote;
-                totalBits += cheermote.bits;
+		private void OnChannelChatNotification(
+			TwitchWebSocketMessagePayloadEventChannelChatNotification @event
+		)
+		{
+			var message = @event.Message;
+			int totalBits = 0;
+			string text = message.Text;
 
-                text = text.Replace(
-                    cheermote.prefix,
-                    string.Empty
-                );
-            }
-        }
+			foreach (var fragment in message.Fragments)
+			{
+				var fragmentType = fragment.GetFragmentType();
+				if (fragmentType == FragmentType.Cheermote)
+				{
+					var cheermote = fragment.Cheermote;
+					totalBits += cheermote.Bits ?? 0;
 
-        if (totalBits >= c_minimumBitsForTextToSpeech)
-        {
-            PlayTextToSpeech(
-                text
-            );
-        }
-    }
+					text = text.Replace(
+						cheermote.Prefix,
+						string.Empty
+					);
+				}
+			}
 
-    private void OnChannelPointRewardsRedeemedApplause()
-    {
-        m_soundAlertsQueue.Enqueue(
-            SoundAlertType.Applause
-        );
-    }
+			if (totalBits >= c_minimumBitsForTextToSpeech)
+			{
+				PlayTextToSpeech(
+					text
+				);
+			}
+		}
 
-    private void OnChannelPointRewardsRedeemedFirstBlood()
-    {
-        m_soundAlertsQueue.Enqueue(
-            SoundAlertType.FirstBlood
-        );
-    }
+		private void OnChannelPointRewardsRedeemedApplause()
+		{
+			m_soundAlertsQueue.Enqueue(
+				SoundAlertType.Applause
+			);
+		}
 
-    private void OnChannelPointRewardsRedeemedGodlike()
-    {
-        m_soundAlertsQueue.Enqueue(
-            SoundAlertType.Godlike
-        );
-    }
+		private void OnChannelPointRewardsRedeemedFirstBlood()
+		{
+			m_soundAlertsQueue.Enqueue(
+				SoundAlertType.FirstBlood
+			);
+		}
 
-    private void OnChannelPointRewardsRedeemedHeartbeat()
-    {
-        m_soundAlertsQueue.Enqueue(
-            SoundAlertType.Heartbeat
-        );
-    }
+		private void OnChannelPointRewardsRedeemedGodlike()
+		{
+			m_soundAlertsQueue.Enqueue(
+				SoundAlertType.Godlike
+			);
+		}
 
-    private void OnChannelPointRewardsRedeemedHolyShit()
-    {
-        m_soundAlertsQueue.Enqueue(
-            SoundAlertType.HolyShit
-        );
-    }
+		private void OnChannelPointRewardsRedeemedHeartbeat()
+		{
+			m_soundAlertsQueue.Enqueue(
+				SoundAlertType.Heartbeat
+			);
+		}
 
-    private void OnChannelPointRewardsRedeemedHowdy()
-    {
-        m_soundAlertsQueue.Enqueue(
-            SoundAlertType.Howdy
-        );
-    }
+		private void OnChannelPointRewardsRedeemedHolyShit()
+		{
+			m_soundAlertsQueue.Enqueue(
+				SoundAlertType.HolyShit
+			);
+		}
 
-    private void OnChannelPointRewardsRedeemedKegExplosion()
-    {
-        m_soundAlertsQueue.Enqueue(
-            SoundAlertType.KegExplosion
-        );
-    }
+		private void OnChannelPointRewardsRedeemedHowdy()
+		{
+			m_soundAlertsQueue.Enqueue(
+				SoundAlertType.Howdy
+			);
+		}
 
-    private void OnChannelPointRewardsRedeemedKegFuse()
-    {
-        m_soundAlertsQueue.Enqueue(
-            SoundAlertType.KegFuse
-        );
-    }
+		private void OnChannelPointRewardsRedeemedKegExplosion()
+		{
+			m_soundAlertsQueue.Enqueue(
+				SoundAlertType.KegExplosion
+			);
+		}
 
-    private void OnChannelPointRewardsRedeemedNice()
-    {
-        m_soundAlertsQueue.Enqueue(
-            SoundAlertType.Nice
-        );
-    }
+		private void OnChannelPointRewardsRedeemedKegFuse()
+		{
+			m_soundAlertsQueue.Enqueue(
+				SoundAlertType.KegFuse
+			);
+		}
 
-    private void OnChannelPointRewardsRedeemedTextToSpeech(
-        string text    
-    )
-    {
-        PlayTextToSpeech(
-            text    
-        );
-    }
+		private void OnChannelPointRewardsRedeemedNice()
+		{
+			m_soundAlertsQueue.Enqueue(
+				SoundAlertType.Nice
+			);
+		}
 
-    private async void PlaySoundAlert(
-        SoundAlertType soundAlertType
-    )
-    {
-        AudioStreamPlayer soundAlert = m_soundAlerts[soundAlertType];
-        soundAlert.Play();
-        m_isSoundAlertPlaying = true;
+		private void OnChannelPointRewardsRedeemedTextToSpeech(
+			string text
+		)
+		{
+			PlayTextToSpeech(
+				text
+			);
+		}
 
-        int streamLength = GetStreamLengthInMilliseconds(
-            soundAlert.Stream
-        );
-        await Task.Delay(
-            streamLength
-        );
+		private async void PlaySoundAlert(
+			SoundAlertType soundAlertType
+		)
+		{
+			AudioStreamPlayer soundAlert = m_soundAlerts[soundAlertType];
+			soundAlert.Play();
+			m_isSoundAlertPlaying = true;
 
-        soundAlert.Stop();
+			int streamLength = GetStreamLengthInMilliseconds(
+				soundAlert.Stream
+			);
+			await Task.Delay(
+				streamLength
+			);
 
-        await Task.Delay(
-            c_soundAlertDelayInMilliseconds
-        );
+			soundAlert.Stop();
 
-        m_isSoundAlertPlaying = false;
-    }
+			await Task.Delay(
+				c_soundAlertDelayInMilliseconds
+			);
 
-    private void RetrieveResources()
-    {
-        var voices = DisplayServer.TtsGetVoicesForLanguage(
-            "en"
-        );
-        m_textToSpeechId = voices[0u];
-    }
+			m_isSoundAlertPlaying = false;
+		}
 
-    private void RetrieveSoundAlerts()
-    {
+		private void RetrieveResources()
+		{
+			var voices = DisplayServer.TtsGetVoicesForLanguage(
+				"en"
+			);
+			m_textToSpeechId = voices[0u];
+		}
+
+		private void RetrieveSoundAlerts()
+		{
 #if DEBUG
-        GD.Print(
-            $"{nameof(AudioManager)}.{nameof(RetrieveSoundAlerts)}() - Retrieving sound alerts."
-        );
+			GD.Print(
+				$"{nameof(AudioManager)}.{nameof(RetrieveSoundAlerts)}() - Retrieving sound alerts."
+			);
 #endif
 
-        const string nodeNameSoundAlerts = "SoundAlerts";
-        var soundAlertsNode = GetNode(
-            nodeNameSoundAlerts
-        );
+			const string nodeNameSoundAlerts = "SoundAlerts";
+			var soundAlertsNode = GetNode(
+				nodeNameSoundAlerts
+			);
 
-        var soundAlertTypes = Enum.GetValues<SoundAlertType>();
-        foreach (var soundAlertType in soundAlertTypes)
-        {
-            var soundAlert = soundAlertsNode.GetNode<AudioStreamPlayer>(
-                soundAlertType.ToString()
-            );
+			var soundAlertTypes = Enum.GetValues<SoundAlertType>();
+			foreach (var soundAlertType in soundAlertTypes)
+			{
+				var soundAlert = soundAlertsNode.GetNode<AudioStreamPlayer>(
+					soundAlertType.ToString()
+				);
 
-            m_soundAlerts.Add(
-                soundAlertType,
-                soundAlert
-            );
-
-#if DEBUG
-            GD.Print(
-                $"{nameof(AudioManager)}.{nameof(RetrieveSoundAlerts)}() - Sound Alert retrieved: {soundAlert.Name}."
-            );
-#endif
-        }
+				m_soundAlerts.Add(
+					soundAlertType,
+					soundAlert
+				);
 
 #if DEBUG
-        GD.Print(
-            $"{nameof(AudioManager)}.{nameof(RetrieveSoundAlerts)}() - Number of Sound Alerts: {m_soundAlerts.Count}."
-        );
+				GD.Print(
+					$"{nameof(AudioManager)}.{nameof(RetrieveSoundAlerts)}() - Sound Alert retrieved: {soundAlert.Name}."
+				);
 #endif
-    }
+			}
+
+#if DEBUG
+			GD.Print(
+				$"{nameof(AudioManager)}.{nameof(RetrieveSoundAlerts)}() - Number of Sound Alerts: {m_soundAlerts.Count}."
+			);
+#endif
+		}
+	}
 }

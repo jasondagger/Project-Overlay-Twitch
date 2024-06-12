@@ -1,14 +1,19 @@
-
-public sealed class TwitchMessageChannelSubscriptionGift : TwitchMessage
+namespace Overlay
 {
-    public TwitchWebSocketMessagePayloadEventChannelSubscriptionGift @event { get; set; } = new();
+    using System.Text.Json.Serialization;
 
-    public TwitchMessageChannelSubscriptionGift(
-        TwitchWebSocketMessagePayloadEventChannelSubscriptionGift @event
-    ) : base(
-        TwitchEventSubSubscriptionType.ChannelSubscriptionGift
-    )
-    {
-        this.@event = @event;
-    }
+    public sealed class TwitchMessageChannelSubscriptionGift : TwitchMessage
+	{
+        [JsonPropertyName("event")]
+        public TwitchWebSocketMessagePayloadEventChannelSubscriptionGift Event { get; set; } = new();
+
+		public TwitchMessageChannelSubscriptionGift(
+			TwitchWebSocketMessagePayloadEventChannelSubscriptionGift @event
+		) : base(
+			TwitchEventSubSubscriptionType.ChannelSubscriptionGift
+		)
+		{
+			this.Event = @event;
+		}
+	}
 }

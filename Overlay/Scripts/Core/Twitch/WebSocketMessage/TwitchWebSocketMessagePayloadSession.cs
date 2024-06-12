@@ -1,10 +1,24 @@
 
-[System.Serializable]
-public sealed class TwitchWebSocketMessagePayloadSession
+namespace Overlay
 {
-    public string id { get; set; } = string.Empty;
-    public string status { get; set; } = string.Empty;
-    public int keepalive_timeout_seconds { get; set; } = 0;
-    public string reconnect_url { get; set; } = string.Empty;
-    public string connected_at { get; set; } = string.Empty;
+    using System.Text.Json.Serialization;
+
+    [System.Serializable]
+    public sealed class TwitchWebSocketMessagePayloadSession
+    {
+        [JsonPropertyName("id")]
+        public string Id { get; set; } = string.Empty;
+
+        [JsonPropertyName("status")]
+        public string Status { get; set; } = string.Empty;
+
+        [JsonPropertyName("keepalive_timeout_seconds")]
+        public int KeepaliveTimeoutSeconds { get; set; } = 0;
+
+        [JsonPropertyName("reconnect_url")]
+        public string ReconnectUrl { get; set; } = string.Empty;
+
+        [JsonPropertyName("connected_at")]
+        public string ConnectedAt { get; set; } = string.Empty;
+    }
 }

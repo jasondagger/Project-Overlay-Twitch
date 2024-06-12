@@ -1,23 +1,35 @@
 
-// https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelcheer
-[System.Serializable]
-public sealed partial class TwitchRequestEventSubChannelCheer
+namespace Overlay
 {
-    public string type { get; set; } = $"channel.cheer";
-    public string version { get; set; } = $"1";
-    public TwitchConditionEventSubChannelCheer condition { get; set; } = new();
-    public TwitchEventSubTransportWebSocket transport { get; set; } = new();
+    using System.Text.Json.Serialization;
 
-    public TwitchRequestEventSubChannelCheer(
-        string userId,
-        string sessionId
-    )
+    // https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelcheer
+    [System.Serializable]
+    public sealed partial class TwitchRequestEventSubChannelCheer
     {
-        condition = new(
-            userId
-        );
-        transport = new(
-            sessionId
-        );
+        [JsonPropertyName("type")]
+        public string Type { get; set; } = $"channel.cheer";
+
+        [JsonPropertyName("version")]
+        public string Version { get; set; } = $"1";
+
+        [JsonPropertyName("condition")]
+        public TwitchConditionEventSubChannelCheer Condition { get; set; } = null;
+
+        [JsonPropertyName("transport")]
+        public TwitchEventSubTransportWebSocket Transport { get; set; } = null;
+
+        public TwitchRequestEventSubChannelCheer(
+            string userId,
+            string sessionId
+        )
+        {
+            Condition = new(
+                userId: userId
+            );
+            Transport = new(
+                sessionId: sessionId
+            );
+        }
     }
 }

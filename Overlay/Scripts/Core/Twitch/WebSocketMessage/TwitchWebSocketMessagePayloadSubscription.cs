@@ -1,13 +1,33 @@
 
-[System.Serializable]
-public sealed class TwitchWebSocketMessagePayloadSubscription
+namespace Overlay
 {
-    public string id { get; set; } = string.Empty;
-    public string status { get; set; } = string.Empty;
-    public string type { get; set; } = string.Empty;
-    public string version { get; set; } = string.Empty;
-    public string cost { get; set; } = string.Empty;
-    public TwitchWebSocketMessageCondition condition { get; set; } = new();
-    public TwitchEventSubTransportWebSocket transport { get; set; } = new();
-    public string created_at { get; set; } = string.Empty;
+    using System.Text.Json.Serialization;
+
+    [System.Serializable]
+    public sealed class TwitchWebSocketMessagePayloadSubscription
+    {
+        [JsonPropertyName("id")]
+        public string Id { get; set; } = string.Empty;
+
+        [JsonPropertyName("status")]
+        public string Status { get; set; } = string.Empty;
+
+        [JsonPropertyName("type")]
+        public string Type { get; set; } = string.Empty;
+
+        [JsonPropertyName("version")]
+        public string Version { get; set; } = string.Empty;
+
+        [JsonPropertyName("cost")]
+        public int Cost { get; set; } = 0;
+
+        [JsonPropertyName("condition")]
+        public TwitchWebSocketMessageCondition Condition { get; set; } = new();
+
+        [JsonPropertyName("transport")]
+        public TwitchEventSubTransportWebSocket Transport { get; set; } = new();
+
+        [JsonPropertyName("created_at")]
+        public string CreatedAt { get; set; } = string.Empty;
+    }
 }

@@ -1,6 +1,12 @@
 
-[System.Serializable]
-public sealed class TwitchWebSocketMessagePayloadEventChannelChatNotificationAnnouncement
+namespace Overlay
 {
-    public string color = string.Empty;
+    using System.Text.Json.Serialization;
+
+    [System.Serializable]
+	public sealed class TwitchWebSocketMessagePayloadEventChannelChatNotificationAnnouncement
+	{
+        [JsonPropertyName("color")]
+        public string Color = string.Empty;
+	}
 }

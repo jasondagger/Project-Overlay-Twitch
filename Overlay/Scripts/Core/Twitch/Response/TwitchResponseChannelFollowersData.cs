@@ -1,9 +1,21 @@
 
-[System.Serializable]
-public sealed class TwitchResponseChannelFollowersData
+namespace Overlay
 {
-    public string followed_at = string.Empty;
-    public string user_id     = string.Empty;
-    public string user_login  = string.Empty;
-    public string user_name   = string.Empty;
+    using System.Text.Json.Serialization;
+
+    [System.Serializable]
+    public sealed class TwitchResponseChannelFollowersData
+    {
+        [JsonPropertyName("followed_at")]
+        public string FollowedAt { get; set; } = string.Empty;
+
+        [JsonPropertyName("user_id")]
+        public string UserId { get; set; } = string.Empty;
+
+        [JsonPropertyName("user_login")]
+        public string UserLogin { get; set; } = string.Empty;
+
+        [JsonPropertyName("user_name")]
+        public string Username { get; set; } = string.Empty;
+    }
 }

@@ -1,6 +1,9 @@
 
-[System.Serializable]
-public abstract class TwitchWebSocketMessagePayloadEvent
+namespace Overlay
 {
+	[System.Serializable]
+	public abstract class TwitchWebSocketMessagePayloadEvent
+	{
 
+	}
 }

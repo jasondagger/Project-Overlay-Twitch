@@ -1,6 +1,12 @@
 
-[System.Serializable]
-public sealed class TwitchWebSocketMessageChannelRaid : TwitchWebSocketMessage
+namespace Overlay
 {
-    public new TwitchWebSocketMessagePayloadChannelRaid payload { get; set; } = new();
+    using System.Text.Json.Serialization;
+
+    [System.Serializable]
+	public sealed class TwitchWebSocketMessageChannelRaid : TwitchWebSocketMessage
+	{
+        [JsonPropertyName("payload")]
+        public new TwitchWebSocketMessagePayloadChannelRaid Payload { get; set; } = new();
+	}
 }

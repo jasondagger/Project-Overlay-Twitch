@@ -1,8 +1,18 @@
 
-[System.Serializable]
-public sealed class TwitchWebSocketMessageCondition
+namespace Overlay
 {
-    public string broadcaster_user_id = string.Empty;
-    public string moderator_user_id = string.Empty;
-    public string to_broadcaster_user_id = string.Empty;
+    using System.Text.Json.Serialization;
+
+    [System.Serializable]
+    public sealed class TwitchWebSocketMessageCondition
+    {
+        [JsonPropertyName("broadcaster_user_id")]
+        public string BroadcasterUserId = string.Empty;
+
+        [JsonPropertyName("moderator_user_id")]
+        public string ModeratorUserId = string.Empty;
+
+        [JsonPropertyName("to_broadcaster_user_id")]
+        public string ToBroadcasterUserId = string.Empty;
+    }
 }

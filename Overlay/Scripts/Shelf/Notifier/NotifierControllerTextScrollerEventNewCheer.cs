@@ -1,28 +1,32 @@
-using NodeType = NodeDirectory.NodeType;
 
-public sealed partial class NotifierControllerTextScrollerEventNewCheer : NotifierControllerTextScrollerEvent
+namespace Overlay
 {
-	public override void _EnterTree()
+	using NodeType = NodeDirectory.NodeType;
+
+	public sealed partial class NotifierControllerTextScrollerEventNewCheer : NotifierControllerTextScrollerEvent
 	{
-        var twitchManager = GetNode<TwitchManager>(
-            NodeDirectory.NodePaths[NodeType.TwitchManager]
-        );
-        twitchManager.ChannelCheered += OnChannelCheered;
+		public override void _EnterTree()
+		{
+			var twitchManager = GetNode<TwitchManager>(
+				NodeDirectory.NodePaths[NodeType.TwitchManager]
+			);
+			twitchManager.ChannelCheered += OnChannelCheered;
 
-        base._EnterTree();
-    }
+			base._EnterTree();
+		}
 
-    protected override string HeaderText { get; set; } = "New Cheer!";
+		protected override string HeaderText { get; set; } = "New Cheer!";
 
-    private void OnChannelCheered(
-        TwitchWebSocketMessagePayloadEventChannelCheer payload
-    )
-    {
-        m_pendingNames.Enqueue(
-            payload.is_anonymous ? "Anonymous" : payload.user_name
-        );
-        m_pendingNames.Enqueue(
-            $"{payload.bits}x Bitt{(payload.bits > 1u ? "ies" : "y")}!"
-        );
-    }
+		private void OnChannelCheered(
+			TwitchWebSocketMessagePayloadEventChannelCheer payload
+		)
+		{
+			m_pendingNames.Enqueue(
+				payload.IsAnonymous ? "Anonymous" : payload.Username
+			);
+			m_pendingNames.Enqueue(
+				$"{payload.Bits}x Bitt{(payload.Bits > 1u ? "ies" : "y")}!"
+			);
+		}
+	}
 }

@@ -1,6 +1,12 @@
 
-[System.Serializable]
-public sealed class TwitchWebSocketMessagePayloadChannelChatNotification : TwitchWebSocketMessagePayload
+namespace Overlay
 {
-    public TwitchWebSocketMessagePayloadEventChannelChatNotification @event { get; set; } = new();
+    using System.Text.Json.Serialization;
+
+    [System.Serializable]
+	public sealed class TwitchWebSocketMessagePayloadChannelChatNotification : TwitchWebSocketMessagePayload
+	{
+        [JsonPropertyName("event")]
+        public TwitchWebSocketMessagePayloadEventChannelChatNotification Event { get; set; } = new();
+	}
 }

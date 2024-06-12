@@ -1,21 +1,33 @@
 
-[System.Serializable]
-public sealed class TwitchWebSocketMessagePayloadEventChannelChatNotificationMessageFragmentEmote
+namespace Overlay
 {
-    public string emote_set_id = string.Empty;
-    public string[] format = null;
-    public string id = string.Empty;
-    public string owner_id = string.Empty;
+    using System.Text.Json.Serialization;
 
-    public bool HasAnimation()
-    {
-        foreach (var word in format)
-        {
-            if (word == "animated")
-            {
-                return true;
-            }
-        }
-        return false;
-    }
+    [System.Serializable]
+	public sealed class TwitchWebSocketMessagePayloadEventChannelChatNotificationMessageFragmentEmote
+	{
+        [JsonPropertyName("emote_set_id")]
+        public string EmoteSetId = string.Empty;
+
+        [JsonPropertyName("format")]
+        public string[] Format = null;
+
+        [JsonPropertyName("id")]
+        public string Id = string.Empty;
+
+        [JsonPropertyName("owner_id")]
+        public string OwnerId = string.Empty;
+
+		public bool HasAnimation()
+		{
+			foreach (var word in Format)
+			{
+				if (word is "animated")
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+	}
 }

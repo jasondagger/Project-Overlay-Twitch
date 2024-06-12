@@ -1,6 +1,12 @@
 
-[System.Serializable]
-public sealed class TwitchWebSocketMessageChannelSubscriptionGift : TwitchWebSocketMessage
+namespace Overlay
 {
-    public new TwitchWebSocketMessagePayloadChannelSubscriptionGift payload { get; set; } = new();
+    using System.Text.Json.Serialization;
+
+    [System.Serializable]
+	public sealed class TwitchWebSocketMessageChannelSubscriptionGift : TwitchWebSocketMessage
+	{
+        [JsonPropertyName("payload")]
+        public new TwitchWebSocketMessagePayloadChannelSubscriptionGift Payload { get; set; } = new();
+	}
 }

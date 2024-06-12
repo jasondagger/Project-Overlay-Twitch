@@ -1,8 +1,18 @@
 
-[System.Serializable]
-public sealed class TwitchWebSocketMessagePayloadEventChannelChatNotificationCharityDonationCharityAmount
+namespace Overlay
 {
-    public string currency = string.Empty;
-    public int decimal_places = 0;
-    public int value = 0;
+    using System.Text.Json.Serialization;
+
+    [System.Serializable]
+	public sealed class TwitchWebSocketMessagePayloadEventChannelChatNotificationCharityDonationCharityAmount
+	{
+        [JsonPropertyName("currency")]
+        public string Currency = string.Empty;
+
+        [JsonPropertyName("decimal_places")]
+        public int? DecimalPlaces = 0;
+
+        [JsonPropertyName("value")]
+        public int? Value = 0;
+	}
 }

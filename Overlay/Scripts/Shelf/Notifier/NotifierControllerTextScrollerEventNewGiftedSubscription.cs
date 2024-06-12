@@ -1,28 +1,33 @@
-using NodeType = NodeDirectory.NodeType;
 
-public sealed partial class NotifierControllerTextScrollerEventNewGiftedSubscription : NotifierControllerTextScrollerEvent
+namespace Overlay
 {
-	public override void _EnterTree()
+	using NodeType = NodeDirectory.NodeType;
+
+	public sealed partial class NotifierControllerTextScrollerEventNewGiftedSubscription : NotifierControllerTextScrollerEvent
 	{
-        var twitchManager = GetNode<TwitchManager>(
-            NodeDirectory.NodePaths[NodeType.TwitchManager]
-        );
-        twitchManager.ChannelSubscriptionGifted += OnChannelSubscriptionGifted;
+		public override void _EnterTree()
+		{
+			var twitchManager = GetNode<TwitchManager>(
+				NodeDirectory.NodePaths[NodeType.TwitchManager]
+			);
+			twitchManager.ChannelSubscriptionGifted += OnChannelSubscriptionGifted;
 
-        base._EnterTree();
+			base._EnterTree();
+		}
+
+		protected override string HeaderText { get; set; } = "New Gifted Subscription!";
+
+		private void OnChannelSubscriptionGifted(
+			TwitchWebSocketMessagePayloadEventChannelSubscriptionGift payload
+		)
+		{
+			bool isChatterAnonymous = payload.IsAnonymous ?? false;
+			m_pendingNames.Enqueue(
+				isChatterAnonymous ? "Anonymous" : payload.Username
+			);
+			m_pendingNames.Enqueue(
+				$"{payload.Total}x Tier {payload.Tier[0]} Gifted Subscription{(payload.Total > 1u ? "s" : "")}!"
+			);
+		}
 	}
-
-    protected override string HeaderText { get; set; } = "New Gifted Subscription!";
-
-    private void OnChannelSubscriptionGifted(
-        TwitchWebSocketMessagePayloadEventChannelSubscriptionGift payload
-    )
-    {
-        m_pendingNames.Enqueue(
-            payload.is_anonymous ? "Anonymous" : payload.user_name
-        );
-        m_pendingNames.Enqueue(
-            $"{payload.total}x Tier {payload.tier[0]} Gifted Subscription{(payload.total > 1u ? "s" : "")}!"
-        );
-    }
 }

@@ -1,7 +1,15 @@
 
-[System.Serializable]
-public sealed class TwitchResponseCustomRewardCreateDataMaxPerUserPerStreamSetting
+namespace Overlay
 {
-    public bool is_enabled = false;
-    public long max_per_user_per_stream = 0;
+    using System.Text.Json.Serialization;
+
+    [System.Serializable]
+    public sealed class TwitchResponseCustomRewardCreateDataMaxPerUserPerStreamSetting
+    {
+        [JsonPropertyName("is_enabled")]
+        public bool IsEnabled = false;
+
+        [JsonPropertyName("max_per_user_per_stream")]
+        public long MaxPerUserPerStream = 0;
+    }
 }

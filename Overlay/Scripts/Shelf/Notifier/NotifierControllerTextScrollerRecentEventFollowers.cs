@@ -1,55 +1,59 @@
-using System.Linq;
-using NodeType = NodeDirectory.NodeType;
 
-public sealed partial class NotifierControllerTextScrollerRecentEventFollowers : NotifierControllerTextScrollerRecentEvent
+namespace Overlay
 {
-	public override void _EnterTree()
+	using System.Linq;
+	using NodeType = NodeDirectory.NodeType;
+
+	public sealed partial class NotifierControllerTextScrollerRecentEventFollowers : NotifierControllerTextScrollerRecentEvent
 	{
-        var twitchManager = GetNode<TwitchManager>(
-            NodeDirectory.NodePaths[NodeType.TwitchManager]
-        );
+		public override void _EnterTree()
+		{
+			var twitchManager = GetNode<TwitchManager>(
+				NodeDirectory.NodePaths[NodeType.TwitchManager]
+			);
 
-        twitchManager.ChannelFollowed += OnChannelFollowed;
-        twitchManager.FollowersRetrieved += OnRecentFollowersRetrieved;
+			twitchManager.ChannelFollowed += OnChannelFollowed;
+			twitchManager.FollowersRetrieved += OnRecentFollowersRetrieved;
 
-        base._EnterTree();
-    }
+			base._EnterTree();
+		}
 
-    protected override string HeaderText { get; set; } = "Recent Followers!";
+		protected override string HeaderText { get; set; } = "Recent Followers!";
 
-    private void OnChannelFollowed(
-        TwitchWebSocketMessagePayloadEventChannelFollow payload
-    )
-    {
-        m_pendingNames.Enqueue(
-            payload.user_name
-        );
-    }
+		private void OnChannelFollowed(
+			TwitchWebSocketMessagePayloadEventChannelFollow payload
+		)
+		{
+			m_pendingNames.Enqueue(
+				payload.Username
+			);
+		}
 
-    private void OnRecentFollowersRetrieved(
-        TwitchResponseChannelFollowersData[] response
-    )
-    {
-        uint index = 0u;
-        while (m_names.Count < c_maxNameCount)
-        {
-            string name = response[index++].user_name;
-            if (name == TwitchData.AccountUsername)
-            {
-                continue;
-            }
-            else if (
-                !name.All(
-                    char.IsAscii
-                )
-            )
-            {
-                name = response[index].user_login;
-            }
+		private void OnRecentFollowersRetrieved(
+			TwitchResponseChannelFollowersData[] response
+		)
+		{
+			uint index = 0u;
+			while (m_names.Count < c_maxNameCount)
+			{
+				string name = response[index++].Username;
+				if (name == TwitchData.AccountUsername)
+				{
+					continue;
+				}
+				else if (
+					!name.All(
+						char.IsAscii
+					)
+				)
+				{
+					name = response[index].UserLogin;
+				}
 
-            m_names.Enqueue(
-                name
-            );
-        }
-    }
+				m_names.Enqueue(
+					name
+				);
+			}
+		}
+	}
 }

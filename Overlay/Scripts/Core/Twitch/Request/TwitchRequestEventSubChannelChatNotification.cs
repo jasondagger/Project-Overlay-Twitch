@@ -1,23 +1,34 @@
-
-// https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelchatnotification
-[System.Serializable]
-public sealed class TwitchRequestEventSubChannelChatNotification
+namespace Overlay
 {
-    public string type { get; set; } = $"channel.chat.notification";
-    public string version { get; set; } = $"1";
-    public TwitchConditionEventSubChannelChatNotification condition { get; set; } = new();
-    public TwitchEventSubTransportWebSocket transport { get; set; } = new();
+    using System.Text.Json.Serialization;
 
-    public TwitchRequestEventSubChannelChatNotification(
-        string userId,
-        string sessionId
-    )
+    // https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelchatnotification
+    [System.Serializable]
+    public sealed class TwitchRequestEventSubChannelChatNotification
     {
-        condition = new(
-            userId
-        );
-        transport = new(
-            sessionId
-        );
+        [JsonPropertyName("type")]
+        public string Type { get; set; } = $"channel.chat.notification";
+
+        [JsonPropertyName("version")]
+        public string Version { get; set; } = $"1";
+
+        [JsonPropertyName("condition")]
+        public TwitchConditionEventSubChannelChatNotification Condition { get; set; } = null;
+
+        [JsonPropertyName("transport")]
+        public TwitchEventSubTransportWebSocket Transport { get; set; } = null;
+
+        public TwitchRequestEventSubChannelChatNotification(
+            string userId,
+            string sessionId
+        )
+        {
+            Condition = new(
+                userId: userId
+            );
+            Transport = new(
+                sessionId: sessionId
+            );
+        }
     }
 }

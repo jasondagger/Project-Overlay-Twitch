@@ -1,68 +1,42 @@
-using Godot;
-using System.Collections.Generic;
-using HttpRequestCompletedHandler = Godot.HttpRequest.RequestCompletedEventHandler;
-
-public sealed partial class HttpManager : Node
+namespace Overlay
 {
-    public override void _Process(
-        double delta
-    )
+    using Godot;
+    using System.Collections.Generic;
+    using HttpRequestCompletedHandler = Godot.HttpRequest.RequestCompletedEventHandler;
+
+    public sealed partial class HttpManager : Node
     {
-        while (m_httpRequestDatas.Count > 0u)
+        public override void _Process(
+            double delta
+        )
         {
-            HttpRequestData httpRequestData = m_httpRequestDatas.Dequeue();
-
-            HttpRequest httpRequest = new();
-            AddChild(
-                httpRequest    
-            );
-            httpRequest.RequestCompleted += httpRequestData.requestCompletedHandler;
-            httpRequest.RequestCompleted += (
-                long result,
-                long responseCode,
-                string[] headers,
-                byte[] body
-            ) =>
+            while (m_httpRequestDatas.Count > 0u)
             {
-                httpRequest.QueueFree();
-            };
-            httpRequest.Request(
-                httpRequestData.url,
-                httpRequestData.headers,
-                httpRequestData.method,
-                httpRequestData.json
-            );
+                var httpRequestData = m_httpRequestDatas.Dequeue();
+                var httpRequest = new HttpRequest();
+                AddChild(
+                    node: httpRequest
+                );
+                httpRequest.RequestCompleted += httpRequestData.RequestCompletedHandler;
+                httpRequest.RequestCompleted += (
+                    long result,
+                    long responseCode,
+                    string[] headers,
+                    byte[] body
+                ) =>
+                {
+                    httpRequest.QueueFree();
+                };
+                httpRequest.Request(
+                    url: httpRequestData.Url,
+                    customHeaders: httpRequestData.Headers,
+                    method: httpRequestData.Method,
+                    requestData: httpRequestData.Json
+                );
+            }
         }
-    }
 
-    public void SendHttpRequest(
-        string url,
-        string[] headers,
-        HttpClient.Method method,
-        string json,
-        HttpRequestCompletedHandler requestCompletedHandler
-    )
-    {
-        m_httpRequestDatas.Enqueue(
-            new HttpRequestData(
-                url,
-                headers,
-                method,
-                json,
-                requestCompletedHandler
-            )
-        );
-    }
-
-    private struct HttpRequestData
-    {
-        public string url;
-        public string[] headers;
-        public HttpClient.Method method;
-        public string json;
-        public HttpRequestCompletedHandler requestCompletedHandler;
-
-        public HttpRequestData(
+        public void SendHttpRequest(
             string url,
             string[] headers,
             HttpClient.Method method,
@@ -70,13 +44,41 @@ public sealed partial class HttpManager : Node
             HttpRequestCompletedHandler requestCompletedHandler
         )
         {
-            this.url = url;
-            this.headers = headers;
-            this.method = method;
-            this.json = json;
-            this.requestCompletedHandler = requestCompletedHandler;
+            m_httpRequestDatas.Enqueue(
+                item: new(
+                    url: url,
+                    headers: headers,
+                    method: method,
+                    json: json,
+                    requestCompletedHandler: requestCompletedHandler
+                )
+            );
         }
-    }
 
-    private Queue<HttpRequestData> m_httpRequestDatas = new();
+        private struct HttpRequestData
+        {
+            public string Url = string.Empty;
+            public string[] Headers = null;
+            public HttpClient.Method Method = HttpClient.Method.Get;
+            public string Json = string.Empty;
+            public HttpRequestCompletedHandler RequestCompletedHandler = null;
+
+            public HttpRequestData(
+                string url,
+                string[] headers,
+                HttpClient.Method method,
+                string json,
+                HttpRequestCompletedHandler requestCompletedHandler
+            )
+            {
+                this.Url = url;
+                this.Headers = headers;
+                this.Method = method;
+                this.Json = json;
+                this.RequestCompletedHandler = requestCompletedHandler;
+            }
+        }
+
+        private readonly Queue<HttpRequestData> m_httpRequestDatas = new();
+    }
 }

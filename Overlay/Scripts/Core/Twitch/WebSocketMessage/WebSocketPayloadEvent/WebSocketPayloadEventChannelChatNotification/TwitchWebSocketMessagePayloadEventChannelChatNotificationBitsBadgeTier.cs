@@ -1,6 +1,12 @@
 
-[System.Serializable]
-public sealed class TwitchWebSocketMessagePayloadEventChannelChatNotificationBitsBadgeTier
+namespace Overlay
 {
-    public int tier = 0;
+    using System.Text.Json.Serialization;
+
+    [System.Serializable]
+	public sealed class TwitchWebSocketMessagePayloadEventChannelChatNotificationBitsBadgeTier
+	{
+        [JsonPropertyName("tier")]
+        public int? Tier = 0;
+	}
 }

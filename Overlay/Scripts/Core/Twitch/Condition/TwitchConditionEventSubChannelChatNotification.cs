@@ -1,20 +1,23 @@
 
-[System.Serializable]
-public sealed class TwitchConditionEventSubChannelChatNotification
+namespace Overlay
 {
-    public string broadcaster_user_id = string.Empty;
-    public string user_id = string.Empty;
+    using System.Text.Json.Serialization;
 
-    public TwitchConditionEventSubChannelChatNotification()
+    [System.Serializable]
+    public sealed class TwitchConditionEventSubChannelChatNotification
     {
+        [JsonPropertyName("broadcaster_user_id")]
+        public string BroadcasterUserId { get; set; } = string.Empty;
 
-    }
+        [JsonPropertyName("user_id")]
+        public string UserId { get; set; } = string.Empty;
 
-    public TwitchConditionEventSubChannelChatNotification(
-        string userId
-    )
-    {
-        broadcaster_user_id = userId;
-        user_id = userId;
+        public TwitchConditionEventSubChannelChatNotification(
+            string userId
+        )
+        {
+            BroadcasterUserId = userId;
+            UserId = userId;
+        }
     }
 }

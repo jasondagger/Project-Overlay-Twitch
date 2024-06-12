@@ -13,7 +13,7 @@ public sealed partial class PastelInterpolator : Node
     )
 	{
         UpdateColor(
-            (float)delta
+            delta: (float)delta
         );
 	}
 
@@ -79,8 +79,8 @@ public sealed partial class PastelInterpolator : Node
         {
             case ColorInterpolationType.RedToYellow:
                 m_currentColor = m_fromColor.Lerp(
-                    c_colorCodes[ColorType.Yellow],
-                    m_colorInterpolation
+                    to: c_colorCodes[ColorType.Yellow],
+                    weight: m_colorInterpolation
                 );
 
                 if (m_colorInterpolation >= 1f)
@@ -94,8 +94,8 @@ public sealed partial class PastelInterpolator : Node
 
             case ColorInterpolationType.YellowToGreen:
                 m_currentColor = m_fromColor.Lerp(
-                    c_colorCodes[ColorType.Green],
-                    m_colorInterpolation
+                    to: c_colorCodes[ColorType.Green],
+                    weight: m_colorInterpolation
                 );
 
                 if (m_colorInterpolation >= 1f)
@@ -109,8 +109,8 @@ public sealed partial class PastelInterpolator : Node
 
             case ColorInterpolationType.GreenToCyan:
                 m_currentColor = m_fromColor.Lerp(
-                    c_colorCodes[ColorType.Cyan],
-                    m_colorInterpolation
+                    to: c_colorCodes[ColorType.Cyan],
+                    weight: m_colorInterpolation
                 );
 
                 if (m_colorInterpolation >= 1f)
@@ -124,8 +124,8 @@ public sealed partial class PastelInterpolator : Node
 
             case ColorInterpolationType.CyanToBlue:
                 m_currentColor = m_fromColor.Lerp(
-                    c_colorCodes[ColorType.Blue],
-                    m_colorInterpolation
+                    to: c_colorCodes[ColorType.Blue],
+                    weight: m_colorInterpolation
                 );
 
                 if (m_colorInterpolation >= 1f)
@@ -139,8 +139,8 @@ public sealed partial class PastelInterpolator : Node
 
             case ColorInterpolationType.BlueToMagenta:
                 m_currentColor = m_fromColor.Lerp(
-                    c_colorCodes[ColorType.Magenta],
-                    m_colorInterpolation
+                    to: c_colorCodes[ColorType.Magenta],
+                    weight: m_colorInterpolation
                 );
 
                 if (m_colorInterpolation >= 1f)
@@ -154,8 +154,8 @@ public sealed partial class PastelInterpolator : Node
 
             case ColorInterpolationType.MagentaToRed:
                 m_currentColor = m_fromColor.Lerp(
-                    c_colorCodes[ColorType.Red],
-                    m_colorInterpolation
+                    to: c_colorCodes[ColorType.Red],
+                    weight: m_colorInterpolation
                 );
 
                 if (m_colorInterpolation >= 1f)

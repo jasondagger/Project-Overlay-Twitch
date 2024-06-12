@@ -1,12 +1,30 @@
 
-[System.Serializable]
-public sealed class TwitchWebSocketMessagePayloadEventChannelChatNotificationSubGift
+namespace Overlay
 {
-    public string community_gift_id = string.Empty;
-    public int cumulative_total = 0;
-    public int duration_months = 0;
-    public string recipient_user_id = string.Empty;
-    public string recipient_user_login = string.Empty;
-    public string recipient_user_name = string.Empty;
-    public string sub_tier = string.Empty;
+    using System.Text.Json.Serialization;
+
+    [System.Serializable]
+	public sealed class TwitchWebSocketMessagePayloadEventChannelChatNotificationSubGift
+	{
+        [JsonPropertyName("community_gift_id")]
+        public string CommunityGiftId = string.Empty;
+
+        [JsonPropertyName("cumulative_total")]
+        public int? CumulativeTotal = 0;
+
+        [JsonPropertyName("duration_months")]
+        public int? DurationMonths = 0;
+
+        [JsonPropertyName("recipient_user_id")]
+        public string RecipientUserId = string.Empty;
+
+        [JsonPropertyName("recipient_user_login")]
+        public string RecipientUserLogin = string.Empty;
+
+        [JsonPropertyName("recipient_user_name")]
+        public string RecipientUsername = string.Empty;
+
+        [JsonPropertyName("sub_tier")]
+        public string SubTier = string.Empty;
+	}
 }

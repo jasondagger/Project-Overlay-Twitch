@@ -1,10 +1,24 @@
 
-[System.Serializable]
-public sealed class TwitchWebSocketMessagePayloadEventChannelChatNotificationRaid
+namespace Overlay
 {
-    public string profile_image_url = string.Empty;
-    public string user_id = string.Empty;
-    public string user_login = string.Empty;
-    public string user_name = string.Empty;
-    public int viewer_count = 0;
+    using System.Text.Json.Serialization;
+
+    [System.Serializable]
+	public sealed class TwitchWebSocketMessagePayloadEventChannelChatNotificationRaid
+	{
+        [JsonPropertyName("profile_image_url")]
+        public string ProfileImageUrl = string.Empty;
+
+        [JsonPropertyName("user_id")]
+        public string UserId = string.Empty;
+
+        [JsonPropertyName("user_login")]
+        public string UserLogin = string.Empty;
+
+        [JsonPropertyName("user_name")]
+        public string Username = string.Empty;
+
+        [JsonPropertyName("viewer_count")]
+        public int? ViewerCount = 0;
+	}
 }

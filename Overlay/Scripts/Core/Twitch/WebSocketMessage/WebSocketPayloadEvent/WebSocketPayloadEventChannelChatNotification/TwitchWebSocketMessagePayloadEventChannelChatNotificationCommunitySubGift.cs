@@ -1,9 +1,21 @@
 
-[System.Serializable]
-public sealed class TwitchWebSocketMessagePayloadEventChannelChatNotificationCommunitySubGift
+namespace Overlay
 {
-    public int cumulative_total = 0;
-    public string id = string.Empty;
-    public string sub_tier = string.Empty;
-    public int total = 0;
+    using System.Text.Json.Serialization;
+
+    [System.Serializable]
+	public sealed class TwitchWebSocketMessagePayloadEventChannelChatNotificationCommunitySubGift
+	{
+        [JsonPropertyName("cumulative_total")]
+        public int? CumulativeTotal = 0;
+
+        [JsonPropertyName("id")]
+        public string Id = string.Empty;
+
+        [JsonPropertyName("sub_tier")]
+        public string SubTier = string.Empty;
+
+        [JsonPropertyName("total")]
+        public int? Total = 0;
+	}
 }

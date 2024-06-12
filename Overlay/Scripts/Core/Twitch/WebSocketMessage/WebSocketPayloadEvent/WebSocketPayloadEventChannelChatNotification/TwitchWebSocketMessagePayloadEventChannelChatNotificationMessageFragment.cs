@@ -1,34 +1,50 @@
 
-[System.Serializable]
-public sealed class TwitchWebSocketMessagePayloadEventChannelChatNotificationMessageFragment
+namespace Overlay
 {
-    public enum FragmentType : uint
-    {
-        Text = 0u,
-        Cheermote,
-        Emote,
-        Mention,
-    }
+    using System.Text.Json.Serialization;
 
-    public TwitchWebSocketMessagePayloadEventChannelChatNotificationMessageFragmentCheermote cheermote = new();
-    public TwitchWebSocketMessagePayloadEventChannelChatNotificationMessageFragmentEmote emote = new();
-    public TwitchWebSocketMessagePayloadEventChannelChatNotificationMessageFragmentMention mention = new();
-    public string text = string.Empty;
-    public string type = string.Empty;
+    [System.Serializable]
+	public sealed class TwitchWebSocketMessagePayloadEventChannelChatNotificationMessageFragment
+	{
+		public enum FragmentType : uint
+		{
+			Text = 0u,
+			Cheermote,
+			Emote,
+			Mention,
+		}
 
-    public FragmentType GetFragmentType()
-    {
-        switch (type)
-        {
-            default:
-            case "text":
-                return FragmentType.Text;
-            case "cheermote":
-                return FragmentType.Cheermote;
-            case "emote":
-                return FragmentType.Emote;
-            case "mention":
-                return FragmentType.Mention;
+        [JsonPropertyName("cheermote")]
+        public TwitchWebSocketMessagePayloadEventChannelChatNotificationMessageFragmentCheermote Cheermote = new();
+
+        [JsonPropertyName("emote")]
+        public TwitchWebSocketMessagePayloadEventChannelChatNotificationMessageFragmentEmote Emote = new();
+
+        [JsonPropertyName("mention")]
+        public TwitchWebSocketMessagePayloadEventChannelChatNotificationMessageFragmentMention Mention = new();
+
+        [JsonPropertyName("text")]
+        public string Text = string.Empty;
+
+        [JsonPropertyName("type")]
+        public string Type = string.Empty;
+
+		public FragmentType GetFragmentType()
+		{
+            return Type switch
+            {
+                "cheermote" => 
+					FragmentType.Cheermote,
+
+                "emote" => 
+					FragmentType.Emote,
+
+                "mention" => 
+					FragmentType.Mention,
+
+                _ => 
+					FragmentType.Text,
+            };
         }
-    }
+	}
 }

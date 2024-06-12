@@ -1,7 +1,15 @@
 
-[System.Serializable]
-public class TwitchWebSocketMessagePayload
+namespace Overlay
 {
-    public TwitchWebSocketMessagePayloadSession session { get; set; } = new();
-    public TwitchWebSocketMessagePayloadSubscription subscription { get; set; } = new();
+    using System.Text.Json.Serialization;
+
+    [System.Serializable]
+    public class TwitchWebSocketMessagePayload
+    {
+        [JsonPropertyName("session")]
+        public TwitchWebSocketMessagePayloadSession Session { get; set; } = new();
+
+        [JsonPropertyName("subscription")]
+        public TwitchWebSocketMessagePayloadSubscription Subscription { get; set; } = new();
+    }
 }

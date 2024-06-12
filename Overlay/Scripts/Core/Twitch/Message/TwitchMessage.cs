@@ -1,12 +1,18 @@
 
-public abstract class TwitchMessage
+namespace Overlay
 {
-    public TwitchEventSubSubscriptionType type = TwitchEventSubSubscriptionType.Unknown;
+    using System.Text.Json.Serialization;
 
-    public TwitchMessage(
-        TwitchEventSubSubscriptionType type
-    )
+    public abstract class TwitchMessage
     {
-        this.type = type;
+        [JsonPropertyName("type")]
+        public TwitchEventSubSubscriptionType Type = TwitchEventSubSubscriptionType.Unknown;
+
+        public TwitchMessage(
+            TwitchEventSubSubscriptionType type
+        )
+        {
+            this.Type = type;
+        }
     }
 }

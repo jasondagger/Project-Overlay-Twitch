@@ -1,14 +1,36 @@
 
-[System.Serializable]
-public sealed class TwitchWebSocketMessagePayloadEventChannelCheer : TwitchWebSocketMessagePayloadEvent
+namespace Overlay
 {
-    public int bits = 0;
-    public string broadcaster_user_id = string.Empty;
-    public string broadcaster_user_login = string.Empty;
-    public string broadcaster_user_name = string.Empty;
-    public bool is_anonymous = false;
-    public string message = string.Empty;
-    public string user_id = string.Empty;
-    public string user_login = string.Empty;
-    public string user_name = string.Empty;
+    using System.Text.Json.Serialization;
+
+    [System.Serializable]
+	public sealed class TwitchWebSocketMessagePayloadEventChannelCheer : TwitchWebSocketMessagePayloadEvent
+	{
+        [JsonPropertyName("bits")]
+        public int? Bits { get; set; } = 0;
+
+        [JsonPropertyName("broadcaster_user_id")]
+        public string BroadcasterUserId { get; set; } = string.Empty;
+
+        [JsonPropertyName("broadcaster_user_login")]
+        public string BroadcasterUserLogin { get; set; } = string.Empty;
+
+        [JsonPropertyName("broadcaster_user_name")]
+        public string BroadcasterUsername { get; set; } = string.Empty;
+
+        [JsonPropertyName("is_anonymous")]
+        public bool IsAnonymous { get; set; } = false;
+
+        [JsonPropertyName("message")]
+        public string Message { get; set; } = string.Empty;
+
+        [JsonPropertyName("user_id")]
+        public string UserId { get; set; } = string.Empty;
+
+        [JsonPropertyName("user_login")]
+        public string UserLogin { get; set; } = string.Empty;
+
+        [JsonPropertyName("user_name")]
+        public string Username { get; set; } = string.Empty;
+	}
 }

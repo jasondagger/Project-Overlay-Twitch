@@ -1,25 +1,29 @@
-using NodeType = NodeDirectory.NodeType;
 
-public sealed partial class NotifierControllerTextScrollerEventNewFollower : NotifierControllerTextScrollerEvent
+namespace Overlay
 {
-	public override void _EnterTree()
+	using NodeType = NodeDirectory.NodeType;
+
+	public sealed partial class NotifierControllerTextScrollerEventNewFollower : NotifierControllerTextScrollerEvent
 	{
-        var twitchManager = GetNode<TwitchManager>(
-            NodeDirectory.NodePaths[NodeType.TwitchManager]
-        );
-        twitchManager.ChannelFollowed += OnChannelFollowed;
+		public override void _EnterTree()
+		{
+			var twitchManager = GetNode<TwitchManager>(
+				NodeDirectory.NodePaths[NodeType.TwitchManager]
+			);
+			twitchManager.ChannelFollowed += OnChannelFollowed;
 
-        base._EnterTree();
+			base._EnterTree();
+		}
+
+		protected override string HeaderText { get; set; } = "New Follower!";
+
+		private void OnChannelFollowed(
+			TwitchWebSocketMessagePayloadEventChannelFollow payload
+		)
+		{
+			m_pendingNames.Enqueue(
+				payload.Username
+			);
+		}
 	}
-
-    protected override string HeaderText { get; set; } = "New Follower!";
-
-    private void OnChannelFollowed(
-        TwitchWebSocketMessagePayloadEventChannelFollow payload
-    )
-    {
-        m_pendingNames.Enqueue(
-            payload.user_name
-        );
-    }
 }

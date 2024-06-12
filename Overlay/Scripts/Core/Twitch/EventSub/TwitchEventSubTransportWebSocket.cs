@@ -1,19 +1,26 @@
-
-[System.Serializable]
-public sealed class TwitchEventSubTransportWebSocket
+namespace Overlay
 {
-    public string method { get; set; } = "websocket";
-    public string session_id { get; set; } = string.Empty;
+    using System.Text.Json.Serialization;
 
-    public TwitchEventSubTransportWebSocket()
+    [System.Serializable]
+    public sealed class TwitchEventSubTransportWebSocket
     {
+        [JsonPropertyName("method")]
+        public string Method { get; set; } = "websocket";
 
-    }
+        [JsonPropertyName("session_id")]
+        public string SessionId { get; set; } = string.Empty;
 
-    public TwitchEventSubTransportWebSocket(
-        string session_id
-    )
-    {
-        this.session_id = session_id;
+        public TwitchEventSubTransportWebSocket()
+        {
+
+        }
+
+        public TwitchEventSubTransportWebSocket(
+            string sessionId
+        )
+        {
+            this.SessionId = sessionId;
+        }
     }
 }

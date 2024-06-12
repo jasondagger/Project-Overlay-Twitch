@@ -1,16 +1,42 @@
 
-[System.Serializable]
-public sealed class TwitchWebSocketMessagePayloadEventChannelPointsCustomRewardRedeemed : TwitchWebSocketMessagePayloadEvent
+namespace Overlay
 {
-    public string broadcaster_user_id = string.Empty;
-    public string broadcaster_user_login = string.Empty;
-    public string broadcaster_user_name = string.Empty;
-    public string id = string.Empty;
-    public string redeemed_at = string.Empty;
-    public TwitchEventSubReward reward = new();
-    public string status = string.Empty;
-    public string user_id = string.Empty;
-    public string user_input = string.Empty;
-    public string user_login = string.Empty;
-    public string user_name = string.Empty;
+    using System.Text.Json.Serialization;
+
+    [System.Serializable]
+	public sealed class TwitchWebSocketMessagePayloadEventChannelPointsCustomRewardRedeemed : TwitchWebSocketMessagePayloadEvent
+	{
+        [JsonPropertyName("broadcaster_user_id")]
+        public string BroadcasterUserId { get; set; } = string.Empty;
+
+        [JsonPropertyName("broadcaster_user_login")]
+        public string BroadcasterUserLogin { get; set; } = string.Empty;
+
+        [JsonPropertyName("broadcaster_user_name")]
+        public string BroadcasterUsername { get; set; } = string.Empty;
+
+        [JsonPropertyName("id")]
+        public string Id { get; set; } = string.Empty;
+
+        [JsonPropertyName("redeemed_at")]
+        public string RedeemedAt { get; set; } = string.Empty;
+
+        [JsonPropertyName("reward")]
+        public TwitchEventSubReward Reward { get; set; } = new();
+
+        [JsonPropertyName("status")]
+        public string Status { get; set; } = string.Empty;
+
+        [JsonPropertyName("user_id")]
+        public string UserId { get; set; } = string.Empty;
+
+        [JsonPropertyName("user_input")]
+        public string UserInput { get; set; } = string.Empty;
+
+        [JsonPropertyName("user_login")]
+        public string UserLogin { get; set; } = string.Empty;
+
+        [JsonPropertyName("user_name")]
+        public string Username { get; set; } = string.Empty;
+	}
 }

@@ -1,14 +1,19 @@
-
-public sealed class TwitchMessageChannelFollow : TwitchMessage
+namespace Overlay
 {
-    public TwitchWebSocketMessagePayloadEventChannelFollow @event { get; set; } = new();
+    using System.Text.Json.Serialization;
 
-    public TwitchMessageChannelFollow(
-        TwitchWebSocketMessagePayloadEventChannelFollow @event
-    ) : base(
-        TwitchEventSubSubscriptionType.ChannelFollow
-    )
-    {
-        this.@event = @event;
-    }
+    public sealed class TwitchMessageChannelFollow : TwitchMessage
+	{
+        [JsonPropertyName("event")]
+        public TwitchWebSocketMessagePayloadEventChannelFollow Event { get; set; } = new();
+
+		public TwitchMessageChannelFollow(
+			TwitchWebSocketMessagePayloadEventChannelFollow @event
+		) : base(
+			TwitchEventSubSubscriptionType.ChannelFollow
+		)
+		{
+			this.Event = @event;
+		}
+	}
 }

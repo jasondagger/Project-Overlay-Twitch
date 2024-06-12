@@ -12,7 +12,7 @@ config_version=5
 
 config/name="Overlay"
 run/main_scene="res://Overlay/Main.tscn"
-config/features=PackedStringArray("4.1", "C#", "Forward Plus")
+config/features=PackedStringArray("4.1", "Forward Plus")
 boot_splash/show_image=false
 
 [audio]

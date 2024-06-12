@@ -1,13 +1,19 @@
 
-[System.Serializable]
-public sealed class TwitchConditionEventSubSubscriptions
+namespace Overlay
 {
-    public string broadcaster_user_id = string.Empty;
+    using System.Text.Json.Serialization;
 
-    public TwitchConditionEventSubSubscriptions(
-        string userId
-    )
+    [System.Serializable]
+    public sealed class TwitchConditionEventSubSubscriptions
     {
-        broadcaster_user_id = userId;
+        [JsonPropertyName("broadcaster_user_id")]
+        public string BroadcasterUserId = string.Empty;
+
+        public TwitchConditionEventSubSubscriptions(
+            string userId
+        )
+        {
+            BroadcasterUserId = userId;
+        }
     }
 }

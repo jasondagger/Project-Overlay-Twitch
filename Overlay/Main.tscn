@@ -1,4 +1,4 @@
-[gd_scene load_steps=108 format=3 uid="uid://r2tmjbhme8io"]
+[gd_scene load_steps=77 format=3 uid="uid://r2tmjbhme8io"]
 
 [ext_resource type="Script" path="res://Overlay/Scripts/Core/ApplicationManager.cs" id="1_qamig"]
 [ext_resource type="Script" path="res://Overlay/Scripts/Core/AudioManager.cs" id="2_62y76"]
@@ -50,53 +50,22 @@
 [ext_resource type="Script" path="res://Overlay/Scripts/Shelf/Notifier/NotifierControllerTextScrollerSocialTwitch.cs" id="56_60yfq"]
 [ext_resource type="Script" path="res://Overlay/Scripts/Shelf/Notifier/NotifierControllerTextScrollerSocialTwitter.cs" id="58_a4ly8"]
 [ext_resource type="Script" path="res://Overlay/Scripts/Shelf/Notifier/NotifierControllerTextScrollerSocialYoutube.cs" id="60_qst2h"]
-[ext_resource type="ArrayMesh" uid="uid://b54pl52qywtdv" path="res://Overlay/Models/Bomber/Bomber_Blades.obj" id="62_bjbhb"]
-[ext_resource type="ArrayMesh" uid="uid://doy0ba8xpwocb" path="res://Overlay/Models/Bomber/Bomber_Body.obj" id="63_a1lr4"]
-[ext_resource type="ArrayMesh" uid="uid://cxa3xpstxadl1" path="res://Overlay/Models/Bomber/Bomber_Cockpit_Base.obj" id="64_g08td"]
-[ext_resource type="ArrayMesh" uid="uid://bjqppcp052o04" path="res://Overlay/Models/Bomber/Bomber_Cockpit_Glass.obj" id="65_8jtph"]
 [ext_resource type="Texture2D" uid="uid://caui8s0umkv3n" path="res://Overlay/Textures/Icons/Icon_Discord.png" id="65_omfnm"]
 [ext_resource type="Texture2D" uid="uid://dyou01qmkpw3e" path="res://Overlay/Textures/Particles/Cloud.png" id="65_yx55p"]
 [ext_resource type="Texture2D" uid="uid://d4ap28lomghor" path="res://Overlay/Textures/Icons/Icon_Cheer.png" id="66_iq8kd"]
 [ext_resource type="Texture2D" uid="uid://o6tx1u7yhfbq" path="res://Overlay/Textures/Particles/SmileyFace.png" id="66_ri0vm"]
-[ext_resource type="ArrayMesh" uid="uid://s8dpplidtpvc" path="res://Overlay/Models/Bomber/Bomber_Nose.obj" id="66_t02fj"]
-[ext_resource type="ArrayMesh" uid="uid://6ov2qiod0xu6" path="res://Overlay/Models/Bomber/Bomber_Propeller_Rivot.obj" id="67_1b61q"]
 [ext_resource type="Script" path="res://Overlay/Scripts/Shelf/Notifier/NotifierControllerTextScrollerEventNewCheer.cs" id="67_k6j3w"]
-[ext_resource type="Material" uid="uid://dr6j88706bt0f" path="res://Overlay/Materials/Bomber/Bomber_Trim_Bright.tres" id="67_oxxao"]
-[ext_resource type="ArrayMesh" uid="uid://xb8jtfw2ufm8" path="res://Overlay/Models/Bomber/Bomber_Tailwing.obj" id="68_jmo8d"]
-[ext_resource type="ArrayMesh" uid="uid://bicftb2axije3" path="res://Overlay/Models/Bomber/Bomber_Cockpit_Base_Cage.obj" id="68_s4pr0"]
-[ext_resource type="ArrayMesh" uid="uid://c84a21ngy2ffi" path="res://Overlay/Models/Bomber/Bomber_Wings.obj" id="69_h5bi7"]
 [ext_resource type="Script" path="res://Overlay/Scripts/Shelf/Notifier/NotifierControllerTextScrollerEventNewFollower.cs" id="69_jt3uc"]
-[ext_resource type="ArrayMesh" uid="uid://buwp20pe38ewf" path="res://Overlay/Models/Bomber/Bomber_Swizzle.obj" id="71_kdrts"]
 [ext_resource type="Texture2D" uid="uid://dvl6q3fg045w3" path="res://Overlay/Textures/Icons/Icon_Follower.png" id="72_gjb3l"]
-[ext_resource type="ArrayMesh" uid="uid://cupoiy2bvsnl3" path="res://Overlay/Models/Bomber/Bomber_Tailwing_Trim.obj" id="72_o7ueb"]
-[ext_resource type="ArrayMesh" uid="uid://db8aotjf4vecc" path="res://Overlay/Models/Bomber/Bomber_Tailwing_Trim_Glow.obj" id="73_4ojw8"]
 [ext_resource type="Script" path="res://Overlay/Scripts/Shelf/Notifier/NotifierControllerTextScrollerEventNewGiftedSubscription.cs" id="73_8bntq"]
-[ext_resource type="ArrayMesh" uid="uid://cm0p2oxqiw4x0" path="res://Overlay/Models/Bomber/Bomber_Tailwing_Cap.obj" id="73_nga4q"]
-[ext_resource type="ArrayMesh" uid="uid://bri6grh62wpau" path="res://Overlay/Models/Bomber/Bomber_Wing_Cap_Left.obj" id="74_btfw8"]
-[ext_resource type="ArrayMesh" uid="uid://brhnji57gd62e" path="res://Overlay/Models/Bomber/Bomber_Wing_Cap_Right.obj" id="75_2788w"]
-[ext_resource type="ArrayMesh" uid="uid://dnl0lkun141pt" path="res://Overlay/Models/Bomber/Bomber_Swizzle_Glow.obj" id="76_evdkq"]
-[ext_resource type="ArrayMesh" uid="uid://crtkr6khmhfd" path="res://Overlay/Models/Bomber/Bomber_Wing_Trim_Left.obj" id="76_i2y1k"]
-[ext_resource type="ArrayMesh" uid="uid://opscbkpfhdq4" path="res://Overlay/Models/Bomber/Bomber_Wing_Trim_Right.obj" id="77_6kuhn"]
 [ext_resource type="Texture2D" uid="uid://bhb6h71rgoyw1" path="res://Overlay/Textures/Icons/Icon_Twitch.png" id="78_51i4l"]
 [ext_resource type="Texture2D" uid="uid://v4gmq1ephid0" path="res://Overlay/Textures/Icons/Icon_GiftedSubscription.png" id="78_cc2w2"]
 [ext_resource type="Script" path="res://Overlay/Scripts/Shelf/Notifier/NotifierControllerTextScrollerEventNewSubscriber.cs" id="79_pn3i8"]
 [ext_resource type="Texture2D" uid="uid://bk8we6jfs3wb1" path="res://Overlay/Textures/Icons/Icon_Subscriber.png" id="80_6gpw6"]
 [ext_resource type="Script" path="res://Overlay/Scripts/Shelf/Notifier/NotifierControllerTextScrollerRecentEventFollowers.cs" id="81_7cx7o"]
-[ext_resource type="ArrayMesh" uid="uid://bn733jrc0n5v2" path="res://Overlay/Models/Bomber/Bomber_Propeller_Blade_Trim_Bottom.obj" id="81_cywhw"]
 [ext_resource type="Script" path="res://Overlay/Scripts/Shelf/Notifier/NotifierControllerTextScrollerRecentEventSubscribers.cs" id="82_81j08"]
-[ext_resource type="ArrayMesh" uid="uid://wgwd1d5wnmdi" path="res://Overlay/Models/Bomber/Bomber_Propeller_Blade_Trim_Left.obj" id="82_g5bqx"]
-[ext_resource type="ArrayMesh" uid="uid://bogysme53w7r7" path="res://Overlay/Models/Bomber/Bomber_Wing_Trim_Glow_Left.obj" id="82_v2h7y"]
-[ext_resource type="ArrayMesh" uid="uid://dt1pijeg5bhgh" path="res://Overlay/Models/Bomber/Bomber_Wing_Trim_Glow_Right.obj" id="83_4h6d7"]
-[ext_resource type="ArrayMesh" uid="uid://cxl1ry4rjhar2" path="res://Overlay/Models/Bomber/Bomber_Propeller_Blade_Trim_Right.obj" id="83_7sjk6"]
-[ext_resource type="ArrayMesh" uid="uid://bvv00x700qxo1" path="res://Overlay/Models/Bomber/Bomber_Propeller_Blade_Trim_Top.obj" id="84_r36kg"]
 [ext_resource type="Texture2D" uid="uid://b7806uf5ibd5y" path="res://Overlay/Textures/Icons/Icon_Twitter.png" id="86_c8ryg"]
 [ext_resource type="Texture2D" uid="uid://m7aw8oie1bxl" path="res://Overlay/Textures/Icons/Icon_YouTube.png" id="88_qtord"]
-[ext_resource type="ArrayMesh" uid="uid://dpqdp1kmxekp0" path="res://Overlay/Models/Bomber/Bomber_Wheel_Axel.obj" id="93_0qg4b"]
-[ext_resource type="ArrayMesh" uid="uid://dn64urcpr22yd" path="res://Overlay/Models/Bomber/Bomber_Wheel_Connector.obj" id="94_tv208"]
-[ext_resource type="ArrayMesh" uid="uid://bd52vv52irimr" path="res://Overlay/Models/Bomber/Bomber_Wheel_Rubber.obj" id="95_hsmim"]
-[ext_resource type="Material" uid="uid://f2eqaashm5fq" path="res://Overlay/Materials/Bomber/Bomber_Glass.tres" id="96_p1w3n"]
-[ext_resource type="ArrayMesh" uid="uid://de4g1heikuxd0" path="res://Overlay/Models/Bomber/Bomber_Wheel_Trim.obj" id="97_ac2pr"]
-[ext_resource type="Material" uid="uid://bgspcf0pohs23" path="res://Overlay/Materials/Bomber/Bomber_Trim.tres" id="97_ktbad"]
 
 [sub_resource type="Environment" id="Environment_mpp48"]
 background_mode = 1
@@ -161,7 +130,6 @@ color = Color(0.819608, 0.964706, 1, 1)
 [node name="Main" type="Node"]
 
 [node name="SubViewportContainer" type="SubViewportContainer" parent="."]
-visible = false
 offset_right = 1920.0
 offset_bottom = 1080.0
 
@@ -171,11 +139,10 @@ handle_input_locally = false
 msaa_2d = 3
 screen_space_aa = 1
 size = Vector2i(2560, 1440)
-render_target_update_mode = 0
+render_target_update_mode = 4
 
 [node name="Camera3D" type="Camera3D" parent="SubViewportContainer/SubViewport"]
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0)
-visible = false
 keep_aspect = 0
 environment = SubResource("Environment_mpp48")
 projection = 1
@@ -283,8 +250,6 @@ bus = &"SoundAlert"
 stream = ExtResource("19_ui3jw")
 bus = &"SoundAlert"
 
-[node name="SoundEvents" type="Node" parent="Core/AudioManager"]
-
 [node name="HttpManager" type="Node" parent="Core"]
 script = ExtResource("20_khs6h")
 
@@ -294,14 +259,14 @@ script = ExtResource("20_vvlvl")
 [node name="PastelInterpolator" type="Node" parent="Core"]
 script = ExtResource("22_5gnu4")
 
+[node name="TwitchManager" type="Node" parent="Core"]
+script = ExtResource("23_w0w6m")
+
 [node name="TwitchBot" type="Node" parent="Core"]
 script = ExtResource("21_0b470")
 
 [node name="TwitchChannelPointRewardsManager" type="Node" parent="Core"]
 script = ExtResource("22_0vdu7")
-
-[node name="TwitchManager" type="Node" parent="Core"]
-script = ExtResource("23_w0w6m")
 
 [node name="2D" type="Node2D" parent="."]
 
@@ -1203,407 +1168,3 @@ texture = ExtResource("66_ri0vm")
 lifetime = 5.0
 fixed_fps = 0
 local_coords = true
-
-[node name="3D" type="Node3D" parent="."]
-visible = false
-
-[node name="ChannelPointRewards" type="Node3D" parent="3D"]
-
-[node name="FirstBlood" type="Node3D" parent="3D/ChannelPointRewards"]
-
-[node name="Bomber2" type="Node3D" parent="3D/ChannelPointRewards/FirstBlood"]
-transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 22.2875, 4.35425, 35.637)
-
-[node name="Bomber_Body" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2"]
-mesh = ExtResource("63_a1lr4")
-skeleton = NodePath("../Bomber_Propeller/Bomber_Blades")
-
-[node name="Bomber_Cockpit" type="Node3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2"]
-
-[node name="Bomber_Cockpit_Base" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2/Bomber_Cockpit"]
-mesh = ExtResource("64_g08td")
-skeleton = NodePath("../../Bomber_Wings/Bomber_Wings")
-
-[node name="Bomber_Cockpit_Base_Cage" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2/Bomber_Cockpit"]
-material_override = ExtResource("67_oxxao")
-mesh = ExtResource("68_s4pr0")
-skeleton = NodePath("../../Bomber_Tailwing/Bomber_Tailwing")
-
-[node name="Bomber_Cockpit_Glass" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2/Bomber_Cockpit"]
-mesh = ExtResource("65_8jtph")
-skeleton = NodePath("../Bomber_Cockpit_Base")
-
-[node name="Bomber_Propeller" type="Node3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2"]
-
-[node name="Bomber_Propeller_Rivot" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2/Bomber_Propeller"]
-mesh = ExtResource("67_1b61q")
-skeleton = NodePath(".")
-
-[node name="Bomber_Blades" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2/Bomber_Propeller"]
-mesh = ExtResource("62_bjbhb")
-skeleton = NodePath("../..")
-
-[node name="Bomber_Propeller_Blade_Trim_Bottom" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2/Bomber_Propeller/Bomber_Blades"]
-mesh = ExtResource("81_cywhw")
-skeleton = NodePath("../../../Bomber_Tailwing/Bomber_Tailwing")
-
-[node name="Bomber_Propeller_Blade_Trim_Left" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2/Bomber_Propeller/Bomber_Blades"]
-mesh = ExtResource("82_g5bqx")
-skeleton = NodePath("../../../Bomber_Tailwing/Bomber_Tailwing")
-
-[node name="Bomber_Propeller_Blade_Trim_Right" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2/Bomber_Propeller/Bomber_Blades"]
-mesh = ExtResource("83_7sjk6")
-skeleton = NodePath("../../../Bomber_Tailwing/Bomber_Tailwing")
-
-[node name="Bomber_Propeller_Blade_Trim_Top" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2/Bomber_Propeller/Bomber_Blades"]
-mesh = ExtResource("84_r36kg")
-skeleton = NodePath("../../../Bomber_Tailwing/Bomber_Tailwing")
-
-[node name="Bomber_Nose" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2/Bomber_Propeller"]
-mesh = ExtResource("66_t02fj")
-skeleton = NodePath("../../Bomber_Cockpit/Bomber_Cockpit_Glass")
-
-[node name="Bomber_Swizzle" type="Node3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2"]
-
-[node name="Bomber_Swizzle" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2/Bomber_Swizzle"]
-mesh = ExtResource("71_kdrts")
-skeleton = NodePath("../../Bomber_Propeller/Bomber_Nose")
-
-[node name="Bomber_Swizzle_Glow" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2/Bomber_Swizzle"]
-mesh = ExtResource("76_evdkq")
-skeleton = NodePath("../../Bomber_Propeller/Bomber_Nose")
-
-[node name="Bomber_Tailwing" type="Node3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2"]
-
-[node name="Bomber_Tailwing" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2/Bomber_Tailwing"]
-mesh = ExtResource("68_jmo8d")
-skeleton = NodePath("../../Bomber_Propeller/Bomber_Nose")
-
-[node name="Bomber_Tailwing_Trim" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2/Bomber_Tailwing"]
-mesh = ExtResource("72_o7ueb")
-skeleton = NodePath("../../Bomber_Propeller/Bomber_Nose")
-
-[node name="Bomber_Tailwing_Cap" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2/Bomber_Tailwing"]
-mesh = ExtResource("73_nga4q")
-skeleton = NodePath("../../Bomber_Propeller/Bomber_Nose")
-
-[node name="Bomber_Tailwing_Trim_Glow" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2/Bomber_Tailwing"]
-mesh = ExtResource("73_4ojw8")
-skeleton = NodePath("../../Bomber_Propeller/Bomber_Nose")
-
-[node name="Bomber_Wheels" type="Node3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2"]
-
-[node name="Bomber_Wheel_Axel" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2/Bomber_Wheels"]
-mesh = ExtResource("93_0qg4b")
-skeleton = NodePath("../../Bomber_Propeller/Bomber_Nose")
-
-[node name="Bomber_Wheel_Connector" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2/Bomber_Wheels"]
-mesh = ExtResource("94_tv208")
-skeleton = NodePath("../../Bomber_Propeller/Bomber_Nose")
-
-[node name="Bomber_Wheel_Rubber" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2/Bomber_Wheels"]
-mesh = ExtResource("95_hsmim")
-skeleton = NodePath("../../Bomber_Propeller/Bomber_Nose")
-
-[node name="Bomber_Wheel_Trim" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2/Bomber_Wheels"]
-mesh = ExtResource("97_ac2pr")
-skeleton = NodePath("../../Bomber_Propeller/Bomber_Nose")
-
-[node name="Bomber_Wings" type="Node3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2"]
-
-[node name="Bomber_Wings" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2/Bomber_Wings"]
-mesh = ExtResource("69_h5bi7")
-skeleton = NodePath("../../Bomber_Tailwing/Bomber_Tailwing")
-
-[node name="Bomber_Wing_Cap_Left" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2/Bomber_Wings"]
-mesh = ExtResource("74_btfw8")
-skeleton = NodePath("../../Bomber_Tailwing/Bomber_Tailwing")
-
-[node name="Bomber_Wing_Cap_Right" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2/Bomber_Wings"]
-mesh = ExtResource("75_2788w")
-skeleton = NodePath("../../Bomber_Tailwing/Bomber_Tailwing")
-
-[node name="Bomber_Wing_Trim_Left" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2/Bomber_Wings"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00167847, 0.0190172, -0.0190773)
-mesh = ExtResource("76_i2y1k")
-skeleton = NodePath("../../Bomber_Tailwing/Bomber_Tailwing")
-
-[node name="Bomber_Wing_Trim_Right" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2/Bomber_Wings"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00167847, 0.0190172, -0.0190773)
-mesh = ExtResource("77_6kuhn")
-skeleton = NodePath("../../Bomber_Tailwing/Bomber_Tailwing")
-
-[node name="Bomber_Wing_Trim_Glow_Left" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2/Bomber_Wings"]
-mesh = ExtResource("82_v2h7y")
-skeleton = NodePath("../../Bomber_Tailwing/Bomber_Tailwing")
-
-[node name="Bomber_Wing_Trim_Glow_Right" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber2/Bomber_Wings"]
-mesh = ExtResource("83_4h6d7")
-skeleton = NodePath("../../Bomber_Tailwing/Bomber_Tailwing")
-
-[node name="Bomber3" type="Node3D" parent="3D/ChannelPointRewards/FirstBlood"]
-transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, -13.0287, 14.6901, 35.637)
-
-[node name="Bomber_Body" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3"]
-mesh = ExtResource("63_a1lr4")
-skeleton = NodePath("../Bomber_Propeller/Bomber_Blades")
-
-[node name="Bomber_Cockpit" type="Node3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3"]
-
-[node name="Bomber_Cockpit_Base" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3/Bomber_Cockpit"]
-mesh = ExtResource("64_g08td")
-skeleton = NodePath("../../Bomber_Wings/Bomber_Wings")
-
-[node name="Bomber_Cockpit_Base_Cage" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3/Bomber_Cockpit"]
-material_override = ExtResource("67_oxxao")
-mesh = ExtResource("68_s4pr0")
-skeleton = NodePath("../../Bomber_Tailwing/Bomber_Tailwing")
-
-[node name="Bomber_Cockpit_Glass" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3/Bomber_Cockpit"]
-mesh = ExtResource("65_8jtph")
-skeleton = NodePath("../Bomber_Cockpit_Base")
-
-[node name="Bomber_Propeller" type="Node3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3"]
-
-[node name="Bomber_Propeller_Rivot" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3/Bomber_Propeller"]
-mesh = ExtResource("67_1b61q")
-skeleton = NodePath(".")
-
-[node name="Bomber_Blades" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3/Bomber_Propeller"]
-mesh = ExtResource("62_bjbhb")
-skeleton = NodePath("../..")
-
-[node name="Bomber_Propeller_Blade_Trim_Bottom" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3/Bomber_Propeller/Bomber_Blades"]
-mesh = ExtResource("81_cywhw")
-skeleton = NodePath("../../../Bomber_Tailwing/Bomber_Tailwing")
-
-[node name="Bomber_Propeller_Blade_Trim_Left" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3/Bomber_Propeller/Bomber_Blades"]
-mesh = ExtResource("82_g5bqx")
-skeleton = NodePath("../../../Bomber_Tailwing/Bomber_Tailwing")
-
-[node name="Bomber_Propeller_Blade_Trim_Right" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3/Bomber_Propeller/Bomber_Blades"]
-mesh = ExtResource("83_7sjk6")
-skeleton = NodePath("../../../Bomber_Tailwing/Bomber_Tailwing")
-
-[node name="Bomber_Propeller_Blade_Trim_Top" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3/Bomber_Propeller/Bomber_Blades"]
-mesh = ExtResource("84_r36kg")
-skeleton = NodePath("../../../Bomber_Tailwing/Bomber_Tailwing")
-
-[node name="Bomber_Nose" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3/Bomber_Propeller"]
-mesh = ExtResource("66_t02fj")
-skeleton = NodePath("../../Bomber_Cockpit/Bomber_Cockpit_Glass")
-
-[node name="Bomber_Swizzle" type="Node3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3"]
-
-[node name="Bomber_Swizzle" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3/Bomber_Swizzle"]
-mesh = ExtResource("71_kdrts")
-skeleton = NodePath("../../Bomber_Propeller/Bomber_Nose")
-
-[node name="Bomber_Swizzle_Glow" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3/Bomber_Swizzle"]
-mesh = ExtResource("76_evdkq")
-skeleton = NodePath("../../Bomber_Propeller/Bomber_Nose")
-
-[node name="Bomber_Tailwing" type="Node3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3"]
-
-[node name="Bomber_Tailwing" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3/Bomber_Tailwing"]
-mesh = ExtResource("68_jmo8d")
-skeleton = NodePath("../../Bomber_Propeller/Bomber_Nose")
-
-[node name="Bomber_Tailwing_Trim" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3/Bomber_Tailwing"]
-mesh = ExtResource("72_o7ueb")
-skeleton = NodePath("../../Bomber_Propeller/Bomber_Nose")
-
-[node name="Bomber_Tailwing_Cap" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3/Bomber_Tailwing"]
-mesh = ExtResource("73_nga4q")
-skeleton = NodePath("../../Bomber_Propeller/Bomber_Nose")
-
-[node name="Bomber_Tailwing_Trim_Glow" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3/Bomber_Tailwing"]
-mesh = ExtResource("73_4ojw8")
-skeleton = NodePath("../../Bomber_Propeller/Bomber_Nose")
-
-[node name="Bomber_Wheels" type="Node3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3"]
-
-[node name="Bomber_Wheel_Axel" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3/Bomber_Wheels"]
-mesh = ExtResource("93_0qg4b")
-skeleton = NodePath("../../Bomber_Propeller/Bomber_Nose")
-
-[node name="Bomber_Wheel_Connector" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3/Bomber_Wheels"]
-mesh = ExtResource("94_tv208")
-skeleton = NodePath("../../Bomber_Propeller/Bomber_Nose")
-
-[node name="Bomber_Wheel_Rubber" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3/Bomber_Wheels"]
-mesh = ExtResource("95_hsmim")
-skeleton = NodePath("../../Bomber_Propeller/Bomber_Nose")
-
-[node name="Bomber_Wheel_Trim" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3/Bomber_Wheels"]
-mesh = ExtResource("97_ac2pr")
-skeleton = NodePath("../../Bomber_Propeller/Bomber_Nose")
-
-[node name="Bomber_Wings" type="Node3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3"]
-
-[node name="Bomber_Wings" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3/Bomber_Wings"]
-mesh = ExtResource("69_h5bi7")
-skeleton = NodePath("../../Bomber_Tailwing/Bomber_Tailwing")
-
-[node name="Bomber_Wing_Cap_Left" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3/Bomber_Wings"]
-mesh = ExtResource("74_btfw8")
-skeleton = NodePath("../../Bomber_Tailwing/Bomber_Tailwing")
-
-[node name="Bomber_Wing_Cap_Right" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3/Bomber_Wings"]
-mesh = ExtResource("75_2788w")
-skeleton = NodePath("../../Bomber_Tailwing/Bomber_Tailwing")
-
-[node name="Bomber_Wing_Trim_Left" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3/Bomber_Wings"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00167847, 0.0190172, -0.0190773)
-mesh = ExtResource("76_i2y1k")
-skeleton = NodePath("../../Bomber_Tailwing/Bomber_Tailwing")
-
-[node name="Bomber_Wing_Trim_Right" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3/Bomber_Wings"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00167847, 0.0190172, -0.0190773)
-mesh = ExtResource("77_6kuhn")
-skeleton = NodePath("../../Bomber_Tailwing/Bomber_Tailwing")
-
-[node name="Bomber_Wing_Trim_Glow_Left" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3/Bomber_Wings"]
-mesh = ExtResource("82_v2h7y")
-skeleton = NodePath("../../Bomber_Tailwing/Bomber_Tailwing")
-
-[node name="Bomber_Wing_Trim_Glow_Right" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber3/Bomber_Wings"]
-mesh = ExtResource("83_4h6d7")
-skeleton = NodePath("../../Bomber_Tailwing/Bomber_Tailwing")
-
-[node name="Bomber4" type="Node3D" parent="3D/ChannelPointRewards/FirstBlood"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0222082, -14.4678, 35.637)
-
-[node name="Bomber_Body" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4"]
-mesh = ExtResource("63_a1lr4")
-skeleton = NodePath("../Bomber_Propeller/Bomber_Blades")
-
-[node name="Bomber_Cockpit" type="Node3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4"]
-
-[node name="Bomber_Cockpit_Base" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Cockpit"]
-mesh = ExtResource("64_g08td")
-skeleton = NodePath("../../Bomber_Wings/Bomber_Wings")
-
-[node name="Bomber_Cockpit_Base_Cage" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Cockpit"]
-material_override = ExtResource("67_oxxao")
-mesh = ExtResource("68_s4pr0")
-skeleton = NodePath("../../Bomber_Tailwing/Bomber_Tailwing")
-
-[node name="Bomber_Cockpit_Glass" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Cockpit"]
-mesh = ExtResource("65_8jtph")
-skeleton = NodePath("../Bomber_Cockpit_Base")
-surface_material_override/0 = ExtResource("96_p1w3n")
-
-[node name="Bomber_Propeller" type="Node3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4"]
-
-[node name="Bomber_Propeller_Rivot" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Propeller"]
-mesh = ExtResource("67_1b61q")
-skeleton = NodePath(".")
-surface_material_override/0 = ExtResource("97_ktbad")
-
-[node name="Bomber_Blades" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Propeller"]
-mesh = ExtResource("62_bjbhb")
-skeleton = NodePath("../..")
-surface_material_override/0 = ExtResource("97_ktbad")
-
-[node name="Bomber_Propeller_Blade_Trim_Bottom" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Propeller/Bomber_Blades"]
-mesh = ExtResource("81_cywhw")
-skeleton = NodePath("../../../Bomber_Tailwing/Bomber_Tailwing")
-surface_material_override/0 = ExtResource("67_oxxao")
-
-[node name="Bomber_Propeller_Blade_Trim_Left" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Propeller/Bomber_Blades"]
-mesh = ExtResource("82_g5bqx")
-skeleton = NodePath("../../../Bomber_Tailwing/Bomber_Tailwing")
-surface_material_override/0 = ExtResource("67_oxxao")
-
-[node name="Bomber_Propeller_Blade_Trim_Right" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Propeller/Bomber_Blades"]
-mesh = ExtResource("83_7sjk6")
-skeleton = NodePath("../../../Bomber_Tailwing/Bomber_Tailwing")
-surface_material_override/0 = ExtResource("67_oxxao")
-
-[node name="Bomber_Propeller_Blade_Trim_Top" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Propeller/Bomber_Blades"]
-mesh = ExtResource("84_r36kg")
-skeleton = NodePath("../../../Bomber_Tailwing/Bomber_Tailwing")
-surface_material_override/0 = ExtResource("67_oxxao")
-
-[node name="Bomber_Nose" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Propeller"]
-mesh = ExtResource("66_t02fj")
-skeleton = NodePath("../../Bomber_Cockpit/Bomber_Cockpit_Glass")
-
-[node name="Bomber_Swizzle" type="Node3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4"]
-
-[node name="Bomber_Swizzle" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Swizzle"]
-mesh = ExtResource("71_kdrts")
-skeleton = NodePath("../../Bomber_Propeller/Bomber_Nose")
-
-[node name="Bomber_Swizzle_Glow" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Swizzle"]
-mesh = ExtResource("76_evdkq")
-skeleton = NodePath("../../Bomber_Propeller/Bomber_Nose")
-
-[node name="Bomber_Tailwing" type="Node3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4"]
-
-[node name="Bomber_Tailwing" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Tailwing"]
-mesh = ExtResource("68_jmo8d")
-skeleton = NodePath("../../Bomber_Propeller/Bomber_Nose")
-
-[node name="Bomber_Tailwing_Trim" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Tailwing"]
-mesh = ExtResource("72_o7ueb")
-skeleton = NodePath("../../Bomber_Propeller/Bomber_Nose")
-
-[node name="Bomber_Tailwing_Cap" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Tailwing"]
-mesh = ExtResource("73_nga4q")
-skeleton = NodePath("../../Bomber_Propeller/Bomber_Nose")
-
-[node name="Bomber_Tailwing_Trim_Glow" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Tailwing"]
-mesh = ExtResource("73_4ojw8")
-skeleton = NodePath("../../Bomber_Propeller/Bomber_Nose")
-
-[node name="Bomber_Wheels" type="Node3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4"]
-
-[node name="Bomber_Wheel_Axel" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Wheels"]
-mesh = ExtResource("93_0qg4b")
-skeleton = NodePath("../../Bomber_Propeller/Bomber_Nose")
-
-[node name="Bomber_Wheel_Connector" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Wheels"]
-mesh = ExtResource("94_tv208")
-skeleton = NodePath("../../Bomber_Propeller/Bomber_Nose")
-
-[node name="Bomber_Wheel_Rubber" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Wheels"]
-mesh = ExtResource("95_hsmim")
-skeleton = NodePath("../../Bomber_Propeller/Bomber_Nose")
-
-[node name="Bomber_Wheel_Trim" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Wheels"]
-mesh = ExtResource("97_ac2pr")
-skeleton = NodePath("../../Bomber_Propeller/Bomber_Nose")
-
-[node name="Bomber_Wings" type="Node3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4"]
-
-[node name="Bomber_Wings" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Wings"]
-mesh = ExtResource("69_h5bi7")
-skeleton = NodePath("../../Bomber_Tailwing/Bomber_Tailwing")
-
-[node name="Bomber_Wing_Cap_Left" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Wings"]
-mesh = ExtResource("74_btfw8")
-skeleton = NodePath("../../Bomber_Tailwing/Bomber_Tailwing")
-
-[node name="Bomber_Wing_Cap_Right" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Wings"]
-mesh = ExtResource("75_2788w")
-skeleton = NodePath("../../Bomber_Tailwing/Bomber_Tailwing")
-
-[node name="Bomber_Wing_Trim_Left" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Wings"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00167847, 0.0190172, -0.0190773)
-mesh = ExtResource("76_i2y1k")
-skeleton = NodePath("../../Bomber_Tailwing/Bomber_Tailwing")
-
-[node name="Bomber_Wing_Trim_Right" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Wings"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00167847, 0.0190172, -0.0190773)
-mesh = ExtResource("77_6kuhn")
-skeleton = NodePath("../../Bomber_Tailwing/Bomber_Tailwing")
-
-[node name="Bomber_Wing_Trim_Glow_Left" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Wings"]
-mesh = ExtResource("82_v2h7y")
-skeleton = NodePath("../../Bomber_Tailwing/Bomber_Tailwing")
-
-[node name="Bomber_Wing_Trim_Glow_Right" type="MeshInstance3D" parent="3D/ChannelPointRewards/FirstBlood/Bomber4/Bomber_Wings"]
-mesh = ExtResource("83_4h6d7")
-skeleton = NodePath("../../Bomber_Tailwing/Bomber_Tailwing")

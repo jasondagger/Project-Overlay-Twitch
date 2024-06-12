@@ -1,6 +1,12 @@
 
-[System.Serializable]
-public sealed class TwitchResponseCustomRewardCreate
+namespace Overlay
 {
-    public TwitchResponseCustomRewardCreateData[] data = null;
+    using System.Text.Json.Serialization;
+
+    [System.Serializable]
+    public sealed class TwitchResponseCustomRewardCreate
+    {
+        [JsonPropertyName("data")]
+        public TwitchResponseCustomRewardCreateData[] Data = null;
+    }
 }

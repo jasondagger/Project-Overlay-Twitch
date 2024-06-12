@@ -1,14 +1,19 @@
-
-public sealed class TwitchMessageChannelRaid : TwitchMessage
+namespace Overlay
 {
-    public TwitchWebSocketMessagePayloadEventChannelRaid @event { get; set; } = new();
+	using System.Text.Json.Serialization;
 
-    public TwitchMessageChannelRaid(
-        TwitchWebSocketMessagePayloadEventChannelRaid @event
-    ) : base(
-        TwitchEventSubSubscriptionType.ChannelRaid
-    )
-    {
-        this.@event = @event;
-    }
+    public sealed class TwitchMessageChannelRaid : TwitchMessage
+	{
+		[JsonPropertyName("event")]
+		public TwitchWebSocketMessagePayloadEventChannelRaid Event { get; set; } = new();
+
+		public TwitchMessageChannelRaid(
+			TwitchWebSocketMessagePayloadEventChannelRaid @event
+		) : base(
+			TwitchEventSubSubscriptionType.ChannelRaid
+		)
+		{
+			this.Event = @event;
+		}
+	}
 }

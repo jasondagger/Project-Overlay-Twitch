@@ -1,23 +1,35 @@
 
-// https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelsubscriptiongift
-[System.Serializable]
-public sealed class TwitchRequestEventSubChannelSubscriptionGift
+namespace Overlay
 {
-    public string type = $"channel.subscription.gift";
-    public string version = $"1";
-    public TwitchConditionEventSubChannelSubscriptionGift condition = null;
-    public TwitchEventSubTransportWebSocket transport = null;
+    using System.Text.Json.Serialization;
 
-    public TwitchRequestEventSubChannelSubscriptionGift(
-        string userId,
-        string sessionId
-    )
+    // https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelsubscriptiongift
+    [System.Serializable]
+    public sealed class TwitchRequestEventSubChannelSubscriptionGift
     {
-        condition = new(
-            userId
-        );
-        transport = new(
-            sessionId
-        );
+        [JsonPropertyName("type")]
+        public string Type { get; set; } = $"channel.subscription.gift";
+
+        [JsonPropertyName("version")]
+        public string Version { get; set; } = $"1";
+
+        [JsonPropertyName("condition")]
+        public TwitchConditionEventSubChannelSubscriptionGift Condition { get; set; } = null;
+
+        [JsonPropertyName("transport")]
+        public TwitchEventSubTransportWebSocket Transport { get; set; } = null;
+
+        public TwitchRequestEventSubChannelSubscriptionGift(
+            string userId,
+            string sessionId
+        )
+        {
+            Condition = new(
+                userId: userId
+            );
+            Transport = new(
+                sessionId: sessionId
+            );
+        }
     }
 }
