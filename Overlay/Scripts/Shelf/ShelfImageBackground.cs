@@ -1,62 +1,66 @@
-using Godot;
-using static Godot.Image;
 
-public sealed partial class ShelfImageBackground : ShelfImage
+namespace Overlay
 {
-    public override void _EnterTree()
+    using Godot;
+    using static Godot.Image;
+
+    public sealed partial class ShelfImageBackground : ShelfImage
     {
-        CreateImageTexture();
-        GenerateImageBackground();
-        SetShaderMaterial();
-    }
-
-    private Image m_imageMain = null;
-    private ImageTexture m_textureMain = new();
-
-    private void CreateImageTexture()
-    {
-        m_imageMain = Create(
-            c_textureWidth,
-            c_textureHeight,
-            false,
-            Format.Rgbaf
-        );
-
-        m_textureMain.SetImage(
-            m_imageMain
-        );
-    }
-
-    private void GenerateImageBackground()
-    {
-        Color color = new(
-            0x202020FF
-        );
-        for (int y = 0; y < c_textureHeight; y++)
+        public override void _EnterTree()
         {
-            for (int x = 0; x < c_textureWidth; x++)
-            {
-                m_imageMain.SetPixel(
-                    x,
-                    y,
-                    color
-                );
-            }
+            CreateImageTexture();
+            GenerateImageBackground();
+            SetShaderMaterial();
         }
 
-        m_textureMain.Update(
-            m_imageMain
-        );
-    }
+        private Image m_imageMain = null;
+        private ImageTexture m_textureMain = new();
 
-    private void SetShaderMaterial()
-    {
-        var material = (ShaderMaterial)Get(
-            "material"
-        );
-        material.SetShaderParameter(
-            "textureMain",
-            m_textureMain
-        );
+        private void CreateImageTexture()
+        {
+            m_imageMain = Create(
+                c_textureWidth,
+                c_textureHeight,
+                false,
+                Format.Rgbaf
+            );
+
+            m_textureMain.SetImage(
+                image: m_imageMain
+            );
+        }
+
+        private void GenerateImageBackground()
+        {
+            var color = new Color(
+                rgba: 0x202020FF
+            );
+            for (var y = 0; y < c_textureHeight; y++)
+            {
+                for (var x = 0; x < c_textureWidth; x++)
+                {
+                    m_imageMain.SetPixel(
+                        x: x,
+                        y: y,
+                        color: color
+                    );
+                }
+            }
+
+            m_textureMain.Update(
+                image: m_imageMain
+            );
+        }
+
+        private void SetShaderMaterial()
+        {
+            var material = (ShaderMaterial)Get(
+                property: "material"
+            );
+            material.SetShaderParameter(
+                param: "textureMain",
+                value: m_textureMain
+            );
+        }
     }
 }

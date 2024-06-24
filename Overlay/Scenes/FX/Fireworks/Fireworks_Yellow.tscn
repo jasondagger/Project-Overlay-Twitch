@@ -1,0 +1,42 @@
+[gd_scene load_steps=4 format=3 uid="uid://c6ioxcrw785pe"]
+
+[ext_resource type="Material" uid="uid://uwyyoa4l0okx" path="res://Overlay/Materials/FX/Fireworks/Flare_Yellow.tres" id="1_m8pac"]
+[ext_resource type="Material" uid="uid://cqsp7my5vv4jr" path="res://Overlay/Materials/FX/Fireworks/Sparks_Yellow.tres" id="2_86avb"]
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_s5e3k"]
+
+[node name="Fireworks_Yellow" type="GPUParticles2D"]
+emitting = false
+amount = 1
+sub_emitter = NodePath("Trails_Yellow")
+process_material = ExtResource("1_m8pac")
+texture = SubResource("CanvasTexture_s5e3k")
+lifetime = 1.2
+one_shot = true
+randomness = 0.65
+
+[node name="Trails_Yellow" type="GPUParticles2D" parent="."]
+rotation = -1.57079
+emitting = false
+amount = 30
+sub_emitter = NodePath("Sparks_Yellow")
+process_material = ExtResource("2_86avb")
+lifetime = 1.2
+one_shot = true
+randomness = 0.03
+trail_enabled = true
+trail_lifetime = 0.2
+trail_sections = 10
+trail_section_subdivisions = 1
+
+[node name="Sparks_Yellow" type="GPUParticles2D" parent="Trails_Yellow"]
+rotation = -1.57079
+emitting = false
+amount = 50
+process_material = ExtResource("2_86avb")
+lifetime = 1.2
+one_shot = true
+randomness = 0.03
+trail_lifetime = 0.2
+trail_sections = 10
+trail_section_subdivisions = 1

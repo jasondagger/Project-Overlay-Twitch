@@ -32,7 +32,10 @@ namespace Overlay
 		private const int c_borderWaveEndHeight = c_textureHeight - c_borderWaveStart;
 		private const int c_borderWaveEndWidth = c_textureWidth - c_borderWaveStart;
 
-		private const int c_waveStart = c_borderWaveStart + c_borderWaveDepth;
+        private const int c_textureDepthWidth = c_textureWidth - c_borderWaveStart - 1;
+        private const int c_textureDepthHeight = c_textureHeight - c_borderWaveStart - 1;
+
+        private const int c_waveStart = c_borderWaveStart + c_borderWaveDepth;
 		private const int c_waveEndHeight = c_textureHeight - c_waveStart;
 		private const int c_waveEndWidth = c_textureWidth - c_waveStart;
 
@@ -40,7 +43,10 @@ namespace Overlay
 		private const int c_waveDataSampleCount = 64;
 		private const int c_waveDataCount = c_waveDataSampleCount * 2;
 
-		private PastelInterpolator m_pastelInterpolator = null;
+        private readonly Dictionary<int, int> m_texturePixelDepthHeights = new();
+        private readonly Dictionary<int, int> m_texturePixelDepthWidths = new();
+
+        private PastelInterpolator m_pastelInterpolator = null;
 		private Image m_imageMask = null;
 		private Image m_imageWave = null;
 		private ImageTexture m_textureMask = new();
@@ -48,9 +54,6 @@ namespace Overlay
 		private ShaderMaterial m_material = null;
 
 		private float[] m_waveData = new float[c_waveDataCount];
-
-		private Dictionary<int, int> m_texturePixelDepthHeights = new();
-		private Dictionary<int, int> m_texturePixelDepthWidths = new();
 
 		private float CalculateGreatestWaveForCoordinateValue(
 			int coordinateValue
@@ -61,12 +64,12 @@ namespace Overlay
 
 		private void CalculateSoundtrackSoundWaveData()
 		{
-			for (int i = 0; i < c_waveDataSampleCount; i++)
+			for (var i = 0; i < c_waveDataSampleCount; i++)
 			{
-				int leftWaveIndex = i;
+				var leftWaveIndex = i;
 				m_waveData[leftWaveIndex] = 0f;
 
-				int rightWaveIndex = c_waveDataCount - 1 - i;
+				var rightWaveIndex = c_waveDataCount - 1 - i;
 				m_waveData[rightWaveIndex] = 0f;
 			}
 		}
@@ -74,87 +77,86 @@ namespace Overlay
 		private void CreateImageTextures()
 		{
 			m_imageMask = Create(
-				c_textureWidth,
-				c_textureHeight,
-				false,
-				Format.Rgbaf
+				width: c_textureWidth,
+				height: c_textureHeight,
+				useMipmaps: false,
+				format: Format.Rgbaf
 			);
 			m_imageWave = Create(
-				c_textureWidth,
-				c_textureHeight,
-				false,
-				Format.Rgbaf
-			);
+                width: c_textureWidth,
+                height: c_textureHeight,
+                useMipmaps: false,
+                format: Format.Rgbaf
+            );
 			m_textureMask.SetImage(
-				m_imageMask
+				image: m_imageMask
 			);
 			m_textureWave.SetImage(
-				m_imageWave
+				image: m_imageWave
 			);
 		}
 
 		private void CreateImageMask()
 		{
-			const int textureDepthWidth = c_textureWidth - c_borderWaveStart - 1;
-			const int textureDepthHeight = c_textureHeight - c_borderWaveStart - 1;
-
-			for (int x = 0; x < c_textureWidth; x++)
+			for (var x = 0; x < c_textureWidth; x++)
 			{
-				for (int y = 0; y < c_textureHeight; y++)
+				for (var y = 0; y < c_textureHeight; y++)
 				{
-					m_imageMask.SetPixel(
-						x,
-						y,
+					var color = 
 						x < c_borderWaveStart ||
-						x >= textureDepthWidth ||
-						y < c_borderWaveStart ||
-						y >= textureDepthHeight ?
-							Colors.Transparent : Colors.White
-					);
+                        x >= c_textureDepthWidth ||
+                        y < c_borderWaveStart ||
+                        y >= c_textureDepthHeight ?
+                            Colors.Transparent : Colors.White;
+					m_imageMask.SetPixel(
+						x: x,
+						y: y,
+						color: color
+                    );
 				}
 			}
 
 			m_textureMask.Update(
-				m_imageMask
+				image: m_imageMask
 			);
 		}
 
 		private void CreateImageWaveBorder()
 		{
-			for (int i = 0; i < c_borderWaveDepth; i++)
+			for (var i = 0; i < c_borderWaveDepth; i++)
 			{
-				for (int xCoordinateNear = c_borderWaveStart; xCoordinateNear < c_borderWaveEndWidth; xCoordinateNear++)
+				for (var xCoordinateNear = c_borderWaveStart; xCoordinateNear < c_borderWaveEndWidth; xCoordinateNear++)
 				{
-					int depthNear = i + c_borderWaveStart;
+					var depthNear = i + c_borderWaveStart;
 					m_imageWave.SetPixel(
-						xCoordinateNear,
-						depthNear,
-						Colors.White
+						x: xCoordinateNear,
+						y: depthNear,
+						color: Colors.White
 					);
 
-					int xCoordinateFar = c_textureWidth - xCoordinateNear;
-					int depthFar = c_textureHeight - depthNear;
+					var xCoordinateFar = c_textureWidth - xCoordinateNear;
+					var depthFar = c_textureHeight - depthNear;
 					m_imageWave.SetPixel(
-						xCoordinateFar,
-						depthFar,
-						Colors.White
+						x: xCoordinateFar,
+						y: depthFar,
+						color: Colors.White
 					);
 				}
-				for (int yCoordinateNear = c_borderWaveStart; yCoordinateNear < c_borderWaveEndHeight; yCoordinateNear++)
+				for (var yCoordinateNear = c_borderWaveStart; yCoordinateNear < c_borderWaveEndHeight; yCoordinateNear++)
 				{
-					int depthNear = i + c_borderWaveStart;
+					var depthNear = i + c_borderWaveStart;
 					m_imageWave.SetPixel(
-						depthNear,
-						yCoordinateNear,
-						Colors.White
+						x: depthNear,
+						y: yCoordinateNear,
+						color: Colors.White
 					);
 
-					int yCoordinateFar = c_textureHeight - yCoordinateNear;
-					int depthFar = c_textureWidth - depthNear;
+                    var yCoordinateFar = c_textureHeight - yCoordinateNear;
+                    var depthFar = c_textureWidth - depthNear;
 					m_imageWave.SetPixel(
-						depthFar,
-						yCoordinateFar,
-						Colors.White
+						x: depthFar,
+						y: yCoordinateFar,
+						color: Colors.White
 					);
 				}
 			}
@@ -163,43 +165,43 @@ namespace Overlay
 		private void RetrieveResources()
 		{
 			m_pastelInterpolator = GetNode<PastelInterpolator>(
-				NodeDirectory.NodePaths[NodeType.PastelInterpolator]
+				path: NodeDirectory.NodePaths[NodeType.PastelInterpolator]
 			);
 		}
 
 		private void SetShaderMaterial()
 		{
 			m_material = (ShaderMaterial)Get(
-				"material"
+				property: "material"
 			);
 			m_material.SetShaderParameter(
-				"textureMask",
-				m_textureMask
+				param: "textureMask",
+				value: m_textureMask
 			);
 			m_material.SetShaderParameter(
-				"textureWave",
-				m_textureWave
+				param: "textureWave",
+				value: m_textureWave
 			);
 			m_material.SetShaderParameter(
-				"color",
-				m_pastelInterpolator.GetColor()
+				param: "color",
+				value: m_pastelInterpolator.GetColor()
 			);
 		}
 
 		private void SetStartingDepths()
 		{
-			for (int i = c_waveStart; i < c_waveEndHeight; i++)
+			for (var i = c_waveStart; i < c_waveEndHeight; i++)
 			{
 				m_texturePixelDepthHeights.Add(
-					i,
-					c_waveStart
+					key: i,
+					value: c_waveStart
 				);
 			}
-			for (int i = c_waveStart; i < c_waveEndWidth; i++)
+			for (var i = c_waveStart; i < c_waveEndWidth; i++)
 			{
 				m_texturePixelDepthWidths.Add(
-					i,
-					c_waveStart
+					key: i,
+					value: c_waveStart
 				);
 			}
 		}
@@ -208,43 +210,43 @@ namespace Overlay
 		{
 			foreach (var texturePixelDepthHeight in m_texturePixelDepthHeights)
 			{
-				int yCoordinateNear = texturePixelDepthHeight.Key;
-				int yCoordinateFar = c_textureHeight - yCoordinateNear;
-				int depthPrevious = texturePixelDepthHeight.Value;
-				int depthCurrent = Mathf.RoundToInt(
-					CalculateGreatestWaveForCoordinateValue(
-						yCoordinateNear
+				var yCoordinateNear = texturePixelDepthHeight.Key;
+				var yCoordinateFar = c_textureHeight - yCoordinateNear;
+				var depthPrevious = texturePixelDepthHeight.Value;
+				var depthCurrent = Mathf.RoundToInt(
+					s: CalculateGreatestWaveForCoordinateValue(
+						coordinateValue: yCoordinateNear
 					)
 				);
 
-				for (int depthNear = c_waveStart; depthNear < depthCurrent; depthNear++)
+				for (var depthNear = c_waveStart; depthNear < depthCurrent; depthNear++)
 				{
 					m_imageWave.SetPixel(
-						depthNear,
-						yCoordinateNear,
-						Colors.White
+						x: depthNear,
+						y: yCoordinateNear,
+						color: Colors.White
 					);
 
-					int depthFar = c_textureWidth - depthNear;
+					var depthFar = c_textureWidth - depthNear;
 					m_imageWave.SetPixel(
-						depthFar,
-						yCoordinateFar,
-						Colors.White
+						x: depthFar,
+						y: yCoordinateFar,
+						color: Colors.White
 					);
 				}
-				for (int depthNear = depthCurrent; depthNear < depthPrevious; depthNear++)
+				for (var depthNear = depthCurrent; depthNear < depthPrevious; depthNear++)
 				{
 					m_imageWave.SetPixel(
-						depthNear,
-						yCoordinateNear,
-						Colors.Transparent
+                        x: depthNear,
+						y: yCoordinateNear,
+						color: Colors.Transparent
 					);
 
-					int depthFar = c_textureWidth - depthNear;
+                    var depthFar = c_textureWidth - depthNear;
 					m_imageWave.SetPixel(
-						depthFar,
-						yCoordinateFar,
-						Colors.Transparent
+                        x: depthFar,
+						y: yCoordinateFar,
+						color: Colors.Transparent
 					);
 				}
 
@@ -252,43 +254,43 @@ namespace Overlay
 			}
 			foreach (var texturePixelDepthWidth in m_texturePixelDepthWidths)
 			{
-				int xCoordinateNear = texturePixelDepthWidth.Key;
-				int xCoordinateFar = c_textureWidth - xCoordinateNear;
-				int depthPrevious = texturePixelDepthWidth.Value;
-				int depthCurrent = Mathf.RoundToInt(
-					CalculateGreatestWaveForCoordinateValue(
-						xCoordinateNear
+				var xCoordinateNear = texturePixelDepthWidth.Key;
+				var xCoordinateFar = c_textureWidth - xCoordinateNear;
+				var depthPrevious = texturePixelDepthWidth.Value;
+				var depthCurrent = Mathf.RoundToInt(
+					s: CalculateGreatestWaveForCoordinateValue(
+						coordinateValue: xCoordinateNear
 					)
 				);
 
-				for (int depthNear = c_waveStart; depthNear < depthCurrent; depthNear++)
+				for (var depthNear = c_waveStart; depthNear < depthCurrent; depthNear++)
 				{
 					m_imageWave.SetPixel(
-						xCoordinateNear,
-						depthNear,
-						Colors.White
+						x: xCoordinateNear,
+						y: depthNear,
+						color: Colors.White
 					);
 
-					int depthFar = c_textureHeight - depthNear;
+					var depthFar = c_textureHeight - depthNear;
 					m_imageWave.SetPixel(
-						xCoordinateFar,
-						depthFar,
-						Colors.White
+                        x: xCoordinateFar,
+						y: depthFar,
+						color: Colors.White
 					);
 				}
-				for (int depthNear = depthCurrent; depthNear < depthPrevious; depthNear++)
+				for (var depthNear = depthCurrent; depthNear < depthPrevious; depthNear++)
 				{
 					m_imageWave.SetPixel(
-						xCoordinateNear,
-						depthNear,
-						Colors.Transparent
+                        x: xCoordinateNear,
+						y: depthNear,
+						color: Colors.Transparent
 					);
 
-					int depthFar = c_textureHeight - depthNear;
+					var depthFar = c_textureHeight - depthNear;
 					m_imageWave.SetPixel(
-						xCoordinateFar,
-						depthFar,
-						Colors.Transparent
+                        x: xCoordinateFar,
+						y: depthFar,
+						color: Colors.Transparent
 					);
 				}
 
@@ -299,11 +301,11 @@ namespace Overlay
 		private void UpdateShaderResources()
 		{
 			m_textureWave.Update(
-				m_imageWave
+				image: m_imageWave
 			);
 			m_material.SetShaderParameter(
-				"color",
-				m_pastelInterpolator.GetColor()
+				param: "color",
+				value: m_pastelInterpolator.GetColor()
 			);
 		}
 	}

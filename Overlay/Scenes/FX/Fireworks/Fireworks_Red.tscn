@@ -1,0 +1,42 @@
+[gd_scene load_steps=4 format=3 uid="uid://dvrpve1lfprq0"]
+
+[ext_resource type="Material" uid="uid://ceaa2ojx12phb" path="res://Overlay/Materials/FX/Fireworks/Flare_Red.tres" id="1_whekw"]
+[ext_resource type="Material" uid="uid://d12082o6um8rx" path="res://Overlay/Materials/FX/Fireworks/Sparks_Red.tres" id="2_uvosy"]
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_s5e3k"]
+
+[node name="Fireworks_Red" type="GPUParticles2D"]
+emitting = false
+amount = 1
+sub_emitter = NodePath("Trails_Red")
+process_material = ExtResource("1_whekw")
+texture = SubResource("CanvasTexture_s5e3k")
+lifetime = 1.2
+one_shot = true
+randomness = 0.65
+
+[node name="Trails_Red" type="GPUParticles2D" parent="."]
+rotation = -1.57079
+emitting = false
+amount = 30
+sub_emitter = NodePath("Sparks_Red")
+process_material = ExtResource("2_uvosy")
+lifetime = 1.2
+one_shot = true
+randomness = 0.03
+trail_enabled = true
+trail_lifetime = 0.2
+trail_sections = 10
+trail_section_subdivisions = 1
+
+[node name="Sparks_Red" type="GPUParticles2D" parent="Trails_Red"]
+rotation = -1.57079
+emitting = false
+amount = 50
+process_material = ExtResource("2_uvosy")
+lifetime = 1.2
+one_shot = true
+randomness = 0.03
+trail_lifetime = 0.2
+trail_sections = 10
+trail_section_subdivisions = 1

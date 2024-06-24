@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://cee2snqn5b23b"
-path="res://.godot/imported/Archivo-Regular.ttf-1f423bf2a593913b237fa2070bfbcda5.fontdata"
+uid="uid://proumix8d424"
+path="res://.godot/imported/Archivo-Bold.ttf-1f5431b2332485920bb94dacc5aa477b.fontdata"
 
 [deps]
 
-source_file="res://Overlay/Materials/Archivo-Regular.ttf"
-dest_files=["res://.godot/imported/Archivo-Regular.ttf-1f423bf2a593913b237fa2070bfbcda5.fontdata"]
+source_file="res://Overlay/Fonts/Archivo-Bold.ttf"
+dest_files=["res://.godot/imported/Archivo-Bold.ttf-1f5431b2332485920bb94dacc5aa477b.fontdata"]
 
 [params]
 

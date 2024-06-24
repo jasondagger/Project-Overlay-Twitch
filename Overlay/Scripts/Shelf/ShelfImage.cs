@@ -1,7 +1,11 @@
-using Godot;
 
-public abstract partial class ShelfImage : Node
+namespace Overlay
 {
-    protected const int c_textureWidth = 2760;
-    protected const int c_textureHeight = 448;
+    using Godot;
+
+    public abstract partial class ShelfImage : Node
+    {
+        protected const int c_textureWidth = 2760;
+        protected const int c_textureHeight = 448;
+    }
 }

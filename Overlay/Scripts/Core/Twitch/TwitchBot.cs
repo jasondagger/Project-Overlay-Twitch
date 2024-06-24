@@ -43,7 +43,7 @@ namespace Overlay
 				if (
 					IsCommandAvailable(
 						commandType: commandType
-					) is true
+					) is false
 				)
 				{
 					var commandTimer = command.Value;
@@ -84,7 +84,8 @@ namespace Overlay
 			Rules,
 			Steam,
 			StreamAvatars,
-            Twitch,
+            TwitchFollow,
+			TwitchSubscribe,
 			YouTube,
 			Count
 		}
@@ -104,6 +105,7 @@ namespace Overlay
             YouTube,
 
 			// Stream Avatars
+			Accept,
 			Actions,
 			Attack,
             Avatar,
@@ -119,6 +121,7 @@ namespace Overlay
 			Color,
 			Currency,
 			Dance,
+			Decline,
 			Duel,
 			Explode,
 			Extension,
@@ -165,13 +168,14 @@ namespace Overlay
 
 		private readonly Dictionary<AutomatedMessageType, string> c_automatedMessages = new()
 		{
-            { AutomatedMessageType.Commands,	  "Check the Socials section below for a list of available bot commands @ https://www.twitch.tv/SmoothDagger/About" },
-			{ AutomatedMessageType.Discord,		  "Interested in chatting? Join the Discord @ https://www.discord.gg/SmoothCrew" },
-			{ AutomatedMessageType.Rules,		  "Make sure you're following the rules! Find them below in the rules section @ https://www.twitch.tv/SmoothDagger/About" },
-			{ AutomatedMessageType.StreamAvatars, "Want to customize your stream avatar? Select an avatar below in the Stream Avatars section @ https://www.twitch.tv/SmoothDagger/About" },
-            { AutomatedMessageType.Steam,		  "Come play with us! Add me on Steam @ https://steamcommunity.com/id/SmoothDagger/" },
-            { AutomatedMessageType.Twitch,		  "Enjoying the stream? Tap the follow button to get notified for any live streams!" },
-			{ AutomatedMessageType.YouTube,		  "Want more SmoothDagger content? Subscribe on YouTube @ https://www.youtube.com/@SmoothDagger" },
+            { AutomatedMessageType.Commands,	    "Check the Socials section below for a list of available bot commands @ https://www.twitch.tv/SmoothDagger/About" },
+			{ AutomatedMessageType.Discord,		    "Interested in chatting? Join the Discord @ https://www.discord.gg/SmoothCrew" },
+			{ AutomatedMessageType.Rules,		    "Make sure you're following the rules! Find them below in the rules section @ https://www.twitch.tv/SmoothDagger/About" },
+			{ AutomatedMessageType.StreamAvatars,   "Want to customize your stream avatar? Select an avatar below in the Stream Avatars section @ https://www.twitch.tv/SmoothDagger/About" },
+            { AutomatedMessageType.Steam,		    "Come play with us! Add me on Steam @ https://steamcommunity.com/id/SmoothDagger/" },
+            { AutomatedMessageType.TwitchFollow,    "Enjoying the stream? Tap the follow button to get notified for any live streams!" },
+            { AutomatedMessageType.TwitchSubscribe, "Want ad-free viewing? Subscribe on Twitch @ https://www.twitch.tv/subs/SmoothDagger" },
+            { AutomatedMessageType.YouTube,		    "Want more SmoothDagger content? Subscribe on YouTube @ https://www.youtube.com/@SmoothDagger" },
 		};
 		private readonly Dictionary<CommandType, string> c_commands = new()
 		{
@@ -189,6 +193,7 @@ namespace Overlay
             { CommandType.YouTube,       "!youtube" },
 
 			// Stream Avatars
+            { CommandType.Accept,		 "!accept" },
             { CommandType.Actions,		 "!actions" },
             { CommandType.Attack,		 "!attack" },
             { CommandType.Avatar,		 "!avatar" },
@@ -204,6 +209,7 @@ namespace Overlay
             { CommandType.Color,		 "!color" },
             { CommandType.Currency,		 "!currency" },
             { CommandType.Dance,		 "!dance" },
+            { CommandType.Decline,		 "!decline" },
             { CommandType.Duel,			 "!duel" },
             { CommandType.Explode,		 "!explode" },
             { CommandType.Extension,	 "!extension" },
@@ -241,18 +247,19 @@ namespace Overlay
 		{
 			// Bot
 			{ CommandType.Age,           0d  },
-            { CommandType.Commands,      30d },
+            { CommandType.Commands,      10d },
             { CommandType.Date,          0d  },
-            { CommandType.Discord,       30d },
+            { CommandType.Discord,       10d },
             { CommandType.FollowAge,     0d  },
-            { CommandType.Rules,         30d },
-            { CommandType.Steam,         30d },
-            { CommandType.StreamAvatars, 30d },
+            { CommandType.Rules,         10d },
+            { CommandType.Steam,         10d },
+            { CommandType.StreamAvatars, 10d },
             { CommandType.TextToSpeech,  0d  },
             { CommandType.Time,          0d  },
-            { CommandType.YouTube,       30d },
+            { CommandType.YouTube,       10d },
 
 			// Stream Avatars
+            { CommandType.Accept,        0d },
             { CommandType.Actions,       0d },
             { CommandType.Attack,        0d },
             { CommandType.Avatar,        0d },
@@ -268,6 +275,7 @@ namespace Overlay
             { CommandType.Color,         0d },
             { CommandType.Currency,      0d },
             { CommandType.Dance,         0d },
+            { CommandType.Decline,       0d },
             { CommandType.Duel,          0d },
             { CommandType.Explode,       0d },
             { CommandType.Extension,     0d },
@@ -317,7 +325,8 @@ namespace Overlay
             { CommandType.YouTube,       0d },
 
 			// Stream Avatars
-			{ CommandType.Actions,       0d },
+			{ CommandType.Accept,        0d },
+            { CommandType.Actions,       0d },
             { CommandType.Attack,        0d },
             { CommandType.Avatar,        0d },
             { CommandType.Avatars,       0d },
@@ -332,6 +341,7 @@ namespace Overlay
             { CommandType.Color,         0d },
             { CommandType.Currency,      0d },
             { CommandType.Dance,         0d },
+            { CommandType.Decline,       0d },
             { CommandType.Duel,          0d },
             { CommandType.Explode,       0d },
             { CommandType.Extension,     0d },
@@ -405,10 +415,12 @@ namespace Overlay
 		)
 		{
 			m_twitchChatManager.AddTwitchChatMessage(
-                name: c_twitchBotDisplayName,
-                color: string.Empty,
-                message: message,
-                emotes: string.Empty
+				name: c_twitchBotDisplayName,
+				color: string.Empty,
+				message: message,
+				emotes: string.Empty,
+				badges: string.Empty,
+				isSmoothGPT: true
 			);
 		}
 
@@ -496,6 +508,7 @@ namespace Overlay
 				CommandType.YouTube => 
 					ApplicationCommandType.Overlay,
 
+                CommandType.Accept or
                 CommandType.Actions or
                 CommandType.Attack or
                 CommandType.Avatar or
@@ -511,6 +524,7 @@ namespace Overlay
                 CommandType.Color or
                 CommandType.Currency or
                 CommandType.Dance or
+                CommandType.Decline or
                 CommandType.Duel or
                 CommandType.Explode or
                 CommandType.Extension or
@@ -633,6 +647,7 @@ namespace Overlay
                         );
                         break;
 
+                    case CommandType.Accept:
                     case CommandType.Actions:
                     case CommandType.Attack:
                     case CommandType.Avatar:
@@ -648,6 +663,7 @@ namespace Overlay
                     case CommandType.Color:
                     case CommandType.Currency:
                     case CommandType.Dance:
+                    case CommandType.Decline:
                     case CommandType.Duel:
                     case CommandType.Explode:
                     case CommandType.Extension:
@@ -1369,6 +1385,7 @@ namespace Overlay
         {
             return commandType switch
             {
+                CommandType.Accept or
                 CommandType.Actions or
                 CommandType.Attack or
                 CommandType.Avatar or
@@ -1384,6 +1401,7 @@ namespace Overlay
                 CommandType.Color or
                 CommandType.Currency or
                 CommandType.Dance or
+                CommandType.Decline or
                 CommandType.Duel or
                 CommandType.Explode or
                 CommandType.Extension or
@@ -1893,12 +1911,17 @@ namespace Overlay
 			var emotes = webSocketMessage.Tags.ContainsKey(
 				key: "emotes"
 			) ? webSocketMessage.Tags["emotes"] : string.Empty;
+			var badges = webSocketMessage.Tags.ContainsKey(
+				key: "badges"
+			) ? webSocketMessage.Tags["badges"] : string.Empty;
 
 			m_twitchChatManager.AddTwitchChatMessage(
 				name: name,
 				color: color,
 				message: message,
-				emotes: emotes
+				emotes: emotes,
+				badges: badges,
+				isSmoothGPT: false
 			);
 		}
 

@@ -4,12 +4,12 @@ namespace Overlay
 	using Godot;
 	using System;
 	using System.Collections.Generic;
-	using System.Net.WebSockets;
+    using System.IO;
+    using System.Net.WebSockets;
 	using System.Text;
 	using System.Text.Json;
 	using System.Threading.Tasks;
 	using static Godot.HttpClient;
-	using ChannelPointReward = TwitchChannelPointRewardsManager.ChannelPointReward;
 	using ChannelPointRewardType = TwitchChannelPointRewardsManager.ChannelPointRewardsType;
 	using NodeType = NodeDirectory.NodeType;
 
@@ -146,6 +146,8 @@ namespace Overlay
 		{
 			ConnectWebSocket();
 
+			RequestChannelBadges();
+			RequestGlobalBadges();
 			RequestChannelPointRewardAdd();
 			RequestFollowers(
 				pageId: string.Empty
@@ -170,7 +172,18 @@ namespace Overlay
 		private const string c_webSocketAddress = "wss://eventsub.wss.twitch.tv/ws";
 		private const char c_twitchUTCSuffix = 'S';
 
-		private readonly Dictionary<ChannelPointRewardType, string> m_channelPointRewardIds = new()
+		private const string c_twitchBadgeRelativeDirectory = "user://Badges";
+		private const string c_twitchBadgeApplicationDirectory = "Overlay/Badges";
+        private const int c_twitchBadgeHeight = 16;
+        private const int c_twitchBadgeWidth = 16;
+
+        private readonly HashSet<string> c_twitchChannelBadges = new()
+		{
+			"bits",
+			"subscriber"
+		};
+
+        private readonly Dictionary<ChannelPointRewardType, string> m_channelPointRewardIds = new()
 		{
 			{ ChannelPointRewardType.CommandRequestSong,     "dfab89a2-0015-4a1e-9cb2-456fcc5e452b" },
 			{ ChannelPointRewardType.IRLHydrate,             "583a4ba8-ed2d-45c7-820a-588a0c2e8a15" },
@@ -217,19 +230,6 @@ namespace Overlay
 		private HttpManager m_httpManager = null;
 		private TwitchChannelPointRewardsManager m_twitchChannelPointRewardsManager = null;
 		private bool m_shutdown = false;
-
-		private void RetrieveResources()
-		{
-			m_audioManager = GetNode<AudioManager>(
-				path: NodeDirectory.NodePaths[NodeType.AudioManager]
-			);
-			m_httpManager = GetNode<HttpManager>(
-                path: NodeDirectory.NodePaths[NodeType.HttpManager]
-			);
-			m_twitchChannelPointRewardsManager = GetNode<TwitchChannelPointRewardsManager>(
-                path: NodeDirectory.NodePaths[NodeType.TwitchChannelPointRewardsManager]
-			);
-		}
 
 		private async void ConnectWebSocket()
 		{
@@ -556,6 +556,46 @@ namespace Overlay
 #endif
 		}
 
+		private void OnRequestChannelBadgesCompleted(
+            long result,
+            long responseCode,
+            string[] headers,
+            byte[] body
+        )
+		{
+            if (
+			    WasHttpResponseSuccessful(
+			        responseCode: responseCode
+			    ) is true
+			)
+            {
+#if DEBUG
+                GD.Print(
+                    what: $"{nameof(TwitchManager)}.{nameof(RequestChannelBadges)}() - Web request {responseCode} POST successful."
+                );
+#endif
+
+                SaveTwitchBadges(
+                    badges: JsonSerializer.Deserialize<TwitchResponseBadges>(
+                        json: Encoding.UTF8.GetString(
+                            bytes: body,
+                            index: 0,
+                            count: body.Length
+                        )
+                    ),
+                    isGlobal: false
+                );
+            }
+            else
+            {
+#if DEBUG
+                GD.PrintErr(
+                    what: $"{nameof(TwitchManager)}.{nameof(RequestChannelBadges)}() - Web request POST failed with code {responseCode}."
+                );
+#endif
+            }
+        }
+
 		private void OnRequestChannelPointRewardAdded(
 			long result,
 			long responseCode,
@@ -696,7 +736,12 @@ namespace Overlay
 				}
 
 				var pageId = twitchResponse.Pagination.Cursor;
-				if (pageId != string.Empty)
+				if (
+					string.Compare(
+						strA: pageId, 
+						strB: string.Empty
+					) is not 0
+				)
 				{
 					RequestFollowers(
 						pageId: pageId,
@@ -808,6 +853,46 @@ namespace Overlay
 				);
 #endif
 			}
+		}
+
+		private void OnRequestGlobalBadgesCompleted(
+            long result,
+            long responseCode,
+            string[] headers,
+            byte[] body
+        )
+		{
+			if (
+			    WasHttpResponseSuccessful(
+			        responseCode: responseCode
+			    ) is true
+			)
+            {
+#if DEBUG
+                GD.Print(
+                    what: $"{nameof(TwitchManager)}.{nameof(RequestGlobalBadges)}() - Web request {responseCode} POST successful."
+                );
+#endif
+
+				SaveTwitchBadges(
+					badges: JsonSerializer.Deserialize<TwitchResponseBadges>(
+						json: Encoding.UTF8.GetString(
+							bytes: body,
+							index: 0,
+							count: body.Length
+						)
+					),
+					isGlobal: true
+				);
+            }
+            else
+            {
+#if DEBUG
+                GD.PrintErr(
+                    what: $"{nameof(TwitchManager)}.{nameof(RequestGlobalBadges)}() - Web request POST failed with code {responseCode}."
+                );
+#endif
+            }
 		}
 
 		private void OnRequestLatestFollowerCompleted(
@@ -1214,6 +1299,22 @@ namespace Overlay
 			}
 		}
 
+		private void RequestChannelBadges()
+		{
+			var headers = new string[]
+			{
+                $"Authorization: Bearer {TwitchData.AccountAccessToken}",
+                $"Client-Id: {TwitchData.ClientId}"
+			};
+			m_httpManager.SendHttpRequest(
+                url: $"{c_urlAPI}/chat/badges/?broadcaster_id={TwitchData.AccountId}",
+                headers: headers,
+                method: Method.Get,
+                json: string.Empty,
+                requestCompletedHandler: OnRequestChannelBadgesCompleted
+            );
+		}
+
 		private void RequestChannelPointRewardAdd()
 		{
 			var headers = new string[]
@@ -1357,7 +1458,39 @@ namespace Overlay
             );
 		}
 
-		private void RequestOAuth()
+        private void RequestGlobalBadges()
+        {
+            var headers = new string[]
+			{
+                $"Authorization: Bearer {TwitchData.AccountAccessToken}",
+                $"Client-Id: {TwitchData.ClientId}"
+			};
+			m_httpManager.SendHttpRequest(
+                url: $"{c_urlAPI}/chat/badges/global",
+                headers: headers,
+                method: Method.Get,
+                json: string.Empty,
+                requestCompletedHandler: OnRequestGlobalBadgesCompleted
+            );
+        }
+
+        private void RequestLatestFollower()
+        {
+            var headers = new string[]
+            {
+                $"Authorization: Bearer {TwitchData.AccountAccessToken}",
+                $"Client-Id: {TwitchData.ClientId}"
+            };
+            m_httpManager.SendHttpRequest(
+                url: $"{c_urlAPI}/subscriptions?broadcaster_id={TwitchData.AccountId}&first=1",
+                headers: headers,
+                method: Method.Get,
+                json: string.Empty,
+                requestCompletedHandler: OnRequestLatestFollowerCompleted
+            );
+        }
+
+        private void RequestOAuth()
 		{
 			var headers = new string[]
 			{
@@ -1374,22 +1507,6 @@ namespace Overlay
                 method: Method.Post,
                 json: payload,
                 requestCompletedHandler: OnRequestOAuthCompleted
-            );
-		}
-
-		private void RequestLatestFollower()
-		{
-			var headers = new string[]
-			{
-				$"Authorization: Bearer {TwitchData.AccountAccessToken}",
-				$"Client-Id: {TwitchData.ClientId}"
-			};
-			m_httpManager.SendHttpRequest(
-                url: $"{c_urlAPI}/subscriptions?broadcaster_id={TwitchData.AccountId}&first=1",
-                headers: headers,
-                method: Method.Get,
-                json: string.Empty,
-                requestCompletedHandler: OnRequestLatestFollowerCompleted
             );
 		}
 
@@ -1432,5 +1549,103 @@ namespace Overlay
                 requestCompletedHandler: OnRetrievedEventSubSubscriptions
             );
 		}
-	}
+
+        private void RetrieveResources()
+        {
+            m_audioManager = GetNode<AudioManager>(
+                path: NodeDirectory.NodePaths[NodeType.AudioManager]
+            );
+            m_httpManager = GetNode<HttpManager>(
+                path: NodeDirectory.NodePaths[NodeType.HttpManager]
+            );
+            m_twitchChannelPointRewardsManager = GetNode<TwitchChannelPointRewardsManager>(
+                path: NodeDirectory.NodePaths[NodeType.TwitchChannelPointRewardsManager]
+            );
+        }
+
+		private void SaveTwitchBadges(
+			TwitchResponseBadges badges,
+			bool isGlobal
+		)
+		{
+            foreach (var data in badges.Data)
+            {
+                var setId = data.SetId;
+				if (
+					isGlobal && 
+					c_twitchChannelBadges.Contains(
+						item: setId
+					)
+				)
+				{
+					continue;
+				}
+
+                foreach (var version in data.Versions)
+                {
+                    var badgeRelativeDirectory = $"{c_twitchBadgeRelativeDirectory}\\{setId}";
+                    if (
+                        Directory.Exists(
+                            path: badgeRelativeDirectory
+                        ) is false
+                    )
+                    {
+                        var relativePath = $"{c_twitchBadgeApplicationDirectory}\\{setId}";
+                        var fullPath = ApplicationManager.GetFullPathForRelativeUserDirectory(
+                            relativePath: relativePath
+                        );
+                        _ = Directory.CreateDirectory(
+                            path: fullPath
+                        );
+                    }
+
+                    var badgePath = $"{c_twitchBadgeRelativeDirectory}\\{setId}\\{version.Id}.res";
+                    if (
+                        File.Exists(
+                            path: badgePath
+                        ) is false
+                    )
+                    {
+                        m_httpManager.SendHttpRequest(
+                            url: $"{version.ImageUrl1x}",
+                            headers: null,
+                            method: Method.Get,
+                            json: string.Empty,
+                            requestCompletedHandler: (
+                                long result,
+                                long responseCode,
+                                string[] headers,
+                                byte[] body
+                            ) =>
+                            {
+                                // failed web request
+                                if (responseCode >= 300u)
+                                {
+                                    QueueFree();
+                                    return;
+                                }
+
+                                var image = Image.Create(
+                                    width: c_twitchBadgeWidth,
+                                    height: c_twitchBadgeHeight,
+                                    useMipmaps: false,
+                                    format: Image.Format.Rgba8
+                                );
+                                _ = image.LoadPngFromBuffer(
+                                    buffer: body
+                                );
+                                var imageTexture = ImageTexture.CreateFromImage(
+                                    image: image
+                                );
+                                _ = ResourceSaver.Save(
+                                    resource: imageTexture,
+                                    path: badgePath
+                                );
+                            }
+                        );
+                    }
+                }
+            }
+        }
+    }
 }
