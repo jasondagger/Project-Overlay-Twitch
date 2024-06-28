@@ -26,44 +26,7 @@ namespace Overlay
 			double delta
 		)
 		{
-			if (m_isSubscriber || m_hasAnimatedEmotes)
-			{
-                if (m_hasAnimatedEmotes)
-                {
-                    m_elapsedFrameTime += (float)delta;
-                    if (m_elapsedFrameTime >= c_emoteFramesPerSecondInMilliseconds)
-                    {
-                        foreach (var animatedEmote in m_animatedEmotes)
-                        {
-							var previousFrame = m_animatedEmoteCurrentFrameCounts[animatedEmote];
-                            var currentFrame = previousFrame + 1;
-                            if (currentFrame > m_animatedEmoteMaxFrameCounts[animatedEmote])
-                            {
-                                currentFrame = 0;
-                            }
-
-                            m_text = m_text.Replace(
-                                oldValue: $"{animatedEmote}/animated_{previousFrame}.res",
-                                newValue: $"{animatedEmote}/animated_{currentFrame}.res"
-                            );
-
-                            m_animatedEmoteCurrentFrameCounts[animatedEmote] = currentFrame;
-                        }
-                        m_elapsedFrameTime = 0f;
-                    }
-                }
-
-                if (m_isSubscriber)
-                {
-                    var color = m_pastelInterpolator.GetColorAsHex();
-                    m_richTextLabel.Text = m_text.Replace(
-                        oldValue: c_labelSubscriberColor,
-                        newValue: color
-                    );
-                }
-            }
-
-			switch (m_generatedState)
+            switch (m_generatedState)
 			{
 				case GeneratedState.Generated:
 					Generated?.Invoke(
@@ -71,13 +34,14 @@ namespace Overlay
 					);
 					m_generatedState = GeneratedState.Complete;
 					break;
-
 				case GeneratedState.Complete:
+					HandleTextAnimation(
+						(float)delta	
+					);
 					HandleTextFade(
 						delta: (float)delta
 					);
 					break;
-
 				case GeneratedState.Generating:
 				default:
 					break;
@@ -110,7 +74,7 @@ namespace Overlay
 				$"  " +
 				$"{c_labelMessageFont}" +
 				$"{c_labelMessageColor}" +
-				$"{(isSmoothGPT ? string.Empty : message.Remove(message.Length - 2, 2))}";
+				$"{(isSmoothGPT ? message : message.Remove(message.Length - 2, 2))}";
 
 			InsertImages(
 				httpManager: httpManager,
@@ -345,6 +309,49 @@ namespace Overlay
 			m_generatedState = GeneratedState.Generated;
 		}
 
+		private void HandleTextAnimation(
+			float delta
+		)
+		{
+            if (m_hasAnimatedEmotes)
+            {
+                m_elapsedFrameTime += delta;
+                if (m_elapsedFrameTime >= c_emoteFramesPerSecondInMilliseconds)
+                {
+                    foreach (var animatedEmote in m_animatedEmotes)
+                    {
+                        var previousFrame = m_animatedEmoteCurrentFrameCounts[animatedEmote];
+                        var currentFrame = previousFrame + 1;
+                        if (currentFrame > m_animatedEmoteMaxFrameCounts[animatedEmote])
+                        {
+                            currentFrame = 0;
+                        }
+
+                        m_text = m_text.Replace(
+                            oldValue: $"{animatedEmote}/animated_{previousFrame}.res",
+                            newValue: $"{animatedEmote}/animated_{currentFrame}.res"
+                        );
+
+                        m_animatedEmoteCurrentFrameCounts[animatedEmote] = currentFrame;
+                    }
+                    m_elapsedFrameTime = 0f;
+                }
+            }
+
+            if (m_isSubscriber)
+            {
+                var color = m_pastelInterpolator.GetColorAsHex();
+                m_richTextLabel.Text = m_text.Replace(
+                    oldValue: c_labelSubscriberColor,
+                    newValue: color
+                );
+            }
+			else if (m_hasAnimatedEmotes)
+			{
+				m_richTextLabel.Text = m_text;
+			}
+        }
+
 		private void HandleTextFade(
 			float delta
 		)
@@ -479,7 +486,7 @@ namespace Overlay
                         oldValue: emoteName,
                         newValue: $"[img]{filePath}[/img]"
                     );
-					return;
+                    continue;
 				}
 
                 var emotePathAnimated = ApplicationManager.GetAnimatedEmoteDirectory(
@@ -515,7 +522,7 @@ namespace Overlay
                     );
 
 					m_hasAnimatedEmotes = true;
-                    return;
+                    continue;
                 }
 
                 m_emotesToLoad++;

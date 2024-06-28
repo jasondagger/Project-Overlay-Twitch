@@ -20,7 +20,7 @@ namespace Overlay
 
 		protected override string HeaderText { get; set; } = "Recent Subscribers!";
 
-		private const string c_recentSubscribersText = "Resources\\Twitch\\RecentSubscribers.txt";
+		private const string c_recentSubscribersText = "Resources/Twitch/RecentSubscribers.txt";
 
 		private void OnChannelSubscribed(
 			TwitchWebSocketMessagePayloadEventChannelSubscribe payload

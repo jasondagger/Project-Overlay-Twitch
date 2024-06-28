@@ -5,7 +5,8 @@ namespace Overlay
     using System.Text.RegularExpressions;
     using NodeType = NodeDirectory.NodeType;
 
-	public sealed partial class TwitchChatManager : Node
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+    public sealed partial class TwitchChatManager : Node
 	{
 		public override void _Ready()
 		{
@@ -38,6 +39,12 @@ namespace Overlay
 			) is false;
 			if (isTwitchChatMessageLegal is true)
 			{
+				// todo: insert subscriber color
+				if (isSubscriber is true)
+				{
+
+				}
+
 				m_pendingTwitchChatMessageDatas.Enqueue(
 					item: new(
 						name: name,
@@ -82,83 +89,85 @@ namespace Overlay
             }
         };
 
-		private const int c_maxPixelCount = 420;
+        private static readonly HashSet<string> c_bbCodesForSubscribers = new()
+        {
+            "b",
+            "bgcolor",
+            "color",
+            "i",
+            "s",
+            "u",
+        };
+        private static readonly HashSet<string> c_bbCodesMarkedIllegal = new()
+        {
+            "alm",
+            "cell",
+            "center",
+            "code",
+            "dropcap",
+            "fade",
+            "fgcolor",
+            "fill",
+            "font",
+            "font_size",
+            "fsi",
+            "hint",
+            "img",
+            "indent",
+            "lb",
+            "left",
+            "lre",
+            "lri",
+            "lrm",
+            "lro",
+            "ol",
+            "opentype_features",
+            "outline_color",
+            "outline_size",
+            "p",
+            "pdf",
+            "pdi",
+            "rainbow",
+            "rb",
+            "right",
+            "rle",
+            "rli",
+            "rlm",
+            "rlo",
+            "shake",
+            "shy",
+            "table",
+            "tornado",
+            "ul",
+            "url",
+            "wave",
+            "wj",
+            "zwj",
+            "zwnj",
+        };
+
+        private const int c_maxPixelCount = 420;
 		private const int c_pixelSpacing = 2;
 
         private readonly Queue<TwitchChatMessageData> m_pendingTwitchChatMessageDatas = new();
         private readonly Queue<TwitchChatMessage> m_displayedTwitchChatMessages = new();
         private readonly Queue<TwitchChatMessage> m_queuedTwitchChatMessages = new();
 
-		private readonly HashSet<string> c_bbCodesForSubscribers = new()
-		{
-			"b",
-			"bgcolor",
-            "color",
-            "i",
-			"s",
-            "u",
-		};
-		private readonly HashSet<string> c_bbCodesMarkedIllegal = new()
-		{
-			"alm",
-            "cell",
-            "center",
-            "code",
-			"dropcap",
-			"fade",
-            "fgcolor",
-            "fill",
-			"font",
-			"font_size",
-			"fsi",
-            "hint",
-			"img",
-            "indent",
-			"lb",
-            "left",
-			"lre",
-			"lri",
-            "lrm",
-			"lro",
-            "ol",
-            "opentype_features",
-			"outline_color",
-			"outline_size",
-            "p",
-			"pdf",
-			"pdi",
-			"rainbow",
-            "rb",
-            "right",
-			"rle",
-			"rli",
-            "rlm",
-			"rlo",
-			"shake",
-            "shy",
-            "table",
-			"tornado",
-            "ul",
-            "url",
-			"wave",
-            "wj",
-            "zwj",
-			"zwnj",
-		};
-
         private Control m_chatPivot = null;
 		private HttpManager m_httpManager = null;
 		private PastelInterpolator m_pastelInterpolator = null;
 		private int m_currentPixel = 0;
 
-		private bool DoesTwitchChatMessageContainIllegalBbCode(
+		private static bool DoesTwitchChatMessageContainIllegalBbCode(
 			string message,
 			bool isSubscriber
         )
 		{
 			foreach (var bbCode in c_bbCodesMarkedIllegal)
 			{
-				var pattern = $"\\[{bbCode}[^\\]]*\\]";
+				var pattern = GetBbCodeRegexPattern(
+					bbCode: bbCode
+				);
 				var match = Regex.Match(
 					input: message, 
 					pattern: pattern,
@@ -176,7 +185,9 @@ namespace Overlay
 			{
                 foreach (var bbCode in c_bbCodesForSubscribers)
                 {
-                    var pattern = $"\\[{bbCode}[^\\]]*\\]";
+                    var pattern = GetBbCodeRegexPattern(
+                        bbCode: bbCode
+                    );
                     var match = Regex.Match(
                         input: message,
                         pattern: pattern,
@@ -194,6 +205,13 @@ namespace Overlay
 
 			return false;
 		}
+
+		private static string GetBbCodeRegexPattern(
+			string bbCode	
+		)
+		{
+			return $"\\[{bbCode}[^\\]]*\\]";
+        }
 
 		private void OnTwitchChatMessageDestroyed()
 		{

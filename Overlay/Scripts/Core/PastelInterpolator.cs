@@ -1,174 +1,179 @@
-using Godot;
-using System.Collections.Generic;
 
-public sealed partial class PastelInterpolator : Node
+namespace Overlay
 {
-	public override void _EnterTree()
-	{
-        RetrieveResources();
-	}
+    using Godot;
+    using System.Collections.Generic;
 
-	public override void _Process(
-        double delta
-    )
-	{
-        UpdateColor(
-            delta: (float)delta
-        );
-	}
-
-    public Color GetColor()
+    public sealed partial class PastelInterpolator : Node
     {
-        return m_currentColor;
-    }
-
-    public string GetColorAsHex()
-    {
-        return m_currentColor.ToHtml();
-    }
-
-    private enum ColorInterpolationType : uint
-    {
-        RedToYellow = 0u,
-        YellowToGreen,
-        GreenToCyan,
-        CyanToBlue,
-        BlueToMagenta,
-        MagentaToRed
-    }
-
-    private enum ColorType : uint
-    {
-        Red = 0u,
-        Yellow,
-        Green,
-        Cyan,
-        Blue,
-        Magenta,
-    }
-
-    private readonly Dictionary<ColorType, Color> c_colorCodes = new()
-    {
-        { ColorType.Red,     new(0xF898A4FF) },
-        { ColorType.Yellow,  new(0xFDFFB6FF) },
-        { ColorType.Green,   new(0xCAFFBFFF) },
-        { ColorType.Cyan,    new(0x9BF6FFFF) },
-        { ColorType.Blue,    new(0xA0C4FFFF) },
-        { ColorType.Magenta, new(0xFFC6FFFF) },
-    };
-
-    private const float c_colorInterpolationRate = 0.25f;
-
-    private ColorInterpolationType m_colorInterpolationType = ColorInterpolationType.RedToYellow;
-    private Color m_currentColor = new();
-    private Color m_fromColor = new();
-    private float m_colorInterpolation = 0f;
-
-    private void RetrieveResources()
-    {
-        m_currentColor = c_colorCodes[ColorType.Red];
-        m_fromColor = c_colorCodes[ColorType.Red];
-    }
-
-    private void UpdateColor(
-        float delta
-    )
-    {
-        m_colorInterpolation += c_colorInterpolationRate * delta;
-        switch (m_colorInterpolationType)
+        public override void _EnterTree()
         {
-            case ColorInterpolationType.RedToYellow:
-                m_currentColor = m_fromColor.Lerp(
-                    to: c_colorCodes[ColorType.Yellow],
-                    weight: m_colorInterpolation
-                );
+            RetrieveResources();
+        }
 
-                if (m_colorInterpolation >= 1f)
-                {
-                    m_colorInterpolation = 0f;
-                    m_currentColor = c_colorCodes[ColorType.Yellow];
-                    m_fromColor = c_colorCodes[ColorType.Yellow];
-                    m_colorInterpolationType = ColorInterpolationType.YellowToGreen;
-                }
-                break;
+        public override void _Process(
+            double delta
+        )
+        {
+            UpdateColor(
+                delta: (float)delta
+            );
+        }
 
-            case ColorInterpolationType.YellowToGreen:
-                m_currentColor = m_fromColor.Lerp(
-                    to: c_colorCodes[ColorType.Green],
-                    weight: m_colorInterpolation
-                );
+        public Color GetColor()
+        {
+            return m_currentColor;
+        }
 
-                if (m_colorInterpolation >= 1f)
-                {
-                    m_colorInterpolation = 0f;
-                    m_currentColor = c_colorCodes[ColorType.Green];
-                    m_fromColor = c_colorCodes[ColorType.Green];
-                    m_colorInterpolationType = ColorInterpolationType.GreenToCyan;
-                }
-                break;
+        public string GetColorAsHex()
+        {
+            return m_currentColor.ToHtml();
+        }
 
-            case ColorInterpolationType.GreenToCyan:
-                m_currentColor = m_fromColor.Lerp(
-                    to: c_colorCodes[ColorType.Cyan],
-                    weight: m_colorInterpolation
-                );
+        private enum ColorInterpolationType : uint
+        {
+            RedToYellow = 0u,
+            YellowToGreen,
+            GreenToCyan,
+            CyanToBlue,
+            BlueToMagenta,
+            MagentaToRed
+        }
 
-                if (m_colorInterpolation >= 1f)
-                {
-                    m_colorInterpolation = 0f;
-                    m_currentColor = c_colorCodes[ColorType.Cyan];
-                    m_fromColor = c_colorCodes[ColorType.Cyan];
-                    m_colorInterpolationType = ColorInterpolationType.CyanToBlue;
-                }
-                break;
+        private enum ColorType : uint
+        {
+            Red = 0u,
+            Yellow,
+            Green,
+            Cyan,
+            Blue,
+            Magenta,
+        }
 
-            case ColorInterpolationType.CyanToBlue:
-                m_currentColor = m_fromColor.Lerp(
-                    to: c_colorCodes[ColorType.Blue],
-                    weight: m_colorInterpolation
-                );
+        private static readonly Dictionary<ColorType, Color> c_colorCodes = new()
+        {
+            { ColorType.Red,      new(0xF898A4FF) },
+            { ColorType.Yellow,   new(0xFDFFB6FF) },
+            { ColorType.Green,    new(0xCAFFBFFF) },
+            { ColorType.Cyan,     new(0x9BF6FFFF) },
+            { ColorType.Blue,     new(0xA0C4FFFF) },
+            { ColorType.Magenta,  new(0xFFC6FFFF) },
+        };
 
-                if (m_colorInterpolation >= 1f)
-                {
-                    m_colorInterpolation = 0f;
-                    m_currentColor = c_colorCodes[ColorType.Blue];
-                    m_fromColor = c_colorCodes[ColorType.Blue];
-                    m_colorInterpolationType = ColorInterpolationType.BlueToMagenta;
-                }
-                break;
+        private const float c_colorInterpolationRate = 0.25f;
 
-            case ColorInterpolationType.BlueToMagenta:
-                m_currentColor = m_fromColor.Lerp(
-                    to: c_colorCodes[ColorType.Magenta],
-                    weight: m_colorInterpolation
-                );
+        private ColorInterpolationType m_colorInterpolationType = ColorInterpolationType.RedToYellow;
+        private Color m_currentColor = new();
+        private Color m_fromColor = new();
+        private float m_colorInterpolation = 0f;
 
-                if (m_colorInterpolation >= 1f)
-                {
-                    m_colorInterpolation = 0f;
-                    m_currentColor = c_colorCodes[ColorType.Magenta];
-                    m_fromColor = c_colorCodes[ColorType.Magenta];
-                    m_colorInterpolationType = ColorInterpolationType.MagentaToRed;
-                }
-                break;
+        private void RetrieveResources()
+        {
+            m_currentColor = c_colorCodes[ColorType.Red];
+            m_fromColor = c_colorCodes[ColorType.Red];
+        }
 
-            case ColorInterpolationType.MagentaToRed:
-                m_currentColor = m_fromColor.Lerp(
-                    to: c_colorCodes[ColorType.Red],
-                    weight: m_colorInterpolation
-                );
+        private void UpdateColor(
+            float delta
+        )
+        {
+            m_colorInterpolation += c_colorInterpolationRate * delta;
+            switch (m_colorInterpolationType)
+            {
+                case ColorInterpolationType.RedToYellow:
+                    m_currentColor = m_fromColor.Lerp(
+                        to: c_colorCodes[ColorType.Yellow],
+                        weight: m_colorInterpolation
+                    );
 
-                if (m_colorInterpolation >= 1f)
-                {
-                    m_colorInterpolation = 0f;
-                    m_currentColor = c_colorCodes[ColorType.Red];
-                    m_fromColor = c_colorCodes[ColorType.Red];
-                    m_colorInterpolationType = ColorInterpolationType.RedToYellow;
-                }
-                break;
+                    if (m_colorInterpolation >= 1f)
+                    {
+                        m_colorInterpolation = 0f;
+                        m_currentColor = c_colorCodes[ColorType.Yellow];
+                        m_fromColor = c_colorCodes[ColorType.Yellow];
+                        m_colorInterpolationType = ColorInterpolationType.YellowToGreen;
+                    }
+                    break;
 
-            default:
-                break;
+                case ColorInterpolationType.YellowToGreen:
+                    m_currentColor = m_fromColor.Lerp(
+                        to: c_colorCodes[ColorType.Green],
+                        weight: m_colorInterpolation
+                    );
+
+                    if (m_colorInterpolation >= 1f)
+                    {
+                        m_colorInterpolation = 0f;
+                        m_currentColor = c_colorCodes[ColorType.Green];
+                        m_fromColor = c_colorCodes[ColorType.Green];
+                        m_colorInterpolationType = ColorInterpolationType.GreenToCyan;
+                    }
+                    break;
+
+                case ColorInterpolationType.GreenToCyan:
+                    m_currentColor = m_fromColor.Lerp(
+                        to: c_colorCodes[ColorType.Cyan],
+                        weight: m_colorInterpolation
+                    );
+
+                    if (m_colorInterpolation >= 1f)
+                    {
+                        m_colorInterpolation = 0f;
+                        m_currentColor = c_colorCodes[ColorType.Cyan];
+                        m_fromColor = c_colorCodes[ColorType.Cyan];
+                        m_colorInterpolationType = ColorInterpolationType.CyanToBlue;
+                    }
+                    break;
+
+                case ColorInterpolationType.CyanToBlue:
+                    m_currentColor = m_fromColor.Lerp(
+                        to: c_colorCodes[ColorType.Blue],
+                        weight: m_colorInterpolation
+                    );
+
+                    if (m_colorInterpolation >= 1f)
+                    {
+                        m_colorInterpolation = 0f;
+                        m_currentColor = c_colorCodes[ColorType.Blue];
+                        m_fromColor = c_colorCodes[ColorType.Blue];
+                        m_colorInterpolationType = ColorInterpolationType.BlueToMagenta;
+                    }
+                    break;
+
+                case ColorInterpolationType.BlueToMagenta:
+                    m_currentColor = m_fromColor.Lerp(
+                        to: c_colorCodes[ColorType.Magenta],
+                        weight: m_colorInterpolation
+                    );
+
+                    if (m_colorInterpolation >= 1f)
+                    {
+                        m_colorInterpolation = 0f;
+                        m_currentColor = c_colorCodes[ColorType.Magenta];
+                        m_fromColor = c_colorCodes[ColorType.Magenta];
+                        m_colorInterpolationType = ColorInterpolationType.MagentaToRed;
+                    }
+                    break;
+
+                case ColorInterpolationType.MagentaToRed:
+                    m_currentColor = m_fromColor.Lerp(
+                        to: c_colorCodes[ColorType.Red],
+                        weight: m_colorInterpolation
+                    );
+
+                    if (m_colorInterpolation >= 1f)
+                    {
+                        m_colorInterpolation = 0f;
+                        m_currentColor = c_colorCodes[ColorType.Red];
+                        m_fromColor = c_colorCodes[ColorType.Red];
+                        m_colorInterpolationType = ColorInterpolationType.RedToYellow;
+                    }
+                    break;
+
+                default:
+                    break;
+            }
         }
     }
+
 }

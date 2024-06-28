@@ -1074,6 +1074,14 @@ namespace Overlay
 			WebSocketReceiveResult result
 		)
 		{
+			if (
+				bytes is null || 
+				bytes.Length is 0
+			)
+			{
+				return null;
+			}
+
             var message = JsonSerializer.Deserialize<TwitchWebSocketMessage>(
                 json: Encoding.UTF8.GetString(
                     bytes: bytes,

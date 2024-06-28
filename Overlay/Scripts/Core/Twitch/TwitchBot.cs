@@ -3,7 +3,6 @@ namespace Overlay
 	using Godot;
 	using System;
 	using System.Collections.Generic;
-    using System.Net.NetworkInformation;
     using System.Net.WebSockets;
     using System.Text;
 	using System.Threading;
@@ -11,7 +10,8 @@ namespace Overlay
     using FragmentType = TwitchWebSocketMessagePayloadEventChannelChatNotificationMessageFragment.FragmentType;
 	using NodeType = NodeDirectory.NodeType;
 
-	public sealed partial class TwitchBot : Node
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+    public sealed partial class TwitchBot : Node
 	{
 		public override void _EnterTree()
 		{
@@ -98,6 +98,7 @@ namespace Overlay
 			Discord,
             FollowAge,
             Rules,
+			SetColor,
             Steam,
             StreamAvatars,
             TextToSpeech,
@@ -186,6 +187,7 @@ namespace Overlay
             { CommandType.Discord,       "!discord" },
             { CommandType.FollowAge,     "!followage" },
             { CommandType.Rules,         "!rules" },
+            { CommandType.SetColor,      "!setcolor" },
             { CommandType.Steam,         "!steam" },
             { CommandType.StreamAvatars, "!streamavatars" },
             { CommandType.TextToSpeech,  "!tts" },
@@ -252,6 +254,7 @@ namespace Overlay
             { CommandType.Discord,       10d },
             { CommandType.FollowAge,     0d  },
             { CommandType.Rules,         10d },
+            { CommandType.SetColor,      0d  },
             { CommandType.Steam,         10d },
             { CommandType.StreamAvatars, 10d },
             { CommandType.TextToSpeech,  0d  },
@@ -318,6 +321,7 @@ namespace Overlay
             { CommandType.Discord,       0d },
             { CommandType.FollowAge,     0d },
             { CommandType.Rules,         0d },
+            { CommandType.SetColor,      0d },
             { CommandType.Steam,         0d },
             { CommandType.StreamAvatars, 0d },
             { CommandType.TextToSpeech,  0d },
@@ -501,7 +505,8 @@ namespace Overlay
 				CommandType.Commands or 
 				CommandType.FollowAge or 
 				CommandType.Rules or 
-				CommandType.Steam or 
+				CommandType.SetColor or
+                CommandType.Steam or 
 				CommandType.StreamAvatars or 
 				CommandType.TextToSpeech or 
 				CommandType.Time or 
@@ -612,6 +617,12 @@ namespace Overlay
                         break;
 
                     case CommandType.Rules:
+                        HandleWebSocketMessagePrivMsgRules(
+                            webSocketMessage: webSocketMessage
+                        );
+                        break;
+
+                    case CommandType.SetColor:
                         HandleWebSocketMessagePrivMsgRules(
                             webSocketMessage: webSocketMessage
                         );
@@ -1143,6 +1154,19 @@ namespace Overlay
 		}
 
 		private async void HandleWebSocketMessagePrivMsgRules(
+			WebSocketMessage webSocketMessage
+		)
+		{
+			var message = c_automatedMessages[AutomatedMessageType.Rules];
+			await SendWebSocketMessage(
+                message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{message}"
+			);
+			AddBotChatMessage(
+                message: message
+            );
+		}
+
+		private async void HandleWebSocketMessagePrivMsgSetColor(
 			WebSocketMessage webSocketMessage
 		)
 		{
