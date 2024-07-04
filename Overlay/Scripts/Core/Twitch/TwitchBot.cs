@@ -86,6 +86,7 @@ namespace Overlay
 			Rules,
 			Steam,
 			StreamAvatars,
+			Supporter,
             TwitchFollow,
 			TwitchSubscribe,
 			YouTube,
@@ -202,18 +203,19 @@ namespace Overlay
             { AutomatedMessageType.Rules,           "Make sure you're following the rules! Find them below in the rules section @ \n[color=9BF6FF]https://www.twitch.tv/SmoothDagger/About" },
             { AutomatedMessageType.StreamAvatars,   "Want to customize your stream avatar? Select an avatar below in the Stream Avatars section @ \n[color=9BF6FF]https://www.twitch.tv/SmoothDagger/About" },
             { AutomatedMessageType.Steam,           "Come play with us! Add me on Steam @ \n[color=9BF6FF]https://steamcommunity.com/id/SmoothDagger/" },
+            { AutomatedMessageType.Supporter,       "Are you a follower or subscriber? Check the Socials section below for exclusive commands @ \n[color=9BF6FF]https://www.twitch.tv/SmoothDagger/About" },
             { AutomatedMessageType.TwitchFollow,    "Enjoying the stream? Tap the [color=F898A4]follow[/color] button to get notified for any live streams!" },
             { AutomatedMessageType.TwitchSubscribe, "Want ad-free viewing? Subscribe on Twitch @ \n[color=9BF6FF]https://www.twitch.tv/subs/SmoothDagger" },
-            { AutomatedMessageType.YouTube,         "Want more SmoothDagger content? Subscribe on YouTube @ \n[color=9BF6FF]https://www.youtube.com/@SmoothDagger" },
+            { AutomatedMessageType.YouTube,         "Looking for more content? Subscribe on YouTube @ \n[color=9BF6FF]https://www.youtube.com/@SmoothDagger" },
         };
 		private static readonly Dictionary<CommandInfoMessageType, string> c_commandInfoMessages = new()
 		{
-			{ CommandInfoMessageType.SetColor,	   $"" },
+			{ CommandInfoMessageType.SetColor,	   $"To set the color of your text, type !setcolor followed by a valid color option, such as red, e.g., !setcolor red" },
 			{ CommandInfoMessageType.TextToSpeech, $"" },
         };
         private static readonly Dictionary<CommandInfoMessageType, string> c_onScreenCommandInfoMessages = new()
         {
-            { CommandInfoMessageType.SetColor,	   $"" },
+            { CommandInfoMessageType.SetColor,     $"To set the color of your text, type !setcolor followed by a valid color option, such as red, e.g., !setcolor red" },
             { CommandInfoMessageType.TextToSpeech, $"" },
         };
         private static readonly Dictionary<CommandType, string> c_commands = new()
@@ -1355,71 +1357,52 @@ namespace Overlay
 			WebSocketMessage webSocketMessage
 		)
 		{
-			const int indexCommand = 0;
 			const int indexColor = 1;
 
-            //var channelSubscribers = m_twitchManager.GetChannelSubscribers();
-            //foreach (var channelSubscriber in channelSubscribers)
-            //{
-            //    var subscriberUsername = channelSubscriber.Username;
-            //    var subsciberUsernameAdjusted = subscriberUsername.ToLower();
-			//
-            //    if (
-            //        string.Compare(
-            //            strA: subsciberUsernameAdjusted,
-            //            strB: username
-            //        ) is 0
-            //    )
-            //    {
-            //        var text = webSocketMessage.Text;
-            //        text = text.Replace(
-            //            oldValue: c_commands[CommandType.TextToSpeech],
-            //            newValue: string.Empty
-            //        );
-            //        m_audioManager.PlayTextToSpeech(
-            //            text: text
-            //        );
-            //        m_subscribersWhoUsedTextToSpeech.Add(
-            //            item: username
-            //        );
-            //        c_commandTimers[CommandType.TextToSpeech] = c_commandCooldowns[CommandType.TextToSpeech];
-            //        return;
-            //    }
-            //}
-			//
-            //message = $"You must be subscribed in order to use this command.";
-            //await SendWebSocketMessage(
-            //    message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{message}"
-            //);
-            //AddBotChatMessage(
-            //    message: message
-            //);
-
-            var parsedText = webSocketMessage.Text.Split(
-				separator: ' '
-			);
-
-            var commandText = parsedText[indexCommand].ToLower();
+			var username = webSocketMessage.Username;
+            var channelSubscribers = m_twitchManager.GetChannelSubscribers();
             if (
-                string.Compare(
-                    strA: $"{c_commands[CommandType.SetColor]}",
-                    strB: commandText
-                ) is 0
+                channelSubscribers.ContainsKey(
+					key: username
+                ) is false
             )
             {
-				await SendWebSocketMessage(
-					message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{c_commandInfoMessages[CommandInfoMessageType.SetColor]}"
-				);
-				AddBotChatMessage(
-				    message: $"{c_onScreenCommandInfoMessages[CommandInfoMessageType.SetColor]}"
-				);
+                var message = $"You must be subscribed in order to use this command.";
+                await SendWebSocketMessage(
+                    message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{message}"
+                );
+                AddBotChatMessage(
+                    message: message
+                );
                 return;
             }
 
+			var text = webSocketMessage.Text;
+            var trimmedText = text.Remove(
+                startIndex: text.Length - c_webSocketMessageDelimiterLength
+            );
+            var normalizedText = trimmedText.ToLower();
+            if (
+                normalizedText.Equals(
+					obj: $"{c_commands[CommandType.SetColor]}"
+				) is true
+			)
+			{
+                await SendWebSocketMessage(
+                    message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{c_commandInfoMessages[CommandInfoMessageType.SetColor]}"
+                );
+                AddBotChatMessage(
+                    message: $"{c_onScreenCommandInfoMessages[CommandInfoMessageType.SetColor]}"
+                );
+                return;
+            }
+
+            var parsedText = normalizedText.Split(
+				separator: ' '
+			);
             var colorCode = parsedText[indexColor].Remove(
                 startIndex: parsedText[indexColor].Length - c_webSocketMessageDelimiterLength
             );
-            var username = webSocketMessage.Username;
 			var customSubscriberData = m_twitchManager.GetCustomSubscriberData(
 				username: username
             );
@@ -1812,12 +1795,14 @@ namespace Overlay
 			string text
 		)
 		{
-			var normalizedText = text.ToLower();
+			var trimmedText = text.Remove(
+				startIndex: text.Length - c_webSocketMessageDelimiterLength
+			);
+			var normalizedText = trimmedText.ToLower();
 			if (
-				string.Compare(
-					strA: $"{c_commands[CommandType.SetColor]}",
-					strB: text
-				) is 0
+                normalizedText.Equals(
+					obj: $"{c_commands[CommandType.SetColor]}"
+                ) is true
 			)
 			{
 				return true;
@@ -1825,9 +1810,7 @@ namespace Overlay
 
             var pattern = $"^{c_commands[CommandType.SetColor]} ([0-9A-Fa-f]{{6}})$";
 			return Regex.IsMatch(
-				input: normalizedText.Remove(
-                    normalizedText.Length - c_webSocketMessageDelimiterLength
-                ),
+				input: normalizedText,
 				pattern: pattern
 			);
         }
