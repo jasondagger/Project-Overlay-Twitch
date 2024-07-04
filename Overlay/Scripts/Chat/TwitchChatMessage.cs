@@ -52,8 +52,9 @@ namespace Overlay
 			HttpManager httpManager,
 			PastelInterpolator pastelInterpolator,
 			string name,
-			string color,
+			string nameColor,
 			string message,
+			string messageColor,
 			string emotes,
 			string badges,
 			bool isSubscriber,
@@ -67,13 +68,13 @@ namespace Overlay
 				$"{c_labelOutlineColor}" +
 				$"{c_labelOutlineSize}" +
 				$"{c_labelNameFont}" +
-				$"[color=#{(m_isSubscriber ? c_labelSubscriberColor : color)}]" +
+				$"[color=#{(m_isSubscriber ? c_labelSubscriberColor : nameColor)}]" +
 				$"{name}" +
 				$"[/color]" +
 				$"[/font]" +
 				$"  " +
 				$"{c_labelMessageFont}" +
-				$"{c_labelMessageColor}" +
+				$"{(messageColor == string.Empty ? c_labelMessageColor : messageColor)}" +
 				$"{(isSmoothGPT ? message : message.Remove(message.Length - 2, 2))}";
 
 			InsertImages(

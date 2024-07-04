@@ -22,6 +22,7 @@ namespace Overlay
 		}
 
 		public void AddTwitchChatMessage(
+			string username,
 			string name,
 			string color,
 			string message,
@@ -30,40 +31,52 @@ namespace Overlay
 			bool isSmoothGPT
 		)
 		{
-			var isSubscriber = string.IsNullOrEmpty(
-				value: color
-			) is true;
-			var isTwitchChatMessageLegal = DoesTwitchChatMessageContainIllegalBbCode(
-				message: message,
-				isSubscriber: isSubscriber
-			) is false;
-			if (isTwitchChatMessageLegal is true)
+			if (isSmoothGPT is false)
 			{
-				// todo: insert subscriber color
-				if (isSubscriber is true)
+				var isTwitchChatMessageLegal = DoesTwitchChatMessageContainIllegalBbCode(
+					message: message
+				) is false;
+				if (isTwitchChatMessageLegal is false)
 				{
-
+					return;
 				}
-
-				m_pendingTwitchChatMessageDatas.Enqueue(
-					item: new(
-						name: name,
-						color: color,
-						message: message,
-						emotes: emotes,
-						badges: badges,
-                        isSubscriber: isSubscriber,
-						isSmoothGPT: isSmoothGPT
-                    )
-				);
 			}
-		}
+
+			var messageColor = string.Empty;
+            var isSubscriber = string.IsNullOrEmpty(
+                value: color
+            ) is true;
+            if (isSubscriber is true)
+            {
+				var customSubscriberData = m_twitchManager.GetCustomSubscriberData(
+					username: username
+				);
+				if (customSubscriberData is not null)
+				{
+                    messageColor = $"[color={customSubscriberData.CustomTextColor}]";
+                }
+            }
+
+            m_pendingTwitchChatMessageDatas.Enqueue(
+                item: new(
+                    name: name,
+                    nameColor: color,
+                    message: message,
+					messageColor: messageColor,
+                    emotes: emotes,
+                    badges: badges,
+                    isSubscriber: isSubscriber,
+                    isSmoothGPT: isSmoothGPT
+                )
+            );
+        }
 
 		private struct TwitchChatMessageData
 		{
 			public string Name = string.Empty;
-			public string Color = string.Empty;
+			public string NameColor = string.Empty;
 			public string Message = string.Empty;
+			public string MessageColor = string.Empty;
 			public string Emotes = string.Empty;
 			public string Badges = string.Empty;
 			public bool IsSubscriber = false;
@@ -71,8 +84,9 @@ namespace Overlay
 
             public TwitchChatMessageData(
 				string name,
-				string color,
+				string nameColor,
 				string message,
+				string messageColor,
 				string emotes,
 				string badges,
 				bool isSubscriber,
@@ -80,30 +94,25 @@ namespace Overlay
 			)
 			{
 				this.Name = name;
-				this.Color = color;
+				this.NameColor = nameColor;
 				this.Message = message;
-				this.Emotes = emotes;
+				this.MessageColor = messageColor;
+                this.Emotes = emotes;
 				this.Badges = badges;
 				this.IsSubscriber = isSubscriber;
 				this.IsSmoothGPT = isSmoothGPT;
             }
         };
 
-        private static readonly HashSet<string> c_bbCodesForSubscribers = new()
-        {
-            "b",
-            "bgcolor",
-            "color",
-            "i",
-            "s",
-            "u",
-        };
-        private static readonly HashSet<string> c_bbCodesMarkedIllegal = new()
+        private static readonly HashSet<string> c_illegalBbCodes = new()
         {
             "alm",
+            "b",
+            "bgcolor",
             "cell",
             "center",
             "code",
+            "color",
             "dropcap",
             "fade",
             "fgcolor",
@@ -112,6 +121,7 @@ namespace Overlay
             "font_size",
             "fsi",
             "hint",
+            "i",
             "img",
             "indent",
             "lb",
@@ -134,10 +144,12 @@ namespace Overlay
             "rli",
             "rlm",
             "rlo",
+            "s",
             "shake",
             "shy",
             "table",
             "tornado",
+            "u",
             "ul",
             "url",
             "wave",
@@ -156,19 +168,17 @@ namespace Overlay
         private Control m_chatPivot = null;
 		private HttpManager m_httpManager = null;
 		private PastelInterpolator m_pastelInterpolator = null;
+		private TwitchManager m_twitchManager = null;
 		private int m_currentPixel = 0;
 
 		private static bool DoesTwitchChatMessageContainIllegalBbCode(
-			string message,
-			bool isSubscriber
+			string message
         )
 		{
-			foreach (var bbCode in c_bbCodesMarkedIllegal)
+			foreach (var bbCode in c_illegalBbCodes)
 			{
-				var pattern = GetBbCodeRegexPattern(
-					bbCode: bbCode
-				);
-				var match = Regex.Match(
+				var pattern = $"\\[{bbCode}[^\\]]*\\]";
+                var match = Regex.Match(
 					input: message, 
 					pattern: pattern,
 					options: RegexOptions.IgnoreCase
@@ -181,37 +191,9 @@ namespace Overlay
 					return true;
 				}
 			}
-			if (isSubscriber is false)
-			{
-                foreach (var bbCode in c_bbCodesForSubscribers)
-                {
-                    var pattern = GetBbCodeRegexPattern(
-                        bbCode: bbCode
-                    );
-                    var match = Regex.Match(
-                        input: message,
-                        pattern: pattern,
-                        options: RegexOptions.IgnoreCase
-                    );
-                    if (
-                        match is not null &&
-                        match.Success is true
-                    )
-                    {
-                        return true;
-                    }
-                }
-            }
 
 			return false;
 		}
-
-		private static string GetBbCodeRegexPattern(
-			string bbCode	
-		)
-		{
-			return $"\\[{bbCode}[^\\]]*\\]";
-        }
 
 		private void OnTwitchChatMessageDestroyed()
 		{
@@ -298,9 +280,10 @@ namespace Overlay
 					httpManager: m_httpManager,
 					pastelInterpolator: m_pastelInterpolator,
 					name: messageData.Name,
-					color: messageData.Color,
+					nameColor: messageData.NameColor,
 					message: messageData.Message,
-					emotes: messageData.Emotes,
+					messageColor: messageData.MessageColor,
+                    emotes: messageData.Emotes,
 					badges: messageData.Badges,
 					isSubscriber: messageData.IsSubscriber,
 					isSmoothGPT: messageData.IsSmoothGPT
@@ -318,6 +301,9 @@ namespace Overlay
 			);
 			m_pastelInterpolator = GetNode<PastelInterpolator>(
 				path: NodeDirectory.NodePaths[NodeType.PastelInterpolator]
+			);
+			m_twitchManager = GetNode<TwitchManager>(
+                path: NodeDirectory.NodePaths[NodeType.TwitchManager]
 			);
 		}
 	}

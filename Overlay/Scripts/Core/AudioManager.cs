@@ -105,7 +105,7 @@ namespace Overlay
 			twitchManager.ChannelChatNotification += OnChannelChatNotification;
 		}
 
-		private int GetStreamLengthInMilliseconds(
+		private static int GetStreamLengthInMilliseconds(
 			AudioStream stream
 		)
 		{
@@ -121,6 +121,11 @@ namespace Overlay
 		)
 		{
 			var message = @event.Message;
+			if (message is null)
+			{
+				return;
+			}
+
 			var totalBits = 0;
 			var text = message.Text;
 

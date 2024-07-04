@@ -13,9 +13,15 @@ namespace Overlay
 
     public sealed partial class ApplicationManager : Node
     {
+        public enum RequiredFileType : uint
+        {
+            SubscriberData = 0u,
+        }
+
         public override void _EnterTree()
         {
             SetWindowProperties();
+            CreateRequiredFiles();
             CreateDirectories();
             BindInputEvents();
         }
@@ -91,6 +97,34 @@ namespace Overlay
             );
         }
 
+        public static byte[] ReadRequiredFile(
+            RequiredFileType requiredFileType
+        )
+        {
+            var requiredFileName = c_requiredFiles[requiredFileType];
+            var relativePath = $"{c_rootFolder}/{requiredFileName}";
+            return File.ReadAllBytes(
+                path: GetFullPathForRelativeUserDirectory(
+                    relativePath: relativePath  
+                )
+            );
+        }
+
+        public static void WriteRequiredFile(
+            RequiredFileType requiredFileType,
+            byte[] bytes
+        )
+        {
+            var requiredFileName = c_requiredFiles[requiredFileType];
+            var relativePath = $"{c_rootFolder}/{requiredFileName}";
+            File.WriteAllBytes(
+                path: GetFullPathForRelativeUserDirectory(
+                    relativePath: relativePath
+                ),
+                bytes: bytes
+            );
+        }
+
         private enum UserDirectoryType : uint
         {
             AnimatedEmotes = 0u,
@@ -99,18 +133,24 @@ namespace Overlay
         }
 
         private const string c_applicationEnvironmentPath = "%APPDATA%\\Godot\\app_userdata";
+        private const string c_rootFolder = "Overlay";
+        private const string c_userFolder = "users";
 
-        private static readonly Dictionary<UserDirectoryType, string> c_userDirectoryPaths = new()
-        {
-            { UserDirectoryType.Badges,         "users://Badges" },
-            { UserDirectoryType.AnimatedEmotes, "users://Emotes/Animated" },
-            { UserDirectoryType.StaticEmotes,   "users://Emotes/Static" },
-        };
         private static readonly Dictionary<UserDirectoryType, string> c_relativeDirectoryPaths = new()
         {
-            { UserDirectoryType.Badges,         "Overlay/Badges" },
-            { UserDirectoryType.AnimatedEmotes, "Overlay/Emotes/Animated" },
-            { UserDirectoryType.StaticEmotes,   "Overlay/Emotes/Static" },
+            { UserDirectoryType.Badges,         $"{c_rootFolder}/Badges" },
+            { UserDirectoryType.AnimatedEmotes, $"{c_rootFolder}/Emotes/Animated" },
+            { UserDirectoryType.StaticEmotes,   $"{c_rootFolder}/Emotes/Static" },
+        };
+        private static readonly Dictionary<UserDirectoryType, string> c_userDirectoryPaths = new()
+        {
+            { UserDirectoryType.Badges,         $"{c_userFolder}://Badges" },
+            { UserDirectoryType.AnimatedEmotes, $"{c_userFolder}://Emotes/Animated" },
+            { UserDirectoryType.StaticEmotes,   $"{c_userFolder}://Emotes/Static" },
+        };
+        private static readonly Dictionary<RequiredFileType, string> c_requiredFiles = new()
+        {
+            { RequiredFileType.SubscriberData, "SubscriberData.txt" }
         };
 
         private void BindInputEvents()
@@ -138,6 +178,29 @@ namespace Overlay
                         relativePath: relativePath
                     );
                     _ = Directory.CreateDirectory(
+                        path: fullPath
+                    );
+                }
+            }
+        }
+
+        private static void CreateRequiredFiles()
+        {
+            var requiredFileTypes = Enum.GetValues<RequiredFileType>();
+            foreach (var requiredFileType in requiredFileTypes)
+            {
+                var requiredFileName = c_requiredFiles[requiredFileType];
+                var relativePath = $"{c_rootFolder}/{requiredFileName}";
+                var fullPath = GetFullPathForRelativeUserDirectory(
+                    relativePath: relativePath
+                );
+                if (
+                    File.Exists(
+                        path: fullPath
+                    ) is false
+                )
+                {
+                    _ = File.CreateText(
                         path: fullPath
                     );
                 }
