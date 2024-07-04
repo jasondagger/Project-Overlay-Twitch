@@ -1,75 +1,89 @@
 
 namespace Overlay
 {
-	using NodeType = NodeDirectory.NodeType;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Text.Json;
+    using NodeType = NodeDirectory.NodeType;
+    using RequiredFileType = ApplicationManager.RequiredFileType;
 
-	public sealed partial class NotifierControllerTextScrollerRecentEventSubscribers : NotifierControllerTextScrollerRecentEvent
+    public sealed partial class NotifierControllerTextScrollerRecentEventSubscribers : NotifierControllerTextScrollerRecentEvent
 	{
 		public override void _EnterTree()
 		{
 			var twitchManager = GetNode<TwitchManager>(
-				NodeDirectory.NodePaths[NodeType.TwitchManager]
+				path: NodeDirectory.NodePaths[NodeType.TwitchManager]
 			);
 
 			twitchManager.ChannelSubscribed += OnChannelSubscribed;
-			twitchManager.GiftedSubscribersRetrieved += OnGiftedSubscribersRetrieved;
-			twitchManager.SubscribersRetrieved += OnSubscribersRetrieved;
 
 			base._EnterTree();
 		}
 
-		protected override string HeaderText { get; set; } = "Recent Subscribers!";
+        public override void _Ready()
+        {
+            RetrieveResources();
 
-		private const string c_recentSubscribersText = "Resources/Twitch/RecentSubscribers.txt";
+            base._Ready();
+        }
 
-		private void OnChannelSubscribed(
+        protected override string HeaderText { get; set; } = "Recent Subscribers!";
+
+		private Queue<string> m_recentSubscriberNames = new();
+
+        private void LoadRecentSubscribers()
+        {
+			var body = ApplicationManager.ReadRequiredFile(
+				requiredFileType: RequiredFileType.RecentSubscribers	
+			);
+            m_recentSubscriberNames = JsonSerializer.Deserialize<Queue<string>>(
+                json: Encoding.UTF8.GetString(
+                    bytes: body,
+                    index: 0,
+                    count: body.Length
+                )
+            );
+
+            var orderedRecentSubscriberNames = m_recentSubscriberNames.Reverse();
+            foreach (var recentSubscriberName in orderedRecentSubscriberNames)
+            {
+                m_names.Enqueue(
+                    item: recentSubscriberName                     
+                );
+            }
+        }
+
+        private void OnChannelSubscribed(
 			TwitchWebSocketMessagePayloadEventChannelSubscribe payload
 		)
 		{
+            var username = payload.Username;
+            _ = m_recentSubscriberNames.Dequeue();
+            m_recentSubscriberNames.Enqueue(
+                item: username
+            );
 			m_pendingNames.Enqueue(
-				payload.Username
-			);
+				item: username
+            );
+            SaveRecentSubscribers();
 		}
 
-		private void OnSubscribersRetrieved(
-			TwitchResponseUsersSubscribersData[] response
-		)
+        private void RetrieveResources()
 		{
-			//string[] recentSubscriberNames = File.ReadAllLines(
-			//    c_recentSubscribersText
-			//);
-			int index = response.Length - 1;
-			while (m_names.Count < c_maxNameCount && index >= 0u)
-			{
-				string name = response[index--].Username;
-				if (name.ToLower() == TwitchData.AccountUsername.ToLower())
-				{
-					continue;
-				}
+            LoadRecentSubscribers();
+        }
 
-				m_names.Enqueue(
-					name
-				);
-			}
-		}
-
-		private void OnGiftedSubscribersRetrieved(
-			TwitchResponseUsersSubscribersData[] response
-		)
+		private void SaveRecentSubscribers()
 		{
-			int index = response.Length - 1;
-			while (index >= 0u)
-			{
-				string name = response[index--].Username;
-				if (name.ToLower() == TwitchData.AccountUsername.ToLower())
-				{
-					continue;
-				}
-
-				m_pendingNames.Enqueue(
-					name
-				);
-			}
+			ApplicationManager.WriteRequiredFile(
+                requiredFileType: RequiredFileType.RecentSubscribers,
+                bytes: Encoding.UTF8.GetBytes(
+                    s: JsonSerializer.Serialize(
+                        value: m_recentSubscriberNames
+                    )
+                )
+            );
 		}
 	}
 }

@@ -139,7 +139,7 @@ namespace Overlay
 				(int)AutomaticNotifierType.Discord,
 				(int)AutomaticNotifierType.Count
 			);
-			m_currentNotifierController = m_automaticNotifierControllers[m_currentAutomaticNotifierType];
+			m_currentNotifierController = m_automaticNotifierControllers[AutomaticNotifierType.RecentSubscribers];
 			m_currentNotifierController.StartNotification();
 		}
 

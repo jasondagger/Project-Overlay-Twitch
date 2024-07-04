@@ -1,7 +1,8 @@
 
 namespace Overlay
 {
-	using System.Linq;
+    using System.Collections.Generic;
+    using System.Linq;
 	using NodeType = NodeDirectory.NodeType;
 
 	public sealed partial class NotifierControllerTextScrollerRecentEventFollowers : NotifierControllerTextScrollerRecentEvent
@@ -25,33 +26,33 @@ namespace Overlay
 		)
 		{
 			m_pendingNames.Enqueue(
-				payload.Username
+				item: payload.Username
 			);
 		}
 
 		private void OnRecentFollowersRetrieved(
-			TwitchResponseChannelFollowersData[] response
+			List<TwitchResponseChannelFollowersData> response
 		)
 		{
-			uint index = 0u;
+			var index = 0;
 			while (m_names.Count < c_maxNameCount)
 			{
-				string name = response[index++].Username;
+				var name = response[index++].Username;
 				if (name == TwitchData.AccountUsername)
 				{
 					continue;
 				}
 				else if (
-					!name.All(
-						char.IsAscii
-					)
+					name.All(
+						predicate: char.IsAscii
+					) is false
 				)
 				{
 					name = response[index].UserLogin;
 				}
 
 				m_names.Enqueue(
-					name
+					item: name
 				);
 			}
 		}

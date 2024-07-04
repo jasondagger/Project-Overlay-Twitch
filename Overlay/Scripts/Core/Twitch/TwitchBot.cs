@@ -8,6 +8,7 @@ namespace Overlay
     using System.Text.RegularExpressions;
     using System.Threading;
     using System.Threading.Tasks;
+    using static System.Net.Mime.MediaTypeNames;
     using FragmentType = TwitchWebSocketMessagePayloadEventChannelChatNotificationMessageFragment.FragmentType;
 	using NodeType = NodeDirectory.NodeType;
 
@@ -91,74 +92,6 @@ namespace Overlay
 			Count
 		}
 
-		private enum CommandType : uint
-		{
-			AccountAge = 0u,
-			Commands,
-			Date,
-			Discord,
-            FollowAge,
-			Lurk,
-            Rules,
-			SetColor,
-            Steam,
-            StreamAvatars,
-            TextToSpeech,
-            Time,
-            YouTube,
-
-			// Stream Avatars
-			Accept,
-			Actions,
-			Attack,
-            Avatar,
-            Avatars,
-			Basketball,
-			BattleRoyale,
-			Bet,
-			Blacklist,
-			Bomb,
-			Boss,
-			Buy,
-			Change,
-			Color,
-			Currency,
-			Dance,
-			Decline,
-			Duel,
-			Explode,
-			Extension,
-			Fart,
-			Freeze,
-			Game,
-			Gear,
-			Gift,
-			HideAvatar,
-			Hug,
-			Jump,
-			Leaderboard,
-			Mass,
-			Mod,
-			NameTags,
-			Pin,
-			Quote,
-			Random,
-			Remove,
-			Roll,
-			Scale,
-			ScreenSaver,
-			Shop,
-			Shoutout,
-			Show,
-			Sit,
-			Sling,
-			Slots,
-			Sounds,
-			Spawn,
-			Throw,
-			Whitelist,
-		}
-
 		private enum ChatCommandValidityType : uint
 		{
 			ValidChatCommand = 0u,
@@ -166,7 +99,81 @@ namespace Overlay
 			NotAChatCommand,
 		}
 
-		private const string c_websocketAddress = "wss://irc-ws.chat.twitch.tv:443";
+        private enum CommandInfoMessageType : uint
+        {
+            SetColor = 0u,
+            TextToSpeech,
+        }
+
+        private enum CommandType : uint
+        {
+            AccountAge = 0u,
+            Commands,
+            Date,
+            Discord,
+            FollowAge,
+            Lurk,
+            Rules,
+            SetColor,
+            Steam,
+            StreamAvatars,
+            TextToSpeech,
+            Time,
+            YouTube,
+
+            // Stream Avatars
+            Accept,
+            Actions,
+            Attack,
+            Avatar,
+            Avatars,
+            Basketball,
+            BattleRoyale,
+            Bet,
+            Blacklist,
+            Bomb,
+            Boss,
+            Buy,
+            Change,
+            Color,
+            Currency,
+            Dance,
+            Decline,
+            Duel,
+            Explode,
+            Extension,
+            Fart,
+            Freeze,
+            Game,
+            Gear,
+            Gift,
+            HideAvatar,
+            Hug,
+            Jump,
+            Leaderboard,
+            Mass,
+            Mod,
+            NameTags,
+            Pin,
+            Quote,
+            Random,
+            Remove,
+            Roll,
+            Scale,
+            ScreenSaver,
+            Shop,
+            Shoutout,
+            Show,
+            Sit,
+            Sling,
+            Slots,
+            Sounds,
+            Spawn,
+            Throw,
+            Whitelist,
+        }
+
+        private const string c_websocketAddress = "wss://irc-ws.chat.twitch.tv:443";
 		private const string c_webSocketMessagedelimiter = "\r\n";
 		private const string c_twitchBotDisplayName = "SmoothGPT";
 		private const string c_twitchBotUsername = "smoothgpt";
@@ -198,6 +205,16 @@ namespace Overlay
             { AutomatedMessageType.TwitchFollow,    "Enjoying the stream? Tap the [color=F898A4]follow[/color] button to get notified for any live streams!" },
             { AutomatedMessageType.TwitchSubscribe, "Want ad-free viewing? Subscribe on Twitch @ \n[color=9BF6FF]https://www.twitch.tv/subs/SmoothDagger" },
             { AutomatedMessageType.YouTube,         "Want more SmoothDagger content? Subscribe on YouTube @ \n[color=9BF6FF]https://www.youtube.com/@SmoothDagger" },
+        };
+		private static readonly Dictionary<CommandInfoMessageType, string> c_commandInfoMessages = new()
+		{
+			{ CommandInfoMessageType.SetColor,	   $"" },
+			{ CommandInfoMessageType.TextToSpeech, $"" },
+        };
+        private static readonly Dictionary<CommandInfoMessageType, string> c_onScreenCommandInfoMessages = new()
+        {
+            { CommandInfoMessageType.SetColor,	   $"" },
+            { CommandInfoMessageType.TextToSpeech, $"" },
         };
         private static readonly Dictionary<CommandType, string> c_commands = new()
 		{
@@ -1257,66 +1274,64 @@ namespace Overlay
 			WebSocketMessage webSocketMessage
 		)
 		{
+			var username = webSocketMessage.Username;
+			var usernameAdjusted = username.ToLower();
 			var channelFollowers = m_twitchManager.GetChannelFollowers();
-			foreach (var channelFollower in channelFollowers)
+			if (
+				channelFollowers.ContainsKey(
+					key: usernameAdjusted
+                ) is true
+			)
 			{
-				var username = channelFollower.UserLogin;
-				if (
-					string.Compare(
-						strA: username, 
-						strB: webSocketMessage.Username
-					) is 0
-				)
+				var channelFollower = channelFollowers[usernameAdjusted];
+				var utcNow = Time.GetDatetimeStringFromSystem(
+					utc: true
+				);
+				var dateLength = DateCalculator.CalculateTimeDifference(
+					timeStart: channelFollower.FollowedAt,
+					timeEnd: utcNow
+				);
+
+				var followTime = string.Empty;
+				if (dateLength.Year > 0u)
 				{
-					var utcNow = Time.GetDatetimeStringFromSystem(
-						utc: true
-					);
-					var dateLength = DateCalculator.CalculateTimeDifference(
-						timeStart: channelFollower.FollowedAt,
-						timeEnd: utcNow
-					);
-
-					var followTime = string.Empty;
-					if (dateLength.Year > 0u)
-					{
-						followTime += $"{dateLength.Year} year{(dateLength.Year > 1u ? "s" : string.Empty)}";
-					}
-					if (dateLength.Month > 0u)
-					{
-						followTime += followTime == string.Empty ? string.Empty : " ";
-						followTime += $"{dateLength.Month} month{(dateLength.Month > 1u ? "s" : string.Empty)}";
-					}
-					if (dateLength.Day > 0u)
-					{
-						followTime += followTime == string.Empty ? string.Empty : " ";
-						followTime += $"{dateLength.Day} day{(dateLength.Day > 1u ? "s" : string.Empty)}";
-					}
-					if (dateLength.Hour > 0u)
-					{
-						followTime += followTime == string.Empty ? string.Empty : " ";
-						followTime += $"{dateLength.Hour} hour{(dateLength.Hour > 1u ? "s" : string.Empty)}";
-					}
-					if (dateLength.Minute > 0u)
-					{
-						followTime += followTime == string.Empty ? string.Empty : " ";
-						followTime += $"{dateLength.Minute} minute{(dateLength.Minute > 1u ? "s" : string.Empty)}";
-					}
-					if (dateLength.Second > 0u)
-					{
-						followTime += followTime == string.Empty ? string.Empty : " ";
-						followTime += $"{dateLength.Second} second{(dateLength.Second > 1u ? "s" : string.Empty)}";
-					}
-
-					var messageToChat = $"You've been following @SmoothDagger for {followTime}! Thanks for following!";
-                    var messageToOverlay = $"You've been following @SmoothDagger for [color=CAFFBF]{followTime}[/color]! Thanks for following!";
-                    await SendWebSocketMessage(
-						message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{messageToChat}"
-					);
-					AddBotChatMessage(
-						message: messageToOverlay
-                    );
-					return;
+					followTime += $"{dateLength.Year} year{(dateLength.Year > 1u ? "s" : string.Empty)}";
 				}
+				if (dateLength.Month > 0u)
+				{
+					followTime += followTime == string.Empty ? string.Empty : " ";
+					followTime += $"{dateLength.Month} month{(dateLength.Month > 1u ? "s" : string.Empty)}";
+				}
+				if (dateLength.Day > 0u)
+				{
+					followTime += followTime == string.Empty ? string.Empty : " ";
+					followTime += $"{dateLength.Day} day{(dateLength.Day > 1u ? "s" : string.Empty)}";
+				}
+				if (dateLength.Hour > 0u)
+				{
+					followTime += followTime == string.Empty ? string.Empty : " ";
+					followTime += $"{dateLength.Hour} hour{(dateLength.Hour > 1u ? "s" : string.Empty)}";
+				}
+				if (dateLength.Minute > 0u)
+				{
+					followTime += followTime == string.Empty ? string.Empty : " ";
+					followTime += $"{dateLength.Minute} minute{(dateLength.Minute > 1u ? "s" : string.Empty)}";
+				}
+				if (dateLength.Second > 0u)
+				{
+					followTime += followTime == string.Empty ? string.Empty : " ";
+					followTime += $"{dateLength.Second} second{(dateLength.Second > 1u ? "s" : string.Empty)}";
+				}
+
+				var messageToChat = $"You've been following @SmoothDagger for {followTime}! Thanks for following!";
+                var messageToOverlay = $"You've been following @SmoothDagger for [color=CAFFBF]{followTime}[/color]! Thanks for following!";
+                await SendWebSocketMessage(
+					message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{messageToChat}"
+				);
+				AddBotChatMessage(
+					message: messageToOverlay
+                );
+				return;
 			}
 
             HandleUserNotFollowingMessage(
@@ -1336,15 +1351,73 @@ namespace Overlay
             );
 		}
 
-		private void HandleWebSocketMessagePrivMsgSetColor(
+		private async void HandleWebSocketMessagePrivMsgSetColor(
 			WebSocketMessage webSocketMessage
 		)
 		{
+			const int indexCommand = 0;
+			const int indexColor = 1;
+
+            //var channelSubscribers = m_twitchManager.GetChannelSubscribers();
+            //foreach (var channelSubscriber in channelSubscribers)
+            //{
+            //    var subscriberUsername = channelSubscriber.Username;
+            //    var subsciberUsernameAdjusted = subscriberUsername.ToLower();
+			//
+            //    if (
+            //        string.Compare(
+            //            strA: subsciberUsernameAdjusted,
+            //            strB: username
+            //        ) is 0
+            //    )
+            //    {
+            //        var text = webSocketMessage.Text;
+            //        text = text.Replace(
+            //            oldValue: c_commands[CommandType.TextToSpeech],
+            //            newValue: string.Empty
+            //        );
+            //        m_audioManager.PlayTextToSpeech(
+            //            text: text
+            //        );
+            //        m_subscribersWhoUsedTextToSpeech.Add(
+            //            item: username
+            //        );
+            //        c_commandTimers[CommandType.TextToSpeech] = c_commandCooldowns[CommandType.TextToSpeech];
+            //        return;
+            //    }
+            //}
+			//
+            //message = $"You must be subscribed in order to use this command.";
+            //await SendWebSocketMessage(
+            //    message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{message}"
+            //);
+            //AddBotChatMessage(
+            //    message: message
+            //);
+
             var parsedText = webSocketMessage.Text.Split(
-				' '
+				separator: ' '
 			);
-			var colorCode = parsedText[1].Remove(
-                parsedText[1].Length - c_webSocketMessageDelimiterLength
+
+            var commandText = parsedText[indexCommand].ToLower();
+            if (
+                string.Compare(
+                    strA: $"{c_commands[CommandType.SetColor]}",
+                    strB: commandText
+                ) is 0
+            )
+            {
+				await SendWebSocketMessage(
+					message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{c_commandInfoMessages[CommandInfoMessageType.SetColor]}"
+				);
+				AddBotChatMessage(
+				    message: $"{c_onScreenCommandInfoMessages[CommandInfoMessageType.SetColor]}"
+				);
+                return;
+            }
+
+            var colorCode = parsedText[indexColor].Remove(
+                startIndex: parsedText[indexColor].Length - c_webSocketMessageDelimiterLength
             );
             var username = webSocketMessage.Username;
 			var customSubscriberData = m_twitchManager.GetCustomSubscriberData(
@@ -1434,33 +1507,26 @@ namespace Overlay
 			}
 
 			var channelSubscribers = m_twitchManager.GetChannelSubscribers();
-			foreach (var channelSubscriber in channelSubscribers)
+			if (
+				channelSubscribers.ContainsKey(
+                    key: username
+                )
+			)
 			{
-				var subscriberUsername = channelSubscriber.Username;
-				var subsciberUsernameAdjusted = subscriberUsername.ToLower();
-
-				if (
-					string.Compare(
-						strA: subsciberUsernameAdjusted,
-						strB: username
-					) is 0
-				)
-				{
-					var text = webSocketMessage.Text;
-					text = text.Replace(
-						oldValue: c_commands[CommandType.TextToSpeech],
-						newValue: string.Empty
-					);
-					m_audioManager.PlayTextToSpeech(
-						text: text
-					);
-					m_subscribersWhoUsedTextToSpeech.Add(
-						item: username
-					);
-					c_commandTimers[CommandType.TextToSpeech] = c_commandCooldowns[CommandType.TextToSpeech];
-					return;
-				}
-			}
+                var text = webSocketMessage.Text;
+                text = text.Replace(
+                    oldValue: c_commands[CommandType.TextToSpeech],
+                    newValue: string.Empty
+                );
+                m_audioManager.PlayTextToSpeech(
+                    text: text
+                );
+                m_subscribersWhoUsedTextToSpeech.Add(
+                    item: username
+                );
+                c_commandTimers[CommandType.TextToSpeech] = c_commandCooldowns[CommandType.TextToSpeech];
+                return;
+            }
 
 			message = $"You must be subscribed in order to use this command.";
 			await SendWebSocketMessage(
@@ -1746,10 +1812,21 @@ namespace Overlay
 			string text
 		)
 		{
-            var pattern = @"^!setcolor ([0-9A-Fa-f]{6})$";
+			var normalizedText = text.ToLower();
+			if (
+				string.Compare(
+					strA: $"{c_commands[CommandType.SetColor]}",
+					strB: text
+				) is 0
+			)
+			{
+				return true;
+			}
+
+            var pattern = $"^{c_commands[CommandType.SetColor]} ([0-9A-Fa-f]{{6}})$";
 			return Regex.IsMatch(
-				input: text.Remove(
-					text.Length - c_webSocketMessageDelimiterLength
+				input: normalizedText.Remove(
+                    normalizedText.Length - c_webSocketMessageDelimiterLength
                 ),
 				pattern: pattern
 			);

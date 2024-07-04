@@ -15,7 +15,8 @@ namespace Overlay
     {
         public enum RequiredFileType : uint
         {
-            SubscriberData = 0u,
+            RecentSubscribers = 0u,
+            SubscriberData,
         }
 
         public override void _EnterTree()
@@ -150,7 +151,8 @@ namespace Overlay
         };
         private static readonly Dictionary<RequiredFileType, string> c_requiredFiles = new()
         {
-            { RequiredFileType.SubscriberData, "SubscriberData.txt" }
+            { RequiredFileType.RecentSubscribers, $"{RequiredFileType.RecentSubscribers}.txt" },
+            { RequiredFileType.SubscriberData,   $"{RequiredFileType.SubscriberData}.txt" },
         };
 
         private void BindInputEvents()

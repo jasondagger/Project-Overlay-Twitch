@@ -5,6 +5,7 @@ namespace Overlay
 	using System;
 	using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Net.WebSockets;
 	using System.Text;
 	using System.Text.Json;
@@ -39,14 +40,8 @@ namespace Overlay
 		> ChannelSubscriptionGifted = null;
 
 		public Action<
-			TwitchResponseChannelFollowersData[]
+			List<TwitchResponseChannelFollowersData>
 		> FollowersRetrieved = null;
-		public Action<
-			TwitchResponseUsersSubscribersData[]
-		> GiftedSubscribersRetrieved = null;
-		public Action<
-			TwitchResponseUsersSubscribersData[]
-		> SubscribersRetrieved = null;
 
 		public override void _EnterTree()
 		{
@@ -170,12 +165,12 @@ namespace Overlay
 			);
 		}
 
-		public List<TwitchResponseChannelFollowersData> GetChannelFollowers()
+		public Dictionary<string, TwitchResponseChannelFollowersData> GetChannelFollowers()
 		{
 			return m_channelFollowers;
 		}
 
-		public List<TwitchResponseUsersSubscribersData> GetChannelSubscribers()
+		public Dictionary<string, TwitchResponseUsersSubscribersData> GetChannelSubscribers()
 		{
 			return m_channelSubscribers;
 		}
@@ -294,8 +289,8 @@ namespace Overlay
 			}
 		}
 
-        private readonly List<TwitchResponseUsersSubscribersData> m_channelSubscribers = new();
-        private readonly List<TwitchResponseChannelFollowersData> m_channelFollowers = new();
+        private readonly Dictionary<string, TwitchResponseUsersSubscribersData> m_channelSubscribers = new();
+        private readonly Dictionary<string, TwitchResponseChannelFollowersData> m_channelFollowers = new();
 		private readonly List<TwitchResponseUsersSubscribersData> m_giftedSubscribers = new();
 		private readonly Dictionary<string, TwitchResponseUser> m_users = new();
 		private readonly Queue<TwitchMessage> m_messageQueue = new();
@@ -314,7 +309,8 @@ namespace Overlay
         {
 			var @event = message.Event;
 			m_channelFollowers.Add(
-				item: new()
+				key: @event.UserLogin,
+				value: new()
 				{
 					FollowedAt = @event.FollowedAt,
 					UserId = @event.UserId,
@@ -333,7 +329,8 @@ namespace Overlay
 		{
 			var @event = message.Event;
             m_channelSubscribers.Add(
-				item: new()
+				key: @event.UserLogin,
+				value: new()
 				{
 					BroadcasterId = @event.BroadcasterUserId,
 					BroadcasterLogin = @event.BroadcasterUserLogin,
@@ -353,7 +350,8 @@ namespace Overlay
 		{
 			var @event = message.Event;
             m_channelSubscribers.Add(
-				item: new()
+                key: @event.UserLogin,
+                value: new()
 				{
 					BroadcasterId = @event.BroadcasterUserId,
 					BroadcasterLogin = @event.BroadcasterUserLogin,
@@ -876,7 +874,8 @@ namespace Overlay
 						separator: c_twitchUTCSuffix
 					)[0u];
 					m_channelFollowers.Add(
-						item: data
+						key: data.UserLogin,
+						value: data
 					);
 					RequestUser(
 						userLogin: data.UserLogin
@@ -904,9 +903,26 @@ namespace Overlay
 					);
 #endif
 
-					FollowersRetrieved?.Invoke(
-						obj: m_channelFollowers.ToArray()
-					);
+					var recentFollowers = m_channelFollowers.OrderByDescending(
+						keySelector: channelFollower => 
+						_ = DateTime.Parse(
+							s: channelFollower.Value.FollowedAt
+						)
+					).Take(
+						count: 5
+					).ToList();
+
+					var followerDatas = new List<TwitchResponseChannelFollowersData>();
+					foreach (var recentFollower in recentFollowers)
+					{
+						followerDatas.Add(
+							item: recentFollower.Value	
+						);
+					}
+
+                    FollowersRetrieved?.Invoke(
+						obj: followerDatas
+                    );
 				}
 			}
 			else
@@ -979,10 +995,6 @@ namespace Overlay
 						what: $"{nameof(TwitchManager)}.{nameof(RequestGiftedSubscribers)}() - Number of Gifted Subscribers: {m_giftedSubscribers.Count}."
 					);
 #endif
-
-					GiftedSubscribersRetrieved?.Invoke(
-						obj: m_giftedSubscribers.ToArray()
-					);
 
 					m_pendingSubscriptionGifts.Dequeue();
 					if (m_pendingSubscriptionGifts.Count > 0u)
@@ -1076,7 +1088,8 @@ namespace Overlay
 				)[0u];
 
 				m_channelFollowers.Add(
-					item: data
+					key: data.UserLogin,
+					value: data
 				);
 			}
 			else
@@ -1146,7 +1159,8 @@ namespace Overlay
 				foreach (var data in twitchResponse.Data)
 				{
 					m_channelSubscribers.Add(
-						item: data
+						key: data.UserLogin,
+						value: data
 					);
 				}
 
@@ -1167,35 +1181,22 @@ namespace Overlay
 
 					if (m_customSubscriberDatas is not null)
 					{
-                        var subscriberUsernames = m_customSubscriberDatas.Keys;
-                        foreach (var subscriberUsername in subscriberUsernames)
+                        var subscriberDatas = m_customSubscriberDatas;
+                        foreach (var subscriberData in subscriberDatas)
                         {
-                            var containsSubscriberUsername = false;
-                            foreach (var channelSubscriber in m_channelSubscribers)
-                            {
-                                if (
-                                    subscriberUsername.Equals(
-                                        value: channelSubscriber.UserLogin
-                                    ) is true
-                                )
-                                {
-                                    containsSubscriberUsername = true;
-									break;
-                                }
-                            }
-
-                            if (containsSubscriberUsername is false)
-                            {
-                                m_customSubscriberDatas.Remove(
+							var subscriberUsername = subscriberData.Key;
+							if (
+								m_channelSubscribers.ContainsKey(
+                                    key: subscriberUsername
+                                ) is false
+							)
+							{
+								m_customSubscriberDatas.Remove(
                                     key: subscriberUsername
                                 );
-                            }
+							}
                         }
                     }
-
-					SubscribersRetrieved?.Invoke(
-						obj: m_channelSubscribers.ToArray()
-					);
 				}
 			}
 			else
