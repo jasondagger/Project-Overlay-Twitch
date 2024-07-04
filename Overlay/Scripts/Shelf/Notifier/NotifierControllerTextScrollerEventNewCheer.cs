@@ -8,7 +8,7 @@ namespace Overlay
 		public override void _EnterTree()
 		{
 			var twitchManager = GetNode<TwitchManager>(
-				NodeDirectory.NodePaths[NodeType.TwitchManager]
+				path: NodeDirectory.NodePaths[NodeType.TwitchManager]
 			);
 			twitchManager.ChannelCheered += OnChannelCheered;
 
@@ -22,10 +22,10 @@ namespace Overlay
 		)
 		{
 			m_pendingNames.Enqueue(
-				payload.IsAnonymous ? "Anonymous" : payload.Username
+				item: payload.IsAnonymous ? "Anonymous" : payload.Username
 			);
 			m_pendingNames.Enqueue(
-				$"{payload.Bits}x Bitt{(payload.Bits > 1u ? "ies" : "y")}!"
+				item: $"{payload.Bits}x Bitt{(payload.Bits > 1u ? "ies" : "y")}!"
 			);
 		}
 	}

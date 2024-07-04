@@ -8,7 +8,7 @@ namespace Overlay
 		public override void _EnterTree()
 		{
 			var twitchManager = GetNode<TwitchManager>(
-				NodeDirectory.NodePaths[NodeType.TwitchManager]
+				path: NodeDirectory.NodePaths[NodeType.TwitchManager]
 			);
 			twitchManager.ChannelFollowed += OnChannelFollowed;
 
@@ -22,7 +22,7 @@ namespace Overlay
 		)
 		{
 			m_pendingNames.Enqueue(
-				payload.Username
+				item: payload.Username
 			);
 		}
 	}

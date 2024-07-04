@@ -24,7 +24,7 @@ namespace Overlay
 		public void AddTwitchChatMessage(
 			string username,
 			string name,
-			string color,
+			string nameColor,
 			string message,
 			string emotes,
 			string badges,
@@ -44,7 +44,7 @@ namespace Overlay
 
 			var messageColor = string.Empty;
             var isSubscriber = string.IsNullOrEmpty(
-                value: color
+                value: nameColor
             ) is true;
             if (isSubscriber is true)
             {
@@ -60,7 +60,7 @@ namespace Overlay
             m_pendingTwitchChatMessageDatas.Enqueue(
                 item: new(
                     name: name,
-                    nameColor: color,
+                    nameColor: nameColor,
                     message: message,
 					messageColor: messageColor,
                     emotes: emotes,

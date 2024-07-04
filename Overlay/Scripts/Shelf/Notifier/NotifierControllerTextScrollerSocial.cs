@@ -1,78 +1,83 @@
-using Godot;
-using System.Threading.Tasks;
 
-public abstract partial class NotifierControllerTextScrollerSocial : NotifierControllerTextScrollerBase
+namespace Overlay
 {
-    protected override void PlayNotification()
+    using Godot;
+    using System.Threading.Tasks;
+
+    public abstract partial class NotifierControllerTextScrollerSocial : NotifierControllerTextScrollerBase
     {
-        Task.Run(
-            async () =>
-            {
-                StartScrollToCenter(
-                    TextLetterType.Header
-                );
-
-                await Task.Delay(
-                    c_richTextLabelTitleDelayInMillisecondsFooter
-                );
-
-                StartScrollToCenter(
-                    TextLetterType.Footer
-                );
-                SetImageIconState(
-                    ImageIconAnimationState.Showing
-                );
-
-                if (FooterDistanceOffScreen > 0f)
+        protected override void PlayNotification()
+        {
+            Task.Run(
+                function:
+                async () =>
                 {
-                    int animationDelay = Mathf.RoundToInt(
-                        FooterDistanceOffScreen / c_velocityScrollControlInMilliseconds
-                    );
-                    int remainingScreenDuration = c_richTextLabelOnScreenDuration - animationDelay;
-                    int halfDelay = Mathf.RoundToInt(
-                        remainingScreenDuration / 2f
+                    StartScrollToCenter(
+                        textLetterType: TextLetterType.Header
                     );
 
                     await Task.Delay(
-                        halfDelay
+                        millisecondsDelay: c_richTextLabelTitleDelayInMillisecondsFooter
                     );
 
-                    m_moveFooter = true;
+                    StartScrollToCenter(
+                        textLetterType: TextLetterType.Footer
+                    );
+                    SetImageIconState(
+                        imageIconAnimationState: ImageIconAnimationState.Showing
+                    );
+
+                    if (FooterDistanceOffScreen > 0f)
+                    {
+                        var animationDelay = Mathf.RoundToInt(
+                            s: FooterDistanceOffScreen / c_velocityScrollControlInMilliseconds
+                        );
+                        var remainingScreenDuration = c_richTextLabelOnScreenDuration - animationDelay;
+                        var halfDelay = Mathf.RoundToInt(
+                            s: remainingScreenDuration / 2f
+                        );
+
+                        await Task.Delay(
+                            millisecondsDelay: halfDelay
+                        );
+
+                        m_moveFooter = true;
+
+                        await Task.Delay(
+                            millisecondsDelay: halfDelay
+                        );
+                    }
+                    else
+                    {
+                        await Task.Delay(
+                            millisecondsDelay: c_richTextLabelOnScreenDuration
+                        );
+                    }
+
+                    StartScrollToEnd(
+                        textLetterType: TextLetterType.Header
+                    );
 
                     await Task.Delay(
-                        halfDelay
+                        millisecondsDelay: c_richTextLabelTitleDelayInMillisecondsFooter
                     );
+
+                    StartScrollToEnd(
+                        textLetterType: TextLetterType.Footer
+                    );
+                    SetImageIconState(
+                        imageIconAnimationState: ImageIconAnimationState.Hiding
+                    );
+
+                    await Task.Delay(
+                        millisecondsDelay: c_richTextLabelTitleDelayInMillisecondsCompletion
+                    );
+
+                    ResetFooter();
+
+                    CompletedNotification?.Invoke();
                 }
-                else
-                {
-                    await Task.Delay(
-                        c_richTextLabelOnScreenDuration
-                    );
-                }
-
-                StartScrollToEnd(
-                    TextLetterType.Header
-                );
-
-                await Task.Delay(
-                    c_richTextLabelTitleDelayInMillisecondsFooter
-                );
-
-                StartScrollToEnd(
-                    TextLetterType.Footer
-                );
-                SetImageIconState(
-                    ImageIconAnimationState.Hiding
-                );
-
-                await Task.Delay(
-                    c_richTextLabelTitleDelayInMillisecondsCompletion
-                );
-
-                ResetFooter();
-
-                CompletedNotification?.Invoke();
-            }
-        );
+            );
+        }
     }
 }

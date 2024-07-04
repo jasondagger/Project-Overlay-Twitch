@@ -908,8 +908,6 @@ namespace Overlay
 						_ = DateTime.Parse(
 							s: channelFollower.Value.FollowedAt
 						)
-					).Take(
-						count: 5
 					).ToList();
 
 					var followerDatas = new List<TwitchResponseChannelFollowersData>();

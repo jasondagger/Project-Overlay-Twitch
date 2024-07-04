@@ -38,7 +38,11 @@ namespace Overlay
 			NewSubscriber
 		}
 
-		private NotifierControllerTextScrollerEventNewCheer m_notifierControllerNewCheer = null;
+        private readonly Dictionary<AutomaticNotifierType, NotifierControllerBase> m_automaticNotifierControllers = new();
+        private readonly Queue<EventNotifierType> m_eventNotifierTypeQueue = new();
+        private readonly Random m_random = new();
+
+        private NotifierControllerTextScrollerEventNewCheer m_notifierControllerNewCheer = null;
 		private NotifierControllerTextScrollerEventNewFollower m_notifierControllerNewFollower = null;
 		private NotifierControllerTextScrollerEventNewGiftedSubscription m_notifierControllerNewGiftedSubscription = null;
 		private NotifierControllerTextScrollerEventNewSubscriber m_notifierControllerNewSubscriber = null;
@@ -50,62 +54,59 @@ namespace Overlay
 		private NotifierControllerTextScrollerSocialTwitch m_notifierControllerTwitch = null;
 		private NotifierControllerTextScrollerSocialYoutube m_notifierControllerYouTube = null;
 
-		private Dictionary<AutomaticNotifierType, NotifierControllerBase> m_automaticNotifierControllers = new();
-		private Queue<EventNotifierType> m_eventNotifierTypeQueue = new();
-		private AutomaticNotifierType m_currentAutomaticNotifierType = AutomaticNotifierType.Discord;
+        private AutomaticNotifierType m_currentAutomaticNotifierType = AutomaticNotifierType.Discord;
 		private NotifierControllerBase m_currentNotifierController = null;
-		private Random m_random = new();
 
 		private void RetrieveNotifiers()
 		{
 			m_notifierControllerDiscord = GetNode<NotifierControllerTextScrollerSocialDiscord>(
-				"NotifierControllerDiscord"
+				path: "NotifierControllerDiscord"
 			);
 			m_notifierControllerNewCheer = GetNode<NotifierControllerTextScrollerEventNewCheer>(
-				"NotifierControllerNewCheer"
-			);
+                path: "NotifierControllerNewCheer"
+            );
 			m_notifierControllerNewFollower = GetNode<NotifierControllerTextScrollerEventNewFollower>(
-				"NotifierControllerNewFollower"
-			);
+                path: "NotifierControllerNewFollower"
+            );
 			m_notifierControllerNewGiftedSubscription = GetNode<NotifierControllerTextScrollerEventNewGiftedSubscription>(
-				"NotifierControllerNewGiftedSubscription"
+				path: "NotifierControllerNewGiftedSubscription"
 			);
 			m_notifierControllerNewSubscriber = GetNode<NotifierControllerTextScrollerEventNewSubscriber>(
-				"NotifierControllerNewSubscriber"
+				path: "NotifierControllerNewSubscriber"
 			);
 			m_notifierControllerRecentFollowers = GetNode<NotifierControllerTextScrollerRecentEventFollowers>(
-				"NotifierControllerRecentFollowers"
+				path: "NotifierControllerRecentFollowers"
 			);
 			m_notifierControllerRecentSubscribers = GetNode<NotifierControllerTextScrollerRecentEventSubscribers>(
-				"NotifierControllerRecentSubscribers"
+				path: "NotifierControllerRecentSubscribers"
 			);
 			m_notifierControllerTwitch = GetNode<NotifierControllerTextScrollerSocialTwitch>(
-				"NotifierControllerTwitch"
+				path: "NotifierControllerTwitch"
 			);
 			m_notifierControllerYouTube = GetNode<NotifierControllerTextScrollerSocialYoutube>(
-				"NotifierControllerYouTube"
+				path: "NotifierControllerYouTube"
 			);
 
 			m_automaticNotifierControllers.Add(
-				AutomaticNotifierType.Discord,
-				m_notifierControllerDiscord
+				key: AutomaticNotifierType.Discord,
+				value: m_notifierControllerDiscord
 			);
 			m_automaticNotifierControllers.Add(
-				AutomaticNotifierType.RecentFollowers,
-				m_notifierControllerRecentFollowers
-			);
+				key: AutomaticNotifierType.RecentFollowers,
+                value: m_notifierControllerRecentFollowers
+            );
 			m_automaticNotifierControllers.Add(
-				AutomaticNotifierType.RecentSubscribers,
-				m_notifierControllerRecentSubscribers
-			);
+                key: AutomaticNotifierType.RecentSubscribers,
+                value: m_notifierControllerRecentSubscribers
+            );
 			m_automaticNotifierControllers.Add(
-				AutomaticNotifierType.Twitch,
-				m_notifierControllerTwitch
-			);
+                key: AutomaticNotifierType.Twitch,
+                value: m_notifierControllerTwitch
+            );
 			m_automaticNotifierControllers.Add(
-				AutomaticNotifierType.YouTube,
-				m_notifierControllerYouTube
-			);
+                key: AutomaticNotifierType.YouTube,
+                value: m_notifierControllerYouTube
+            );
 		}
 
 		private void RegisterForNotiferCompletions()
@@ -124,7 +125,7 @@ namespace Overlay
 		private void RegisterForTwitchEvents()
 		{
 			var twitchManager = GetNode<TwitchManager>(
-				NodeDirectory.NodePaths[NodeType.TwitchManager]
+				path: NodeDirectory.NodePaths[NodeType.TwitchManager]
 			);
 
 			twitchManager.ChannelCheered += OnChannelCheered;
@@ -136,10 +137,10 @@ namespace Overlay
 		private void StartNotifying()
 		{
 			m_currentAutomaticNotifierType = (AutomaticNotifierType)m_random.Next(
-				(int)AutomaticNotifierType.Discord,
-				(int)AutomaticNotifierType.Count
+				minValue: (int)AutomaticNotifierType.Discord,
+				maxValue: (int)AutomaticNotifierType.Count
 			);
-			m_currentNotifierController = m_automaticNotifierControllers[AutomaticNotifierType.RecentSubscribers];
+			m_currentNotifierController = m_automaticNotifierControllers[m_currentAutomaticNotifierType];
 			m_currentNotifierController.StartNotification();
 		}
 
@@ -148,7 +149,7 @@ namespace Overlay
 		)
 		{
 			m_eventNotifierTypeQueue.Enqueue(
-				EventNotifierType.NewCheer
+				item: EventNotifierType.NewCheer
 			);
 		}
 
@@ -157,7 +158,7 @@ namespace Overlay
 		)
 		{
 			m_eventNotifierTypeQueue.Enqueue(
-				EventNotifierType.NewFollower
+                item: EventNotifierType.NewFollower
 			);
 		}
 
@@ -166,7 +167,7 @@ namespace Overlay
 		)
 		{
 			m_eventNotifierTypeQueue.Enqueue(
-				EventNotifierType.NewGiftedSubscription
+                item: EventNotifierType.NewGiftedSubscription
 			);
 		}
 
@@ -175,7 +176,7 @@ namespace Overlay
 		)
 		{
 			m_eventNotifierTypeQueue.Enqueue(
-				EventNotifierType.NewSubscriber
+                item: EventNotifierType.NewSubscriber
 			);
 		}
 
@@ -212,11 +213,14 @@ namespace Overlay
 		private void SelectNextAutomaticNotifierController()
 		{
 			var currentNotifierType = m_currentAutomaticNotifierType;
-			while (currentNotifierType == m_currentAutomaticNotifierType)
+			while (
+				currentNotifierType.Equals(
+					obj: m_currentAutomaticNotifierType
+				) is true)
 			{
 				m_currentAutomaticNotifierType = (AutomaticNotifierType)m_random.Next(
-					(int)AutomaticNotifierType.Discord,
-					(int)AutomaticNotifierType.Count
+					minValue: (int)AutomaticNotifierType.Discord,
+					maxValue: (int)AutomaticNotifierType.Count
 				);
 			}
 

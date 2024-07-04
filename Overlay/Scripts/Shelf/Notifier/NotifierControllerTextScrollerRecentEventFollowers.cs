@@ -10,7 +10,7 @@ namespace Overlay
 		public override void _EnterTree()
 		{
 			var twitchManager = GetNode<TwitchManager>(
-				NodeDirectory.NodePaths[NodeType.TwitchManager]
+				path: NodeDirectory.NodePaths[NodeType.TwitchManager]
 			);
 
 			twitchManager.ChannelFollowed += OnChannelFollowed;
@@ -34,27 +34,16 @@ namespace Overlay
 			List<TwitchResponseChannelFollowersData> response
 		)
 		{
-			var index = 0;
-			while (m_names.Count < c_maxNameCount)
-			{
-				var name = response[index++].Username;
-				if (name == TwitchData.AccountUsername)
-				{
-					continue;
-				}
-				else if (
-					name.All(
-						predicate: char.IsAscii
-					) is false
-				)
-				{
-					name = response[index].UserLogin;
-				}
-
-				m_names.Enqueue(
-					item: name
-				);
-			}
+			var recentFollowers = response.Take(
+				count: (int)c_maxNameCount
+            ).Reverse();
+            foreach (var recentFollower in recentFollowers)
+            {
+				var followerName = recentFollower.Username;
+                m_names.Enqueue(
+					item: followerName
+                );
+            }
 		}
 	}
 }

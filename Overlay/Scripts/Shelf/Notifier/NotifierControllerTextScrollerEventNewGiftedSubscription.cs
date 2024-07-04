@@ -8,7 +8,7 @@ namespace Overlay
 		public override void _EnterTree()
 		{
 			var twitchManager = GetNode<TwitchManager>(
-				NodeDirectory.NodePaths[NodeType.TwitchManager]
+				path: NodeDirectory.NodePaths[NodeType.TwitchManager]
 			);
 			twitchManager.ChannelSubscriptionGifted += OnChannelSubscriptionGifted;
 
@@ -21,12 +21,12 @@ namespace Overlay
 			TwitchWebSocketMessagePayloadEventChannelSubscriptionGift payload
 		)
 		{
-			bool isChatterAnonymous = payload.IsAnonymous ?? false;
+			var isChatterAnonymous = payload.IsAnonymous ?? false;
 			m_pendingNames.Enqueue(
-				isChatterAnonymous ? "Anonymous" : payload.Username
+				item: isChatterAnonymous ? "Anonymous" : payload.Username
 			);
 			m_pendingNames.Enqueue(
-				$"{payload.Total}x Tier {payload.Tier[0]} Gifted Subscription{(payload.Total > 1u ? "s" : "")}!"
+				item: $"{payload.Total}x Tier {payload.Tier[0]} Gifted Subscription{(payload.Total > 1u ? "s" : "")}!"
 			);
 		}
 	}

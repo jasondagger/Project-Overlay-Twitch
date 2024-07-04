@@ -490,7 +490,7 @@ namespace Overlay
 					m_twitchChatManager.AddTwitchChatMessage(
 						username: c_twitchBotUsername,
 					    name: c_twitchBotDisplayName,
-						color: string.Empty,
+						nameColor: string.Empty,
 						message: message,
 						emotes: string.Empty,
 						badges: c_twitchBotBadges,
@@ -2234,7 +2234,7 @@ namespace Overlay
 			m_twitchChatManager.AddTwitchChatMessage(
 				username: username,
                 name: name,
-				color: color,
+				nameColor: color,
 				message: message,
 				emotes: emotes,
 				badges: badges,
