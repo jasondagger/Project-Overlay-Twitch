@@ -36,7 +36,7 @@ namespace Overlay
 		{
 			var recentFollowers = response.Take(
 				count: (int)c_maxNameCount
-            ).Reverse();
+            );
             foreach (var recentFollower in recentFollowers)
             {
 				var followerName = recentFollower.Username;

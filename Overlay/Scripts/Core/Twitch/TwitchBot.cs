@@ -1,3 +1,4 @@
+
 namespace Overlay
 {
 	using Godot;
@@ -28,7 +29,8 @@ namespace Overlay
 			//        $"chat%3Aedit"         // chat:edit
 			//);
 			RetrieveResources();
-		}
+			SubscribeToTwitchManagerEvents();
+        }
 
 		public override void _ExitTree()
 		{
@@ -120,6 +122,7 @@ namespace Overlay
             StreamAvatars,
             TextToSpeech,
             Time,
+			Unlurk,
             YouTube,
 
             // Stream Avatars
@@ -208,7 +211,7 @@ namespace Overlay
             { AutomatedMessageType.TwitchSubscribe, "Want ad-free viewing? Subscribe on Twitch @ \n[color=9BF6FF]https://www.twitch.tv/subs/SmoothDagger" },
             { AutomatedMessageType.YouTube,         "Looking for more content? Subscribe on YouTube @ \n[color=9BF6FF]https://www.youtube.com/@SmoothDagger" },
         };
-        private static readonly Dictionary<string, ColorType> c_colorStrings = new()
+        private static readonly Dictionary<string, ColorType> c_colorStringsAsTypes = new()
         {
             { $"{ColorType.Red.ToString().ToLower()}",	   ColorType.Red     },
             { $"{ColorType.Yellow.ToString().ToLower()}",  ColorType.Yellow  },
@@ -218,7 +221,7 @@ namespace Overlay
             { $"{ColorType.Magenta.ToString().ToLower()}", ColorType.Magenta },
             { $"{ColorType.White.ToString().ToLower()}",   ColorType.White   },
         };
-        private static readonly Dictionary<ColorType, string> c_colorTypes = new()
+        private static readonly Dictionary<ColorType, string> c_colorTypesAsStrings = new()
         {
 			{ ColorType.Red,	 $"{ColorType.Red.ToString().ToLower()}"	 },
 			{ ColorType.Yellow,  $"{ColorType.Yellow.ToString().ToLower()}"  },
@@ -227,16 +230,6 @@ namespace Overlay
 			{ ColorType.Blue,	 $"{ColorType.Blue.ToString().ToLower()}"	 },
 			{ ColorType.Magenta, $"{ColorType.Magenta.ToString().ToLower()}" },
             { ColorType.White,	 $"{ColorType.White.ToString().ToLower()}"	 },
-        };
-        private static readonly Dictionary<CommandInfoMessageType, string> c_commandInfoMessages = new()
-		{
-			{ CommandInfoMessageType.SetColor,	   $"To set the color of your text, type !setcolor followed by a valid color option, such as red, e.g., !setcolor red" },
-			{ CommandInfoMessageType.TextToSpeech, $"" },
-        };
-        private static readonly Dictionary<CommandInfoMessageType, string> c_onScreenCommandInfoMessages = new()
-        {
-            { CommandInfoMessageType.SetColor,     $"To set the color of your text, type !setcolor followed by a valid color option, such as red, e.g., !setcolor red" },
-            { CommandInfoMessageType.TextToSpeech, $"" },
         };
         private static readonly Dictionary<CommandType, string> c_commands = new()
 		{
@@ -253,6 +246,7 @@ namespace Overlay
             { CommandType.StreamAvatars, "!streamavatars" },
             { CommandType.TextToSpeech,  "!tts" },
             { CommandType.Time,          "!time" },
+            { CommandType.Unlurk,        "!unlurk" },
             { CommandType.YouTube,       "!youtube" },
 
 			// Stream Avatars
@@ -321,6 +315,7 @@ namespace Overlay
             { CommandType.StreamAvatars, 10d },
             { CommandType.TextToSpeech,  0d  },
             { CommandType.Time,          0d  },
+            { CommandType.Unlurk,		 0d  },
             { CommandType.YouTube,       10d },
 
 			// Stream Avatars
@@ -389,6 +384,7 @@ namespace Overlay
             { CommandType.StreamAvatars, 0d },
             { CommandType.TextToSpeech,  0d },
             { CommandType.Time,          0d },
+            { CommandType.Unlurk,		 0d },
             { CommandType.YouTube,       0d },
 
 			// Stream Avatars
@@ -442,8 +438,18 @@ namespace Overlay
             { CommandType.Throw,         0d },
             { CommandType.Whitelist,     0d },
         };
+        private static readonly Dictionary<CommandInfoMessageType, string> c_commandInfoMessages = new()
+        {
+            { CommandInfoMessageType.SetColor,     $"Type {c_commands[CommandType.SetColor]} followed by a valid color option, such as red, e.g., {c_commands[CommandType.SetColor]} {c_colorTypesAsStrings[ColorType.Red]}, to set the color of your text on screen." },
+            { CommandInfoMessageType.TextToSpeech, $"" },
+        };
+        private static readonly Dictionary<CommandInfoMessageType, string> c_onScreenCommandInfoMessages = new()
+        {
+            { CommandInfoMessageType.SetColor,     $"Type {c_commands[CommandType.SetColor]} followed by a valid color option, such as red, e.g., {c_commands[CommandType.SetColor]} {c_colorTypesAsStrings[ColorType.Red]}, to set the color of your text on screen." },
+            { CommandInfoMessageType.TextToSpeech, $"" },
+        };
 
-		private struct WebSocketMessage
+        private struct WebSocketMessage
 		{
 			public Dictionary<string, string> Tags = new();
 			public string Username = string.Empty;
@@ -465,6 +471,7 @@ namespace Overlay
 		};
 
         private readonly Dictionary<string, string> m_usernameColors = new();
+		private readonly HashSet<string> m_usersLurking = new();
         private readonly List<string> m_subscribersWhoUsedTextToSpeech = new();
         private readonly Queue<ulong> m_messageTimestamps = new();
         private readonly ClientWebSocket m_webSocket = new();
@@ -583,6 +590,7 @@ namespace Overlay
 				CommandType.StreamAvatars or
 				CommandType.TextToSpeech or
 				CommandType.Time or
+				CommandType.Unlurk or
 				CommandType.YouTube => 
 					ApplicationCommandType.Overlay,
 
@@ -732,6 +740,12 @@ namespace Overlay
 
                     case CommandType.Time:
                         HandleWebSocketMessagePrivMsgTime(
+                            webSocketMessage: webSocketMessage
+                        );
+                        break;
+
+                    case CommandType.Unlurk:
+                        HandleWebSocketMessagePrivMsgUnlurk(
                             webSocketMessage: webSocketMessage
                         );
                         break;
@@ -1283,13 +1297,35 @@ namespace Overlay
             {
                 name += $" ({username})";
             }
-            var message = $"{name} engaged lurk mode!";
+
+			string message;
+			if (
+				m_usersLurking.Contains(
+					item: username
+				) is true
+			)
+			{
+				message = $"{name} tried to engage lurk mode, but little did they know SmoothDagger knew they were already lurking! Rekt. Try using !unlurk first, noobie.";
+                await SendWebSocketMessage(
+				    message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{message}"
+				);
+				AddBotChatMessage(
+				    message: message
+				);
+				return;
+			}
+
+            message = $"{name} engaged lurk mode!";
             await SendWebSocketMessage(
                 message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{message}"
             );
             AddBotChatMessage(
                 message: message
             );
+
+			m_usersLurking.Add(
+				item: username	
+			);
         }
 
 		private async void HandleWebSocketMessagePrivMsgFollowAge(
@@ -1421,7 +1457,7 @@ namespace Overlay
 				separator: ' '
 			);
 			var colorText = parsedText[indexColor];
-			var colorType = c_colorStrings[colorText];
+			var colorType = c_colorStringsAsTypes[colorText];
 			var colorCode = PastelInterpolator.GetColorByColorType(
 				colorType: colorType
 			);
@@ -1595,6 +1631,52 @@ namespace Overlay
 			}
 		}
 
+		private async void HandleWebSocketMessagePrivMsgUnlurk(
+			WebSocketMessage webSocketMessage
+		)
+		{
+			var username = webSocketMessage.Username;
+            var name = webSocketMessage.Tags["display-name"];
+            var normalziedName = name.ToLower();
+            if (
+                normalziedName.Equals(
+                    obj: username
+                ) is false
+            )
+            {
+                name += $" ({username})";
+            }
+
+			string message;
+            if (
+				m_usersLurking.Contains(
+					item: username
+				) is false
+			)
+			{
+				message = $"{name} tried to disengage lurk mode, but little did they know SmoothDagger knew they weren't lurking! Rekt. Try using !lurk first, noobie.";
+                await SendWebSocketMessage(
+				    message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{message}"
+				);
+				AddBotChatMessage(
+				    message: message
+				);
+				return;
+			}
+
+            message = $"{name} disengaged lurk mode!";
+            await SendWebSocketMessage(
+                message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{message}"
+            );
+            AddBotChatMessage(
+                message: message
+            );
+
+			m_usersLurking.Remove(
+				item: username
+			);
+        }
+
 		private async void HandleWebSocketMessagePrivMsgYouTube(
 			WebSocketMessage webSocketMessage
 		)
@@ -1625,6 +1707,7 @@ namespace Overlay
 				CommandType.Rules or
 				CommandType.Steam or
 				CommandType.StreamAvatars or
+				CommandType.Unlurk or
 				CommandType.YouTube =>
 					IsOverlayCommandInputlessValid(
                         commandType: commandType,
@@ -1668,7 +1751,7 @@ namespace Overlay
             );
         }
 
-        private bool IsApplicationCommandStreamAvatarsValid(
+        private static bool IsApplicationCommandStreamAvatarsValid(
 		    CommandType commandType,
 		    string text
 		)
@@ -1832,13 +1915,13 @@ namespace Overlay
 			}
 
 			var pattern = $"^{c_commands[CommandType.SetColor]} (" +
-						  $"{c_colorTypes[ColorType.Red]}|" +
-						  $"{c_colorTypes[ColorType.Yellow]}|" +
-						  $"{c_colorTypes[ColorType.Green]}|" +
-						  $"{c_colorTypes[ColorType.Cyan]}|" +
-						  $"{c_colorTypes[ColorType.Blue]}|" +
-						  $"{c_colorTypes[ColorType.Magenta]}|" +
-						  $"{c_colorTypes[ColorType.White]})$";
+						  $"{c_colorTypesAsStrings[ColorType.Red]}|" +
+						  $"{c_colorTypesAsStrings[ColorType.Yellow]}|" +
+						  $"{c_colorTypesAsStrings[ColorType.Green]}|" +
+						  $"{c_colorTypesAsStrings[ColorType.Cyan]}|" +
+						  $"{c_colorTypesAsStrings[ColorType.Blue]}|" +
+						  $"{c_colorTypesAsStrings[ColorType.Magenta]}|" +
+						  $"{c_colorTypesAsStrings[ColorType.White]})$";
 			return Regex.IsMatch(
 				input: normalizedText,
 				pattern: pattern
@@ -1948,6 +2031,95 @@ namespace Overlay
 					return;
 			}
 		}
+
+		private async void OnChannelCheered(
+            TwitchWebSocketMessagePayloadEventChannelCheer @event
+        )
+        {
+			var username = @event.IsAnonymous ? "Anonymous" : @event.Username;
+			var bitCount = @event.Bits;
+            var message = $"{username} cheered with {bitCount} bit{(bitCount > 1u ? string.Empty : "ties")}! Cheers!";
+            await SendWebSocketMessage(
+                message: $"PRIVMSG #{TwitchData.TwitchChannel} :{message}"
+            );
+            AddBotChatMessage(
+                message: message
+            );
+        }
+
+		private async void OnChannelFollowed(
+            TwitchWebSocketMessagePayloadEventChannelFollow @event
+        )
+        {
+			var username = @event.Username;
+            var message = $"{username} followed! Welcome to the Smooth Crew! Make sure to check the Social section below for available follower commands you can use! Stay smooth & enjoy your stay!";
+            await SendWebSocketMessage(
+                message: $"PRIVMSG #{TwitchData.TwitchChannel} :{message}"
+            );
+            AddBotChatMessage(
+                message: message
+            );
+        }
+
+		private async void OnChannelPointsCustomRewardRedeemed(
+            TwitchWebSocketMessagePayloadEventChannelPointsCustomRewardRedeemed @event
+        )
+        {
+			var username = @event.Username;
+			var reward = @event.Reward;
+			var rewardTitle = reward.Title;
+            var message = $"{username} claimed {rewardTitle}!";
+            await SendWebSocketMessage(
+                message: $"PRIVMSG #{TwitchData.TwitchChannel} :{message}"
+            );
+            AddBotChatMessage(
+                message: message
+            );
+        }
+
+		private async void OnChannelRaided(
+            TwitchWebSocketMessagePayloadEventChannelRaid @event
+        )
+        {
+			var username = @event.FromBroadcasterUsername;
+			var viewerCount = @event.Viewers;
+            var message = $"{username} is raiding with {viewerCount} viewer{(viewerCount > 1u ? "s" : string.Empty)}! Welcome in & enjoy your stay, raiders!";
+            await SendWebSocketMessage(
+                message: $"PRIVMSG #{TwitchData.TwitchChannel} :{message}"
+            );
+            AddBotChatMessage(
+                message: message
+            );
+        }
+
+		private async void OnChannelSubscribed(
+            TwitchWebSocketMessagePayloadEventChannelSubscribe @event
+        )
+        {
+            var username = @event.Username;
+			var message = $"{username} subscribed! Thanks for supporting the channel! Make sure to check the Social section below for available subscriber commands you can use! Stay smooth & enjoy your stay!\"";
+            await SendWebSocketMessage(
+                message: $"PRIVMSG #{TwitchData.TwitchChannel} :{message}"
+            );
+            AddBotChatMessage(
+                message: message
+            );
+        }
+
+		private async void OnChannelSubscriptionGifted(
+            TwitchWebSocketMessagePayloadEventChannelSubscriptionGift @event
+        )
+		{
+            var username = @event.IsAnonymous is true ? "Anonymous" : @event.Username;
+			var total = @event.Total;
+            var message = $"{username} gifted {total} subscription{(total > 1 ? "s" : string.Empty)}! Let's give a big shoutout to {username}! Thanks for supporting the channel! Make sure to check the Social section below for available subscriber commands you can use! Stay smooth & enjoy your stay!\"";
+            await SendWebSocketMessage(
+                message: $"PRIVMSG #{TwitchData.TwitchChannel} :{message}"
+			);
+            AddBotChatMessage(
+                message: message
+            );
+        }
 
 		private static string ParseTextSubCommand(
 			string text
@@ -2259,8 +2431,6 @@ namespace Overlay
 			m_twitchManager = GetNode<TwitchManager>(
                 path: NodeDirectory.NodePaths[NodeType.TwitchManager]
 			);
-
-			m_twitchManager.ChannelChatNotification += OnChannelChatNotification;
 		}
 
 		private async void SendAutomatedMessage()
@@ -2285,6 +2455,17 @@ namespace Overlay
 				endOfMessage: true,
 				cancellationToken: default
 			);
+		}
+
+		private void SubscribeToTwitchManagerEvents()
+		{
+			m_twitchManager.ChannelChatNotification += OnChannelChatNotification;
+			m_twitchManager.ChannelCheered += OnChannelCheered;
+            m_twitchManager.ChannelFollowed += OnChannelFollowed;
+			m_twitchManager.ChannelPointsCustomRewardRedeemed += OnChannelPointsCustomRewardRedeemed;
+            m_twitchManager.ChannelRaided += OnChannelRaided;
+			m_twitchManager.ChannelSubscribed += OnChannelSubscribed;
+			m_twitchManager.ChannelSubscriptionGifted += OnChannelSubscriptionGifted;
 		}
 
 		private async void StartWebSocketAutomatedMessageDispatcher()

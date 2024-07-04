@@ -57,93 +57,6 @@ namespace Overlay
         private AutomaticNotifierType m_currentAutomaticNotifierType = AutomaticNotifierType.Discord;
 		private NotifierControllerBase m_currentNotifierController = null;
 
-		private void RetrieveNotifiers()
-		{
-			m_notifierControllerDiscord = GetNode<NotifierControllerTextScrollerSocialDiscord>(
-				path: "NotifierControllerDiscord"
-			);
-			m_notifierControllerNewCheer = GetNode<NotifierControllerTextScrollerEventNewCheer>(
-                path: "NotifierControllerNewCheer"
-            );
-			m_notifierControllerNewFollower = GetNode<NotifierControllerTextScrollerEventNewFollower>(
-                path: "NotifierControllerNewFollower"
-            );
-			m_notifierControllerNewGiftedSubscription = GetNode<NotifierControllerTextScrollerEventNewGiftedSubscription>(
-				path: "NotifierControllerNewGiftedSubscription"
-			);
-			m_notifierControllerNewSubscriber = GetNode<NotifierControllerTextScrollerEventNewSubscriber>(
-				path: "NotifierControllerNewSubscriber"
-			);
-			m_notifierControllerRecentFollowers = GetNode<NotifierControllerTextScrollerRecentEventFollowers>(
-				path: "NotifierControllerRecentFollowers"
-			);
-			m_notifierControllerRecentSubscribers = GetNode<NotifierControllerTextScrollerRecentEventSubscribers>(
-				path: "NotifierControllerRecentSubscribers"
-			);
-			m_notifierControllerTwitch = GetNode<NotifierControllerTextScrollerSocialTwitch>(
-				path: "NotifierControllerTwitch"
-			);
-			m_notifierControllerYouTube = GetNode<NotifierControllerTextScrollerSocialYoutube>(
-				path: "NotifierControllerYouTube"
-			);
-
-			m_automaticNotifierControllers.Add(
-				key: AutomaticNotifierType.Discord,
-				value: m_notifierControllerDiscord
-			);
-			m_automaticNotifierControllers.Add(
-				key: AutomaticNotifierType.RecentFollowers,
-                value: m_notifierControllerRecentFollowers
-            );
-			m_automaticNotifierControllers.Add(
-                key: AutomaticNotifierType.RecentSubscribers,
-                value: m_notifierControllerRecentSubscribers
-            );
-			m_automaticNotifierControllers.Add(
-                key: AutomaticNotifierType.Twitch,
-                value: m_notifierControllerTwitch
-            );
-			m_automaticNotifierControllers.Add(
-                key: AutomaticNotifierType.YouTube,
-                value: m_notifierControllerYouTube
-            );
-		}
-
-		private void RegisterForNotiferCompletions()
-		{
-			m_notifierControllerDiscord.CompletedNotification += OnNotificationCompleted;
-			m_notifierControllerNewCheer.CompletedNotification += OnNotificationCompleted;
-			m_notifierControllerNewFollower.CompletedNotification += OnNotificationCompleted;
-			m_notifierControllerNewGiftedSubscription.CompletedNotification += OnNotificationCompleted;
-			m_notifierControllerNewSubscriber.CompletedNotification += OnNotificationCompleted;
-			m_notifierControllerRecentFollowers.CompletedNotification += OnNotificationCompleted;
-			m_notifierControllerRecentSubscribers.CompletedNotification += OnNotificationCompleted;
-			m_notifierControllerTwitch.CompletedNotification += OnNotificationCompleted;
-			m_notifierControllerYouTube.CompletedNotification += OnNotificationCompleted;
-		}
-
-		private void RegisterForTwitchEvents()
-		{
-			var twitchManager = GetNode<TwitchManager>(
-				path: NodeDirectory.NodePaths[NodeType.TwitchManager]
-			);
-
-			twitchManager.ChannelCheered += OnChannelCheered;
-			twitchManager.ChannelFollowed += OnChannelFollowed;
-			twitchManager.ChannelSubscriptionGifted += OnChannelSubscriptionGifted;
-			twitchManager.ChannelSubscribed += OnChannelSubscribed;
-		}
-
-		private void StartNotifying()
-		{
-			m_currentAutomaticNotifierType = (AutomaticNotifierType)m_random.Next(
-				minValue: (int)AutomaticNotifierType.Discord,
-				maxValue: (int)AutomaticNotifierType.Count
-			);
-			m_currentNotifierController = m_automaticNotifierControllers[m_currentAutomaticNotifierType];
-			m_currentNotifierController.StartNotification();
-		}
-
 		private void OnChannelCheered(
 			TwitchWebSocketMessagePayloadEventChannelCheer payload
 		)
@@ -210,13 +123,91 @@ namespace Overlay
 			m_currentNotifierController.StartNotification();
 		}
 
-		private void SelectNextAutomaticNotifierController()
+        private void RetrieveNotifiers()
+        {
+            m_notifierControllerDiscord = GetNode<NotifierControllerTextScrollerSocialDiscord>(
+                path: "NotifierControllerDiscord"
+            );
+            m_notifierControllerNewCheer = GetNode<NotifierControllerTextScrollerEventNewCheer>(
+                path: "NotifierControllerNewCheer"
+            );
+            m_notifierControllerNewFollower = GetNode<NotifierControllerTextScrollerEventNewFollower>(
+                path: "NotifierControllerNewFollower"
+            );
+            m_notifierControllerNewGiftedSubscription = GetNode<NotifierControllerTextScrollerEventNewGiftedSubscription>(
+                path: "NotifierControllerNewGiftedSubscription"
+            );
+            m_notifierControllerNewSubscriber = GetNode<NotifierControllerTextScrollerEventNewSubscriber>(
+                path: "NotifierControllerNewSubscriber"
+            );
+            m_notifierControllerRecentFollowers = GetNode<NotifierControllerTextScrollerRecentEventFollowers>(
+                path: "NotifierControllerRecentFollowers"
+            );
+            m_notifierControllerRecentSubscribers = GetNode<NotifierControllerTextScrollerRecentEventSubscribers>(
+                path: "NotifierControllerRecentSubscribers"
+            );
+            m_notifierControllerTwitch = GetNode<NotifierControllerTextScrollerSocialTwitch>(
+                path: "NotifierControllerTwitch"
+            );
+            m_notifierControllerYouTube = GetNode<NotifierControllerTextScrollerSocialYoutube>(
+                path: "NotifierControllerYouTube"
+            );
+
+            m_automaticNotifierControllers.Add(
+                key: AutomaticNotifierType.Discord,
+                value: m_notifierControllerDiscord
+            );
+            m_automaticNotifierControllers.Add(
+                key: AutomaticNotifierType.RecentFollowers,
+                value: m_notifierControllerRecentFollowers
+            );
+            m_automaticNotifierControllers.Add(
+                key: AutomaticNotifierType.RecentSubscribers,
+                value: m_notifierControllerRecentSubscribers
+            );
+            m_automaticNotifierControllers.Add(
+                key: AutomaticNotifierType.Twitch,
+                value: m_notifierControllerTwitch
+            );
+            m_automaticNotifierControllers.Add(
+                key: AutomaticNotifierType.YouTube,
+                value: m_notifierControllerYouTube
+            );
+        }
+
+        private void RegisterForNotiferCompletions()
+        {
+            m_notifierControllerDiscord.CompletedNotification += OnNotificationCompleted;
+            m_notifierControllerNewCheer.CompletedNotification += OnNotificationCompleted;
+            m_notifierControllerNewFollower.CompletedNotification += OnNotificationCompleted;
+            m_notifierControllerNewGiftedSubscription.CompletedNotification += OnNotificationCompleted;
+            m_notifierControllerNewSubscriber.CompletedNotification += OnNotificationCompleted;
+            m_notifierControllerRecentFollowers.CompletedNotification += OnNotificationCompleted;
+            m_notifierControllerRecentSubscribers.CompletedNotification += OnNotificationCompleted;
+            m_notifierControllerTwitch.CompletedNotification += OnNotificationCompleted;
+            m_notifierControllerYouTube.CompletedNotification += OnNotificationCompleted;
+        }
+
+        private void RegisterForTwitchEvents()
+        {
+            var twitchManager = GetNode<TwitchManager>(
+                path: NodeDirectory.NodePaths[NodeType.TwitchManager]
+            );
+
+            twitchManager.ChannelCheered += OnChannelCheered;
+            twitchManager.ChannelFollowed += OnChannelFollowed;
+            twitchManager.ChannelSubscriptionGifted += OnChannelSubscriptionGifted;
+            twitchManager.ChannelSubscribed += OnChannelSubscribed;
+        }
+
+        private void SelectNextAutomaticNotifierController()
 		{
 			var currentNotifierType = m_currentAutomaticNotifierType;
 			while (
 				currentNotifierType.Equals(
 					obj: m_currentAutomaticNotifierType
-				) is true)
+				) is true
+			)
 			{
 				m_currentAutomaticNotifierType = (AutomaticNotifierType)m_random.Next(
 					minValue: (int)AutomaticNotifierType.Discord,
@@ -226,5 +217,15 @@ namespace Overlay
 
 			m_currentNotifierController = m_automaticNotifierControllers[m_currentAutomaticNotifierType];
 		}
-	}
+
+        private void StartNotifying()
+        {
+            m_currentAutomaticNotifierType = (AutomaticNotifierType)m_random.Next(
+                minValue: (int)AutomaticNotifierType.Discord,
+                maxValue: (int)AutomaticNotifierType.Count
+            );
+            m_currentNotifierController = m_automaticNotifierControllers[m_currentAutomaticNotifierType];
+            m_currentNotifierController.StartNotification();
+        }
+    }
 }
