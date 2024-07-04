@@ -6,6 +6,17 @@ namespace Overlay
 
     public sealed partial class PastelInterpolator : Node
     {
+        public enum ColorType : uint
+        {
+            Red = 0u,
+            Yellow,
+            Green,
+            Cyan,
+            Blue,
+            Magenta,
+            White,
+        }
+
         public override void _EnterTree()
         {
             RetrieveResources();
@@ -30,6 +41,13 @@ namespace Overlay
             return m_currentColor.ToHtml();
         }
 
+        public static string GetColorByColorType(
+            ColorType colorType
+        )
+        {
+            return c_colorCodes[colorType].ToHtml();
+        }
+
         private enum ColorInterpolationType : uint
         {
             RedToYellow = 0u,
@@ -40,24 +58,15 @@ namespace Overlay
             MagentaToRed
         }
 
-        private enum ColorType : uint
-        {
-            Red = 0u,
-            Yellow,
-            Green,
-            Cyan,
-            Blue,
-            Magenta,
-        }
-
         private static readonly Dictionary<ColorType, Color> c_colorCodes = new()
         {
-            { ColorType.Red,      new(0xF898A4FF) },
-            { ColorType.Yellow,   new(0xFDFFB6FF) },
-            { ColorType.Green,    new(0xCAFFBFFF) },
-            { ColorType.Cyan,     new(0x9BF6FFFF) },
-            { ColorType.Blue,     new(0xA0C4FFFF) },
-            { ColorType.Magenta,  new(0xFFC6FFFF) },
+            { ColorType.Red,     new(0xF898A4FF) },
+            { ColorType.Yellow,  new(0xFDFFB6FF) },
+            { ColorType.Green,   new(0xCAFFBFFF) },
+            { ColorType.Cyan,    new(0x9BF6FFFF) },
+            { ColorType.Blue,    new(0xA0C4FFFF) },
+            { ColorType.Magenta, new(0xFFC6FFFF) },
+            { ColorType.White,   new(0xF2F2F2FF) },
         };
 
         private const float c_colorInterpolationRate = 0.25f;

@@ -8,7 +8,7 @@ namespace Overlay
     using System.Text.RegularExpressions;
     using System.Threading;
     using System.Threading.Tasks;
-    using static System.Net.Mime.MediaTypeNames;
+	using ColorType = PastelInterpolator.ColorType;
     using FragmentType = TwitchWebSocketMessagePayloadEventChannelChatNotificationMessageFragment.FragmentType;
 	using NodeType = NodeDirectory.NodeType;
 
@@ -208,7 +208,27 @@ namespace Overlay
             { AutomatedMessageType.TwitchSubscribe, "Want ad-free viewing? Subscribe on Twitch @ \n[color=9BF6FF]https://www.twitch.tv/subs/SmoothDagger" },
             { AutomatedMessageType.YouTube,         "Looking for more content? Subscribe on YouTube @ \n[color=9BF6FF]https://www.youtube.com/@SmoothDagger" },
         };
-		private static readonly Dictionary<CommandInfoMessageType, string> c_commandInfoMessages = new()
+        private static readonly Dictionary<string, ColorType> c_colorStrings = new()
+        {
+            { $"{ColorType.Red.ToString().ToLower()}",	   ColorType.Red     },
+            { $"{ColorType.Yellow.ToString().ToLower()}",  ColorType.Yellow  },
+            { $"{ColorType.Green.ToString().ToLower()}",   ColorType.Green   },
+            { $"{ColorType.Cyan.ToString().ToLower()}",	   ColorType.Cyan    },
+            { $"{ColorType.Blue.ToString().ToLower()}",	   ColorType.Blue    },
+            { $"{ColorType.Magenta.ToString().ToLower()}", ColorType.Magenta },
+            { $"{ColorType.White.ToString().ToLower()}",   ColorType.White   },
+        };
+        private static readonly Dictionary<ColorType, string> c_colorTypes = new()
+        {
+			{ ColorType.Red,	 $"{ColorType.Red.ToString().ToLower()}"	 },
+			{ ColorType.Yellow,  $"{ColorType.Yellow.ToString().ToLower()}"  },
+			{ ColorType.Green,	 $"{ColorType.Green.ToString().ToLower()}"	 },
+			{ ColorType.Cyan,	 $"{ColorType.Cyan.ToString().ToLower()}"	 },
+			{ ColorType.Blue,	 $"{ColorType.Blue.ToString().ToLower()}"	 },
+			{ ColorType.Magenta, $"{ColorType.Magenta.ToString().ToLower()}" },
+            { ColorType.White,	 $"{ColorType.White.ToString().ToLower()}"	 },
+        };
+        private static readonly Dictionary<CommandInfoMessageType, string> c_commandInfoMessages = new()
 		{
 			{ CommandInfoMessageType.SetColor,	   $"To set the color of your text, type !setcolor followed by a valid color option, such as red, e.g., !setcolor red" },
 			{ CommandInfoMessageType.TextToSpeech, $"" },
@@ -1102,7 +1122,7 @@ namespace Overlay
 			WebSocketMessage webSocketMessage
 		)
 		{
-			var user = m_twitchManager.GetUser(
+            var user = m_twitchManager.GetUser(
 				username: webSocketMessage.Username
 			);
 			if (user is not null)
@@ -1254,11 +1274,11 @@ namespace Overlay
 		{
 			var username = webSocketMessage.Username;
             var name = webSocketMessage.Tags["display-name"];
-            if (
-                string.Compare(
-                    strA: name.ToLower(),
-                    strB: username
-                ) is not 0
+			var normalziedName = name.ToLower();
+			if (
+				normalziedName.Equals(
+					obj: username
+				) is false
             )
             {
                 name += $" ({username})";
@@ -1400,10 +1420,13 @@ namespace Overlay
             var parsedText = normalizedText.Split(
 				separator: ' '
 			);
-            var colorCode = parsedText[indexColor].Remove(
-                startIndex: parsedText[indexColor].Length - c_webSocketMessageDelimiterLength
-            );
-			var customSubscriberData = m_twitchManager.GetCustomSubscriberData(
+			var colorText = parsedText[indexColor];
+			var colorType = c_colorStrings[colorText];
+			var colorCode = PastelInterpolator.GetColorByColorType(
+				colorType: colorType
+			);
+
+            var customSubscriberData = m_twitchManager.GetCustomSubscriberData(
 				username: username
             );
 			if (customSubscriberData is null)
@@ -1584,7 +1607,7 @@ namespace Overlay
             );
 		}
 
-        private bool IsApplicationCommandOverlayValid(
+        private static bool IsApplicationCommandOverlayValid(
 		    CommandType commandType,
 		    string text
 		)
@@ -1634,7 +1657,7 @@ namespace Overlay
             };
         }
 
-		private bool IsApplicationCommandStreamAvatarsTextValid(
+		private static bool IsApplicationCommandStreamAvatarsTextValid(
 			CommandType commandType,
 			string text
 		)
@@ -1808,7 +1831,14 @@ namespace Overlay
 				return true;
 			}
 
-            var pattern = $"^{c_commands[CommandType.SetColor]} ([0-9A-Fa-f]{{6}})$";
+			var pattern = $"^{c_commands[CommandType.SetColor]} (" +
+						  $"{c_colorTypes[ColorType.Red]}|" +
+						  $"{c_colorTypes[ColorType.Yellow]}|" +
+						  $"{c_colorTypes[ColorType.Green]}|" +
+						  $"{c_colorTypes[ColorType.Cyan]}|" +
+						  $"{c_colorTypes[ColorType.Blue]}|" +
+						  $"{c_colorTypes[ColorType.Magenta]}|" +
+						  $"{c_colorTypes[ColorType.White]})$";
 			return Regex.IsMatch(
 				input: normalizedText,
 				pattern: pattern
