@@ -1,6 +1,12 @@
 
-[System.Serializable]
-public sealed class TwitchResponseLogin
+
+namespace Overlay
 {
-    public TwitchUser[] data = null;
+    using System;
+
+    [Serializable]
+    public sealed class TwitchResponseLogin
+    {
+        public TwitchUser[] data = null;
+    }
 }

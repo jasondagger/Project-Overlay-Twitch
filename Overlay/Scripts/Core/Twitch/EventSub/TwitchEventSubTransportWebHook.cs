@@ -1,17 +1,22 @@
 
-[System.Serializable]
-public sealed class TwitchEventSubTransportWebHook
+namespace Overlay
 {
-    public string method = "webhook";
-    public string callback = string.Empty;
-    public string secret = string.Empty;
+    using System;
 
-    public TwitchEventSubTransportWebHook(
-        string callback,
-        string secret
-    )
+    [Serializable]
+    public sealed class TwitchEventSubTransportWebHook
     {
-        this.callback = callback;
-        this.secret = secret;
+        public string method = "webhook";
+        public string callback = string.Empty;
+        public string secret = string.Empty;
+
+        public TwitchEventSubTransportWebHook(
+            string callback,
+            string secret
+        )
+        {
+            this.callback = callback;
+            this.secret = secret;
+        }
     }
 }

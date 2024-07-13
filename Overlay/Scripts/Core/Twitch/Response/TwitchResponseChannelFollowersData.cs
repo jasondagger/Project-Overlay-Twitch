@@ -1,9 +1,10 @@
 
 namespace Overlay
 {
+    using System;
     using System.Text.Json.Serialization;
 
-    [System.Serializable]
+    [Serializable]
     public sealed class TwitchResponseChannelFollowersData
     {
         [JsonPropertyName("followed_at")]

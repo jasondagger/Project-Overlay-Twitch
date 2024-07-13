@@ -289,7 +289,7 @@ namespace Overlay
             if (
                 m_headerTextLetters.All(
                     predicate: x => 
-                    x.Value.TextLetterScrollState is TextLetterScrollState.Idle
+                    x.Value.TextLetterScrollState == TextLetterScrollState.Idle
                 ) is true
             )
             {
@@ -330,7 +330,7 @@ namespace Overlay
                 var richTextLabel = m_richTextLabelSamplerFooter.DequeueRichTextLabel(
                     letter: letter
                 );
-                richTextLabel.Position = new(
+                richTextLabel.Position = new Vector2(
                     x: positionX,
                     y: 0f
                 );
@@ -378,7 +378,7 @@ namespace Overlay
                 var richTextLabel = m_richTextLabelSamplerHeader.DequeueRichTextLabel(
                     letter: letter
                 );
-                richTextLabel.Position = new(
+                richTextLabel.Position = new Vector2(
                     x: positionX,
                     y: 0f
                 );

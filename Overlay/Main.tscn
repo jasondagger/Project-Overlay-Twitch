@@ -1,4 +1,4 @@
-[gd_scene load_steps=81 format=3 uid="uid://sb1smb8j0dq7"]
+[gd_scene load_steps=82 format=3 uid="uid://sb1smb8j0dq7"]
 
 [ext_resource type="Script" path="res://Overlay/Scripts/Core/ApplicationManager.cs" id="1_qamig"]
 [ext_resource type="Script" path="res://Overlay/Scripts/Core/AudioManager.cs" id="2_62y76"]
@@ -25,6 +25,7 @@
 [ext_resource type="Script" path="res://Overlay/Scripts/Core/Twitch/TwitchChannelPointRewardsManager.cs" id="22_0vdu7"]
 [ext_resource type="Script" path="res://Overlay/Scripts/Core/PastelInterpolator.cs" id="22_5gnu4"]
 [ext_resource type="Script" path="res://Overlay/Scripts/Core/Twitch/TwitchManager.cs" id="23_w0w6m"]
+[ext_resource type="Script" path="res://Overlay/Scripts/Core/Spotify/SpotifyManager.cs" id="23_yb1mc"]
 [ext_resource type="Material" uid="uid://br7ao53v1qf8x" path="res://Overlay/Materials/Shelf/ShelfBackground.tres" id="24_ksyjd"]
 [ext_resource type="Script" path="res://Overlay/Scripts/Chat/TwitchChatManager.cs" id="25_3slto"]
 [ext_resource type="Script" path="res://Overlay/Scripts/Shelf/ShelfImageBackground.cs" id="25_kcdqg"]
@@ -264,6 +265,9 @@ script = ExtResource("20_vvlvl")
 
 [node name="PastelInterpolator" type="Node" parent="Core"]
 script = ExtResource("22_5gnu4")
+
+[node name="SpotifyManager" type="Node" parent="Core"]
+script = ExtResource("23_yb1mc")
 
 [node name="TwitchManager" type="Node" parent="Core"]
 script = ExtResource("23_w0w6m")

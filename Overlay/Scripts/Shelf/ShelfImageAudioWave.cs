@@ -5,8 +5,9 @@ namespace Overlay
 	using System.Collections.Generic;
 	using static Godot.Image;
 	using NodeType = NodeDirectory.NodeType;
+	using RainbowColorIndexType = PastelInterpolator.RainbowColorIndexType;
 
-	public sealed partial class ShelfImageAudioWave : ShelfImage
+    public sealed partial class ShelfImageAudioWave : ShelfImage
 	{
 		public override void _EnterTree()
 		{
@@ -165,7 +166,7 @@ namespace Overlay
 		private void RetrieveResources()
 		{
 			m_pastelInterpolator = GetNode<PastelInterpolator>(
-				path: NodeDirectory.NodePaths[NodeType.PastelInterpolator]
+				path: NodeDirectory.NodePaths[key: NodeType.PastelInterpolator]
 			);
 		}
 
@@ -184,7 +185,9 @@ namespace Overlay
 			);
 			m_material.SetShaderParameter(
 				param: "color",
-				value: m_pastelInterpolator.GetColor()
+				value: m_pastelInterpolator.GetColor(
+                    rainbowColorIndexType: RainbowColorIndexType.Color0	
+				)
 			);
 		}
 
@@ -305,7 +308,9 @@ namespace Overlay
 			);
 			m_material.SetShaderParameter(
 				param: "color",
-				value: m_pastelInterpolator.GetColor()
+				value: m_pastelInterpolator.GetColor(
+					rainbowColorIndexType: RainbowColorIndexType.Color0	
+				)
 			);
 		}
 	}

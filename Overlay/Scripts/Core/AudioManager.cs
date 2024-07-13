@@ -121,7 +121,10 @@ namespace Overlay
 		)
 		{
 			var message = @event.Message;
-			if (message is null)
+			if (
+				message is null || 
+				message.Fragments is null
+			)
 			{
 				return;
 			}

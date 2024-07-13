@@ -30,7 +30,7 @@ namespace Overlay
 
                         if (
                             i.Equals(
-                                obj: 0u
+                                obj: 0
                             ) is true
                         )
                         {
@@ -79,7 +79,7 @@ namespace Overlay
 
                         if (
                             i.Equals(
-                                obj: m_names.Count - 1u
+                                obj: m_names.Count - 1
                             ) is true
                         )
                         {

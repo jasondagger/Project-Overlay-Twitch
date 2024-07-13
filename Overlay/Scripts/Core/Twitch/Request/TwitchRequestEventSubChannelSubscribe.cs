@@ -1,10 +1,11 @@
 
 namespace Overlay
 {
+    using System;
     using System.Text.Json.Serialization;
 
     // https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelsubscribe
-    [System.Serializable]
+    [Serializable]
     public sealed class TwitchRequestEventSubChannelSubscribe
     {
         [JsonPropertyName("type")]

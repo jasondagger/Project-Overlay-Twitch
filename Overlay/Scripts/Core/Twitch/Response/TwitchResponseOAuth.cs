@@ -1,8 +1,13 @@
 
-[System.Serializable]
-public sealed class TwitchResponseOAuth
+namespace Overlay
 {
-    public string access_token = "";
-    public string expires_in   = "";
-    public string token_type   = "";
+    using System;
+
+    [Serializable]
+    public sealed class TwitchResponseOAuth
+    {
+        public string access_token = string.Empty;
+        public string expires_in = string.Empty;
+        public string token_type = string.Empty;
+    }
 }

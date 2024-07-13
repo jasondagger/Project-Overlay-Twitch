@@ -1,8 +1,9 @@
 namespace Overlay
 {
+    using System;
     using System.Text.Json.Serialization;
 
-    [System.Serializable]
+    [Serializable]
     public sealed class TwitchEventSubTransportWebSocket
     {
         [JsonPropertyName("method")]

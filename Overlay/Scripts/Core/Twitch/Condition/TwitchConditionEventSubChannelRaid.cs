@@ -1,8 +1,9 @@
 namespace Overlay
 {
+    using System;
     using System.Text.Json.Serialization;
 
-    [System.Serializable]
+    [Serializable]
     public sealed class TwitchConditionEventSubChannelRaid
     {
         [JsonPropertyName("to_broadcaster_user_id")]

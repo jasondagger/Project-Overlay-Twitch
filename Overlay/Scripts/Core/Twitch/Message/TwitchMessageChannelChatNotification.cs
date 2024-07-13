@@ -1,8 +1,9 @@
 namespace Overlay
 {
-	using System.Text.Json.Serialization;
+    using System;
+    using System.Text.Json.Serialization;
 
-    [System.Serializable]
+    [Serializable]
 	public sealed class TwitchMessageChannelChatNotification : TwitchMessage
 	{
         [JsonPropertyName("event")]

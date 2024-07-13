@@ -16,7 +16,10 @@ namespace Overlay
         public enum RequiredFileType : uint
         {
             RecentSubscribers = 0u,
+            SpotifyAccessToken,
+            SpotifyData,
             SubscriberData,
+            TwitchData,
         }
 
         public override void _EnterTree()
@@ -151,8 +154,11 @@ namespace Overlay
         };
         private static readonly Dictionary<RequiredFileType, string> c_requiredFiles = new()
         {
-            { RequiredFileType.RecentSubscribers, $"{RequiredFileType.RecentSubscribers}.txt" },
-            { RequiredFileType.SubscriberData,   $"{RequiredFileType.SubscriberData}.txt" },
+            { RequiredFileType.RecentSubscribers,  $"{RequiredFileType.RecentSubscribers}.txt" },
+            { RequiredFileType.SpotifyAccessToken, $"{RequiredFileType.SpotifyAccessToken}.txt" },
+            { RequiredFileType.SpotifyData,        $"{RequiredFileType.SpotifyData}.txt" },
+            { RequiredFileType.SubscriberData,     $"{RequiredFileType.SubscriberData}.txt" },
+            { RequiredFileType.TwitchData,         $"{RequiredFileType.TwitchData}.txt" },
         };
 
         private void BindInputEvents()

@@ -1,7 +1,9 @@
 
 namespace Overlay
 {
-	[System.Serializable]
+    using System;
+
+    [Serializable]
 	public sealed class TwitchWebSocketMessagePayloadEventChannelChatNotificationUnraid
 	{
 

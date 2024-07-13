@@ -6,12 +6,15 @@ namespace Overlay
 	using System.Collections.Generic;
     using System.Net.WebSockets;
     using System.Text;
+    using System.Text.Json;
     using System.Text.RegularExpressions;
     using System.Threading;
     using System.Threading.Tasks;
 	using ColorType = PastelInterpolator.ColorType;
     using FragmentType = TwitchWebSocketMessagePayloadEventChannelChatNotificationMessageFragment.FragmentType;
 	using NodeType = NodeDirectory.NodeType;
+	using RainbowColorIndexType = PastelInterpolator.RainbowColorIndexType;
+    using RequiredFileType = ApplicationManager.RequiredFileType;
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public sealed partial class TwitchBot : Node
@@ -22,7 +25,7 @@ namespace Overlay
 			//OS.ShellOpen(
 			//    $"https://id.twitch.tv/oauth2/authorize" +
 			//    $"?response_type=token" +
-			//    $"&client_id={TwitchData.ClientId}" +
+			//    $"&client_id={m_twitchData.ClientId}" +
 			//    $"&redirect_uri=http://localhost:3000" +
 			//    $"&scope=" +
 			//        $"chat%3Aread%20" +    // chat:read
@@ -104,7 +107,8 @@ namespace Overlay
 
         private enum CommandInfoMessageType : uint
         {
-            SetColor = 0u,
+			SetColorSelection = 0u,
+            SetColorUsage,
             TextToSpeech,
         }
 
@@ -116,8 +120,10 @@ namespace Overlay
             Discord,
             FollowAge,
             Lurk,
+			SongRequest,
             Rules,
             SetColor,
+            SetColour,
             Steam,
             StreamAvatars,
             TextToSpeech,
@@ -190,46 +196,61 @@ namespace Overlay
 
 		private static readonly Dictionary<AutomatedMessageType, string> c_automatedMessages = new()
 		{
-            { AutomatedMessageType.Commands,	    "Check the Socials section below for a list of available bot commands @ https://www.twitch.tv/SmoothDagger/About" },
-			{ AutomatedMessageType.Discord,		    "Interested in chatting? Join the Discord @ https://www.discord.gg/SmoothCrew" },
-			{ AutomatedMessageType.Rules,		    "Make sure you're following the rules! Find them below in the rules section @ https://www.twitch.tv/SmoothDagger/About" },
-			{ AutomatedMessageType.StreamAvatars,   "Want to customize your stream avatar? Select an avatar below in the Stream Avatars section @ https://www.twitch.tv/SmoothDagger/About" },
-            { AutomatedMessageType.Steam,		    "Come play with us! Add me on Steam @ https://steamcommunity.com/id/SmoothDagger/" },
-            { AutomatedMessageType.TwitchFollow,    "Enjoying the stream? Tap the follow button to get notified for any live streams!" },
-            { AutomatedMessageType.TwitchSubscribe, "Want ad-free viewing? Subscribe on Twitch @ https://www.twitch.tv/subs/SmoothDagger" },
-            { AutomatedMessageType.YouTube,		    "Want more SmoothDagger content? Subscribe on YouTube @ https://www.youtube.com/@SmoothDagger" },
+            { AutomatedMessageType.Commands,	    $"Check the Socials section below for a list of available bot commands @ https://www.twitch.tv/SmoothDagger/About" },
+			{ AutomatedMessageType.Discord,		    $"Interested in chatting? Join the Discord @ https://www.discord.gg/SmoothCrew" },
+			{ AutomatedMessageType.Rules,		    $"Make sure you're following the rules! Find them below in the rules section @ https://www.twitch.tv/SmoothDagger/About" },
+			{ AutomatedMessageType.StreamAvatars,   $"Want to customize your stream avatar? Select an avatar below in the Stream Avatars section @ https://www.twitch.tv/SmoothDagger/About" },
+            { AutomatedMessageType.Steam,		    $"Come play with us! Add me on Steam @ https://steamcommunity.com/id/SmoothDagger/" },
+            { AutomatedMessageType.Supporter,       $"Are you a follower or subscriber? Check the Socials section below for exclusive chat commands @ https://www.twitch.tv/SmoothDagger/About" },
+            { AutomatedMessageType.TwitchFollow,    $"Enjoying the stream? Tap the follow button to get notified for any live streams!" },
+            { AutomatedMessageType.TwitchSubscribe, $"Want ad-free viewing? Subscribe on Twitch @ https://www.twitch.tv/subs/SmoothDagger" },
+            { AutomatedMessageType.YouTube,		    $"Want more SmoothDagger content? Subscribe on YouTube @ https://www.youtube.com/@SmoothDagger" },
 		};
         private static readonly Dictionary<AutomatedMessageType, string> c_onScreenAutomatedMessages = new()
         {
-            { AutomatedMessageType.Commands,        "Check the Socials section below for a list of available bot commands @ \n[color=9BF6FF]https://www.twitch.tv/SmoothDagger/About" },
-            { AutomatedMessageType.Discord,         "Interested in chatting? Join the Discord @ \n[color=9BF6FF]https://www.discord.gg/SmoothCrew" },
-            { AutomatedMessageType.Rules,           "Make sure you're following the rules! Find them below in the rules section @ \n[color=9BF6FF]https://www.twitch.tv/SmoothDagger/About" },
-            { AutomatedMessageType.StreamAvatars,   "Want to customize your stream avatar? Select an avatar below in the Stream Avatars section @ \n[color=9BF6FF]https://www.twitch.tv/SmoothDagger/About" },
-            { AutomatedMessageType.Steam,           "Come play with us! Add me on Steam @ \n[color=9BF6FF]https://steamcommunity.com/id/SmoothDagger/" },
-            { AutomatedMessageType.Supporter,       "Are you a follower or subscriber? Check the Socials section below for exclusive commands @ \n[color=9BF6FF]https://www.twitch.tv/SmoothDagger/About" },
-            { AutomatedMessageType.TwitchFollow,    "Enjoying the stream? Tap the [color=F898A4]follow[/color] button to get notified for any live streams!" },
-            { AutomatedMessageType.TwitchSubscribe, "Want ad-free viewing? Subscribe on Twitch @ \n[color=9BF6FF]https://www.twitch.tv/subs/SmoothDagger" },
-            { AutomatedMessageType.YouTube,         "Looking for more content? Subscribe on YouTube @ \n[color=9BF6FF]https://www.youtube.com/@SmoothDagger" },
+            { AutomatedMessageType.Commands,        $"Check the Socials section below for a list of available chat commands @ \n[color={PastelInterpolator.GetColorAsHexByColorType(colorType: ColorType.Cyan)}]https://www.twitch.tv/SmoothDagger/About" },
+            { AutomatedMessageType.Discord,         $"Interested in chatting? Join the Discord @ \n[color={PastelInterpolator.GetColorAsHexByColorType(colorType: ColorType.Cyan)}]https://www.discord.gg/SmoothCrew" },
+            { AutomatedMessageType.Rules,           $"Make sure you're following the rules! Find them below in the rules section @ \n[color={PastelInterpolator.GetColorAsHexByColorType(colorType: ColorType.Cyan)}]https://www.twitch.tv/SmoothDagger/About" },
+            { AutomatedMessageType.StreamAvatars,   $"Want to customize your stream avatar? Select an avatar below in the Stream Avatars section @ \n[color={PastelInterpolator.GetColorAsHexByColorType(colorType: ColorType.Cyan)}]https://www.twitch.tv/SmoothDagger/About" },
+            { AutomatedMessageType.Steam,           $"Come play with us! Add me on Steam @ \n[color={PastelInterpolator.GetColorAsHexByColorType(colorType: ColorType.Cyan)}]https://steamcommunity.com/id/SmoothDagger/" },
+            { AutomatedMessageType.Supporter,       $"Are you a follower or subscriber? Check the Socials section below for exclusive chat commands @ \n[color{PastelInterpolator.GetColorAsHexByColorType(colorType: ColorType.Cyan)}]https://www.twitch.tv/SmoothDagger/About" },
+            { AutomatedMessageType.TwitchFollow,    $"Enjoying the stream? [color={PastelInterpolator.GetColorAsHexByColorType(colorType: ColorType.Lime)}]Tap the follow button to get notified for any live streams!" },
+            { AutomatedMessageType.TwitchSubscribe, $"Want ad-free viewing? Subscribe on Twitch @ \n[color={PastelInterpolator.GetColorAsHexByColorType(colorType: ColorType.Cyan)}]https://www.twitch.tv/subs/SmoothDagger" },
+            { AutomatedMessageType.YouTube,         $"Looking for more content? Subscribe on YouTube @ \n[color={PastelInterpolator.GetColorAsHexByColorType(colorType: ColorType.Cyan)}]https://www.youtube.com/@SmoothDagger" },
         };
         private static readonly Dictionary<string, ColorType> c_colorStringsAsTypes = new()
         {
-            { $"{ColorType.Red.ToString().ToLower()}",	   ColorType.Red     },
-            { $"{ColorType.Yellow.ToString().ToLower()}",  ColorType.Yellow  },
-            { $"{ColorType.Green.ToString().ToLower()}",   ColorType.Green   },
-            { $"{ColorType.Cyan.ToString().ToLower()}",	   ColorType.Cyan    },
-            { $"{ColorType.Blue.ToString().ToLower()}",	   ColorType.Blue    },
-            { $"{ColorType.Magenta.ToString().ToLower()}", ColorType.Magenta },
-            { $"{ColorType.White.ToString().ToLower()}",   ColorType.White   },
+            { $"{ColorType.Red.ToString().ToLower()}",		 ColorType.Red		 },
+            { $"{ColorType.Orange.ToString().ToLower()}",	 ColorType.Orange	 },
+            { $"{ColorType.Yellow.ToString().ToLower()}",	 ColorType.Yellow	 },
+            { $"{ColorType.Lime.ToString().ToLower()}",		 ColorType.Lime		 },
+            { $"{ColorType.Green.ToString().ToLower()}",	 ColorType.Green	 },
+            { $"{ColorType.Turquoise.ToString().ToLower()}", ColorType.Turquoise },
+            { $"{ColorType.Cyan.ToString().ToLower()}",		 ColorType.Cyan		 },
+            { $"{ColorType.Teal.ToString().ToLower()}",		 ColorType.Teal		 },
+            { $"{ColorType.Blue.ToString().ToLower()}",		 ColorType.Blue		 },
+            { $"{ColorType.Purple.ToString().ToLower()}",	 ColorType.Purple	 },
+            { $"{ColorType.Magenta.ToString().ToLower()}",	 ColorType.Magenta	 },
+            { $"{ColorType.Pink.ToString().ToLower()}",		 ColorType.Pink		 },
+            { $"{ColorType.White.ToString().ToLower()}",	 ColorType.White	 },
+            { $"{ColorType.Rainbow.ToString().ToLower()}",	 ColorType.Rainbow   },
         };
         private static readonly Dictionary<ColorType, string> c_colorTypesAsStrings = new()
         {
-			{ ColorType.Red,	 $"{ColorType.Red.ToString().ToLower()}"	 },
-			{ ColorType.Yellow,  $"{ColorType.Yellow.ToString().ToLower()}"  },
-			{ ColorType.Green,	 $"{ColorType.Green.ToString().ToLower()}"	 },
-			{ ColorType.Cyan,	 $"{ColorType.Cyan.ToString().ToLower()}"	 },
-			{ ColorType.Blue,	 $"{ColorType.Blue.ToString().ToLower()}"	 },
-			{ ColorType.Magenta, $"{ColorType.Magenta.ToString().ToLower()}" },
-            { ColorType.White,	 $"{ColorType.White.ToString().ToLower()}"	 },
+			{ ColorType.Red,	   $"{ColorType.Red.ToString().ToLower()}"		 },
+			{ ColorType.Orange,	   $"{ColorType.Orange.ToString().ToLower()}"	 },
+            { ColorType.Yellow,	   $"{ColorType.Yellow.ToString().ToLower()}"	 },
+			{ ColorType.Lime,	   $"{ColorType.Lime.ToString().ToLower()}"		 },
+            { ColorType.Green,	   $"{ColorType.Green.ToString().ToLower()}"	 },
+			{ ColorType.Turquoise, $"{ColorType.Turquoise.ToString().ToLower()}" },
+            { ColorType.Cyan,	   $"{ColorType.Cyan.ToString().ToLower()}"		 },
+			{ ColorType.Teal,	   $"{ColorType.Teal.ToString().ToLower()}"		 },
+            { ColorType.Blue,	   $"{ColorType.Blue.ToString().ToLower()}"		 },
+			{ ColorType.Purple,	   $"{ColorType.Purple.ToString().ToLower()}"	 },
+            { ColorType.Magenta,   $"{ColorType.Magenta.ToString().ToLower()}"	 },
+			{ ColorType.Pink,	   $"{ColorType.Pink.ToString().ToLower()}"		 },
+            { ColorType.White,	   $"{ColorType.White.ToString().ToLower()}"	 },
+            { ColorType.Rainbow,   $"{ColorType.Rainbow.ToString().ToLower()}"	 },
         };
         private static readonly Dictionary<CommandType, string> c_commands = new()
 		{
@@ -242,6 +263,8 @@ namespace Overlay
             { CommandType.Lurk,			 "!lurk" },
             { CommandType.Rules,         "!rules" },
             { CommandType.SetColor,      "!setcolor" },
+            { CommandType.SetColour,     "!setcolour" },
+            { CommandType.SongRequest,   "!songrequest" },
             { CommandType.Steam,         "!steam" },
             { CommandType.StreamAvatars, "!streamavatars" },
             { CommandType.TextToSpeech,  "!tts" },
@@ -311,6 +334,8 @@ namespace Overlay
             { CommandType.Lurk,			 0d  },
             { CommandType.Rules,         10d },
             { CommandType.SetColor,      0d  },
+            { CommandType.SetColour,     0d  },
+            { CommandType.SongRequest,	 0d  },
             { CommandType.Steam,         10d },
             { CommandType.StreamAvatars, 10d },
             { CommandType.TextToSpeech,  0d  },
@@ -380,6 +405,8 @@ namespace Overlay
             { CommandType.Lurk,			 0d },
             { CommandType.Rules,         0d },
             { CommandType.SetColor,      0d },
+            { CommandType.SetColour,     0d },
+            { CommandType.SongRequest,	 0d },
             { CommandType.Steam,         0d },
             { CommandType.StreamAvatars, 0d },
             { CommandType.TextToSpeech,  0d },
@@ -440,14 +467,93 @@ namespace Overlay
         };
         private static readonly Dictionary<CommandInfoMessageType, string> c_commandInfoMessages = new()
         {
-            { CommandInfoMessageType.SetColor,     $"Type {c_commands[CommandType.SetColor]} followed by a valid color option, such as red, e.g., {c_commands[CommandType.SetColor]} {c_colorTypesAsStrings[ColorType.Red]}, to set the color of your text on screen." },
-            { CommandInfoMessageType.TextToSpeech, $"" },
+            {
+				CommandInfoMessageType.SetColorSelection,
+				$"Available Colors: " +
+					$"{c_colorTypesAsStrings[ key: ColorType.Red	   ]}, " +
+					$"{c_colorTypesAsStrings[ key: ColorType.Orange	   ]}, " +
+					$"{c_colorTypesAsStrings[ key: ColorType.Yellow	   ]}, " +
+					$"{c_colorTypesAsStrings[ key: ColorType.Lime	   ]}, " +
+					$"{c_colorTypesAsStrings[ key: ColorType.Green	   ]}, " +
+					$"{c_colorTypesAsStrings[ key: ColorType.Turquoise ]}, " +
+					$"{c_colorTypesAsStrings[ key: ColorType.Cyan	   ]}, " +
+					$"{c_colorTypesAsStrings[ key: ColorType.Teal	   ]}, " +
+					$"{c_colorTypesAsStrings[ key: ColorType.Blue	   ]}, " +
+					$"{c_colorTypesAsStrings[ key: ColorType.Purple	   ]}, " +
+					$"{c_colorTypesAsStrings[ key: ColorType.Magenta   ]}, " +
+					$"{c_colorTypesAsStrings[ key: ColorType.Pink	   ]}, " +
+					$"{c_colorTypesAsStrings[ key: ColorType.White	   ]}, " +
+					$"{c_colorTypesAsStrings[ key: ColorType.Rainbow   ]}."
+			},
+            {
+				CommandInfoMessageType.SetColorUsage,
+				$"Type {c_commands[key: CommandType.SetColor]} or {c_commands[key: CommandType.SetColour]} followed by a valid color option, such as red or pink, " +
+				$"e.g., {c_commands[key: CommandType.SetColor]} {c_colorTypesAsStrings[key: ColorType.Red]} or {c_commands[key: CommandType.SetColour]} {c_colorTypesAsStrings[key: ColorType.Pink]}, " +
+				$"to set the color of your text on screen."
+			},
+            {
+				CommandInfoMessageType.TextToSpeech,
+				$""
+			},
         };
         private static readonly Dictionary<CommandInfoMessageType, string> c_onScreenCommandInfoMessages = new()
         {
-            { CommandInfoMessageType.SetColor,     $"Type {c_commands[CommandType.SetColor]} followed by a valid color option, such as red, e.g., {c_commands[CommandType.SetColor]} {c_colorTypesAsStrings[ColorType.Red]}, to set the color of your text on screen." },
-            { CommandInfoMessageType.TextToSpeech, $"" },
+            {
+				CommandInfoMessageType.SetColorSelection,
+				$"Available Colors: " +
+					$"[color={PastelInterpolator.GetColorAsHexByColorType( colorType: ColorType.Red		  )}]{c_colorTypesAsStrings[ key: ColorType.Red		  ]}[/color], " +
+					$"[color={PastelInterpolator.GetColorAsHexByColorType( colorType: ColorType.Orange	  )}]{c_colorTypesAsStrings[ key: ColorType.Orange	  ]}[/color], " +
+					$"[color={PastelInterpolator.GetColorAsHexByColorType( colorType: ColorType.Yellow	  )}]{c_colorTypesAsStrings[ key: ColorType.Yellow	  ]}[/color], " +
+					$"[color={PastelInterpolator.GetColorAsHexByColorType( colorType: ColorType.Lime	  )}]{c_colorTypesAsStrings[ key: ColorType.Lime	  ]}[/color], " +
+					$"[color={PastelInterpolator.GetColorAsHexByColorType( colorType: ColorType.Green	  )}]{c_colorTypesAsStrings[ key: ColorType.Green	  ]}[/color], " +
+					$"[color={PastelInterpolator.GetColorAsHexByColorType( colorType: ColorType.Turquoise )}]{c_colorTypesAsStrings[ key: ColorType.Turquoise ]}[/color], " +
+					$"[color={PastelInterpolator.GetColorAsHexByColorType( colorType: ColorType.Cyan	  )}]{c_colorTypesAsStrings[ key: ColorType.Cyan	  ]}[/color], " +
+					$"[color={PastelInterpolator.GetColorAsHexByColorType( colorType: ColorType.Teal	  )}]{c_colorTypesAsStrings[ key: ColorType.Teal	  ]}[/color], " +
+					$"[color={PastelInterpolator.GetColorAsHexByColorType( colorType: ColorType.Blue	  )}]{c_colorTypesAsStrings[ key: ColorType.Blue	  ]}[/color], " +
+					$"[color={PastelInterpolator.GetColorAsHexByColorType( colorType: ColorType.Purple	  )}]{c_colorTypesAsStrings[ key: ColorType.Purple	  ]}[/color], " +
+					$"[color={PastelInterpolator.GetColorAsHexByColorType( colorType: ColorType.Magenta	  )}]{c_colorTypesAsStrings[ key: ColorType.Magenta   ]}[/color], " +
+					$"[color={PastelInterpolator.GetColorAsHexByColorType( colorType: ColorType.Pink	  )}]{c_colorTypesAsStrings[ key: ColorType.Pink	  ]}[/color], " +
+					$"[color={PastelInterpolator.GetColorAsHexByColorType( colorType: ColorType.White	  )}]{c_colorTypesAsStrings[ key: ColorType.White	  ]}[/color], " +
+					$"[color={PastelInterpolator.GetColorAsHexByColorType( colorType: ColorType.Red       )}]R[/color]" +
+					$"[color={PastelInterpolator.GetColorAsHexByColorType( colorType: ColorType.Orange    )}]a[/color]" +
+					$"[color={PastelInterpolator.GetColorAsHexByColorType( colorType: ColorType.Yellow    )}]i[/color]" +
+					$"[color={PastelInterpolator.GetColorAsHexByColorType( colorType: ColorType.Green     )}]n[/color]" +
+					$"[color={PastelInterpolator.GetColorAsHexByColorType( colorType: ColorType.Cyan      )}]b[/color]" +
+					$"[color={PastelInterpolator.GetColorAsHexByColorType( colorType: ColorType.Blue      )}]o[/color]" +
+					$"[color={PastelInterpolator.GetColorAsHexByColorType( colorType: ColorType.Purple    )}]w[/color]" +
+                    $"."
+			},
+            {
+				CommandInfoMessageType.SetColorUsage,
+				$"Type {c_commands[key: CommandType.SetColor]} or {c_commands[key: CommandType.SetColour]} followed by a valid color option, such as red or pink, " +
+				$"e.g., {c_commands[key: CommandType.SetColor]} {c_colorTypesAsStrings[key: ColorType.Red]} or {c_commands[key: CommandType.SetColour]} {c_colorTypesAsStrings[key: ColorType.Pink]}, " +
+				$"to set the color of your text on screen."
+			},
+            {
+				CommandInfoMessageType.TextToSpeech,
+				$""
+			},
         };
+
+		private static readonly string c_setColorRegexPattern = 
+			$"^(" +
+			$"{c_commands[ key: CommandType.SetColor  ]}|" +
+			$"{c_commands[ key: CommandType.SetColour ]}" +
+            $") (" +
+            $"{c_colorTypesAsStrings[ key: ColorType.Red	   ]}|" +
+            $"{c_colorTypesAsStrings[ key: ColorType.Orange	   ]}|" +
+            $"{c_colorTypesAsStrings[ key: ColorType.Yellow	   ]}|" +
+            $"{c_colorTypesAsStrings[ key: ColorType.Lime	   ]}|" +
+            $"{c_colorTypesAsStrings[ key: ColorType.Green	   ]}|" +
+            $"{c_colorTypesAsStrings[ key: ColorType.Turquoise ]}|" +
+            $"{c_colorTypesAsStrings[ key: ColorType.Cyan	   ]}|" +
+            $"{c_colorTypesAsStrings[ key: ColorType.Teal	   ]}|" +
+            $"{c_colorTypesAsStrings[ key: ColorType.Blue	   ]}|" +
+            $"{c_colorTypesAsStrings[ key: ColorType.Purple	   ]}|" +
+            $"{c_colorTypesAsStrings[ key: ColorType.Magenta   ]}|" +
+            $"{c_colorTypesAsStrings[ key: ColorType.Pink	   ]}|" +
+            $"{c_colorTypesAsStrings[ key: ColorType.White	   ]}|" +
+			$"{c_colorTypesAsStrings[ key: ColorType.Rainbow   ]})$";
 
         private struct WebSocketMessage
 		{
@@ -478,9 +584,11 @@ namespace Overlay
 
         private AudioManager m_audioManager = null;
 		private PastelInterpolator m_pastelInterpolator = null;
+		private SpotifyManager m_spotifyManager = null;
 		private TwitchChannelPointRewardsManager m_twitchChannelPointRewardsManager = null;
 		private TwitchChatManager m_twitchChatManager = null;
-		private TwitchManager m_twitchManager = null;
+        private TwitchData m_twitchData = null;
+        private TwitchManager m_twitchManager = null;
 		private AutomatedMessageType m_currentAutomatedMessage = AutomatedMessageType.Count;
 		private bool m_shutdown = false;
 
@@ -488,11 +596,12 @@ namespace Overlay
 			string message
 		)
 		{
-			Task.Run(
+			_ = Task.Run(
+				function:
 				async () =>
 				{
 					await Task.Delay(
-						millisecondsDelay: 5	
+						millisecondsDelay: 5
 					);
 					m_twitchChatManager.AddTwitchChatMessage(
 						username: c_twitchBotUsername,
@@ -503,7 +612,7 @@ namespace Overlay
 						badges: c_twitchBotBadges,
 						isSmoothGPT: true
 					);
-				}	
+				}
 			);
 		}
 
@@ -523,10 +632,10 @@ namespace Overlay
                 message: $"CAP REQ :twitch.tv/commands twitch.tv/tags"
 			);
 			await SendWebSocketMessage(
-                message: $"PASS oauth:{TwitchData.BotAccessToken}"
+                message: $"PASS oauth:{m_twitchData.BotAccessToken}"
 			);
 			await SendWebSocketMessage(
-                message: $"NICK {TwitchData.BotUsername}"
+                message: $"NICK {m_twitchData.BotUsername}"
 			);
 
 			var bytes = new byte[c_maxPacketSize];
@@ -565,7 +674,7 @@ namespace Overlay
 #endif
 
 			await SendWebSocketMessage(
-                message: $"JOIN #{TwitchData.TwitchChannel}"
+                message: $"JOIN #{m_twitchData.TwitchChannel}"
 			);
 
 			StartWebSocketMessageReader();
@@ -586,6 +695,8 @@ namespace Overlay
 				CommandType.Lurk or
 				CommandType.Rules or
 				CommandType.SetColor or
+				CommandType.SetColour or
+				CommandType.SongRequest or
                 CommandType.Steam or
 				CommandType.StreamAvatars or
 				CommandType.TextToSpeech or
@@ -669,7 +780,7 @@ namespace Overlay
             }
             else
             {
-                c_commandTimers[commandType] = c_commandCooldowns[commandType];
+                c_commandTimers[key: commandType] = c_commandCooldowns[key: commandType];
                 switch (commandType)
                 {
                     case CommandType.AccountAge:
@@ -708,6 +819,12 @@ namespace Overlay
                         );
                         break;
 
+                    case CommandType.SongRequest:
+                        HandleWebSocketMessagePrivMsgSongRequest(
+                            webSocketMessage: webSocketMessage
+                        );
+                        break;
+
                     case CommandType.Rules:
                         HandleWebSocketMessagePrivMsgRules(
                             webSocketMessage: webSocketMessage
@@ -715,6 +832,7 @@ namespace Overlay
                         break;
 
                     case CommandType.SetColor:
+					case CommandType.SetColour:
                         HandleWebSocketMessagePrivMsgSetColor(
                             webSocketMessage: webSocketMessage
                         );
@@ -832,7 +950,7 @@ namespace Overlay
             var username = $"@{@event.ChatterUsername}";
             var bitsBadgeTierText = $" Thank you so much for the {totalBits} bits! Congratulations on achieving the {bitsBadgeTier.Tier} bit tier!";
 			await SendWebSocketMessage(
-                message: $"PRIVMSG #{TwitchData.TwitchChannel} :{username}{bitsBadgeTierText}"
+                message: $"PRIVMSG #{m_twitchData.TwitchChannel} :{username}{bitsBadgeTierText}"
 			);
 		}
 
@@ -845,7 +963,7 @@ namespace Overlay
             var isChatterAnonymous = @event.ChatterIsAnonymous ?? false;
             var username = isChatterAnonymous ? "@Anonymous" : $"@{@event.ChatterUsername}";
 			await SendWebSocketMessage(
-                message: $"PRIVMSG #{TwitchData.TwitchChannel} :{username} This event was not set up yet. Shame @SmoothDagger for being lazy! SHAME HIM"
+                message: $"PRIVMSG #{m_twitchData.TwitchChannel} :{username} This event was not set up yet. Shame @SmoothDagger for being lazy! SHAME HIM"
 			);
 		}
 
@@ -865,7 +983,7 @@ namespace Overlay
 			var communitySubGiftCumulativeText = $" {username} has gifted a total of {communitySubGiftCumulativeTotal} community sub{(communitySubGiftCumulativeTotal > 1u ? "s" : string.Empty)}!";
             var communitySubGiftCommandsText = " Make sure to check out the available sub commands in the Social section below for your sub benefits @ https://www.twitch.tv/smoothdagger/about";
 			await SendWebSocketMessage(
-                message: $"PRIVMSG #{TwitchData.TwitchChannel} :{username}{communitySubGiftText}{communitySubGiftCumulativeText}{communitySubGiftCommandsText}"
+                message: $"PRIVMSG #{m_twitchData.TwitchChannel} :{username}{communitySubGiftText}{communitySubGiftCumulativeText}{communitySubGiftCommandsText}"
 			);
 		}
 
@@ -878,7 +996,7 @@ namespace Overlay
 			var isChatterAnonymous = @event.ChatterIsAnonymous ?? false;
             var username = isChatterAnonymous ? "@Anonymous" : $"@{@event.ChatterUsername}";
 			await SendWebSocketMessage(
-                message: $"PRIVMSG #{TwitchData.TwitchChannel} :{username} This event was not set up yet. Shame @SmoothDagger for being lazy! SHAME HIM"
+                message: $"PRIVMSG #{m_twitchData.TwitchChannel} :{username} This event was not set up yet. Shame @SmoothDagger for being lazy! SHAME HIM"
 			);
 		}
 
@@ -891,7 +1009,7 @@ namespace Overlay
             var isChatterAnonymous = @event.ChatterIsAnonymous ?? false;
             var username = isChatterAnonymous ? "@Anonymous" : $"@{@event.ChatterUsername}";
 			await SendWebSocketMessage(
-                message: $"PRIVMSG #{TwitchData.TwitchChannel} :{username} This event was not set up yet. Shame @SmoothDagger for being lazy! SHAME HIM"
+                message: $"PRIVMSG #{m_twitchData.TwitchChannel} :{username} This event was not set up yet. Shame @SmoothDagger for being lazy! SHAME HIM"
 			);
 		}
 
@@ -904,7 +1022,7 @@ namespace Overlay
             var isChatterAnonymous = @event.ChatterIsAnonymous ?? false;
             var username = isChatterAnonymous ? "@Anonymous" : $"@{@event.ChatterUsername}";
 			await SendWebSocketMessage(
-                message: $"PRIVMSG #{TwitchData.TwitchChannel} :{username} This event was not set up yet. Shame @SmoothDagger for being lazy! SHAME HIM"
+                message: $"PRIVMSG #{m_twitchData.TwitchChannel} :{username} This event was not set up yet. Shame @SmoothDagger for being lazy! SHAME HIM"
 			);
 		}
 
@@ -916,7 +1034,7 @@ namespace Overlay
             var username = $"@{raid.Username}";
             var twitchChannel = $"https://www.twitch.tv/{raid.UserLogin}";
             await SendWebSocketMessage(
-                message: $"PRIVMSG #{TwitchData.TwitchChannel} :Hello & welcome in, raiders! Shoutout to {username} for the raid! Make sure to go check out them out @ {twitchChannel}"
+                message: $"PRIVMSG #{m_twitchData.TwitchChannel} :Hello & welcome in, raiders! Shoutout to {username} for the raid! Make sure to go check out them out @ {twitchChannel}"
 			);
 		}
 
@@ -944,7 +1062,7 @@ namespace Overlay
 			var resubMonthsText = $" {username} has been subbed for a total of {resubCumulativeMonths} months{(resubStreakMonths > 1u ? $" & is on a {resubStreakMonths} month sub streak!" : "!")}";
 			var resubCommandsText = " Make sure to check out the available sub commands in the Social section below for your sub benefits @ https://www.twitch.tv/smoothdagger/about";
 			await SendWebSocketMessage(
-                message: $"PRIVMSG #{TwitchData.TwitchChannel} :{username}{resubText}{resubGiftText}{resubMonthsText}{resubCommandsText}"
+                message: $"PRIVMSG #{m_twitchData.TwitchChannel} :{username}{resubText}{resubGiftText}{resubMonthsText}{resubCommandsText}"
 			);
 		}
 
@@ -965,7 +1083,7 @@ namespace Overlay
 				$" Thank you so much for the tier {subTier} {subDuration} month sub!";
 			var subCommandsText = " Make sure to check out the available sub commands in the Social section below for your sub benefits @ https://www.twitch.tv/smoothdagger/about";
 			await SendWebSocketMessage(
-                message: $"PRIVMSG #{TwitchData.TwitchChannel} :{username}{subText}{subCommandsText}"
+                message: $"PRIVMSG #{m_twitchData.TwitchChannel} :{username}{subText}{subCommandsText}"
 			);
 		}
 
@@ -986,7 +1104,7 @@ namespace Overlay
 			var subGiftMonthsText = isChatterAnonymous ? string.Empty : $"{username} has gifted a total of {subGiftCumulativeTotal} sub{(subGiftCumulativeTotal > 1u ? "s" : string.Empty)}!";
 			var subCommandsText = " Make sure to check out the available sub commands in the Social section below for your sub benefits @ https://www.twitch.tv/smoothdagger/about";
 			await SendWebSocketMessage(
-				$"PRIVMSG #{TwitchData.TwitchChannel} :{username}{subGiftText}{subGiftMonthsText}{subCommandsText}"
+				$"PRIVMSG #{m_twitchData.TwitchChannel} :{username}{subGiftText}{subGiftMonthsText}{subCommandsText}"
 			);
 		}
 
@@ -997,7 +1115,7 @@ namespace Overlay
             var messagePrefix = "This is not a valid chat command. Check the Social section below to see the available bot commands @ ";
             var messageSuffix = "\nhttps://www.twitch.tv/SmoothDagger/About";
             await SendWebSocketMessage(
-                message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{messagePrefix}{messageSuffix}"
+                message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :{messagePrefix}{messageSuffix}"
             );
             AddBotChatMessage(
                 message: $"{messagePrefix}[color=9BF6FF]{messageSuffix}"
@@ -1011,7 +1129,7 @@ namespace Overlay
             var messageToChat = $"You are currently not following @SmoothDagger. Tap the follow button to gain access to this command!";
             var messageToOverlay = $"You are currently [color=F898A4]not[/color] following @SmoothDagger. Tap the [color=CAFFBF]follow[/color] button to gain access to this command!";
             await SendWebSocketMessage(
-                message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{messageToChat}"
+                message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :{messageToChat}"
             );
             AddBotChatMessage(
                 message: messageToOverlay
@@ -1125,7 +1243,7 @@ namespace Overlay
 		{
 			var message = $"{commandText} is currently on cooldown.";
 			await SendWebSocketMessage(
-                message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{message}"
+                message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
 			);
 			AddBotChatMessage(
                 message: message
@@ -1183,7 +1301,7 @@ namespace Overlay
                 var messageToChat = $"You've been lurking in the depths of Twitch for {accountTime}! Thanks for being here!";
                 var messageToOverlay = $"You've been lurking in the depths of Twitch for [color=CAFFBF]{accountTime}[/color]! Thanks for being here!";
                 await SendWebSocketMessage(
-                    message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{messageToChat}"
+                    message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :{messageToChat}"
                 );
                 AddBotChatMessage(
                     message: messageToOverlay
@@ -1202,10 +1320,10 @@ namespace Overlay
 		)
 		{
 			await SendWebSocketMessage(
-                message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{c_automatedMessages[AutomatedMessageType.Commands]}"
+                message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :{c_automatedMessages[key: AutomatedMessageType.Commands]}"
 			);
 			AddBotChatMessage(
-                message: $"{c_onScreenAutomatedMessages[AutomatedMessageType.Commands]}"
+                message: $"{c_onScreenAutomatedMessages[key: AutomatedMessageType.Commands]}"
 			);
 		}
 
@@ -1215,7 +1333,7 @@ namespace Overlay
 		{
 			var text = webSocketMessage.Text;
 			text = text.Replace(
-				oldValue: c_commands[CommandType.Date],
+				oldValue: c_commands[key: CommandType.Date],
 				newValue: string.Empty
 			);
 			text = text.Replace(
@@ -1235,7 +1353,7 @@ namespace Overlay
 					newChar: ' '
 				);
 				await SendWebSocketMessage(
-					message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{message}"
+					message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
 				);
 				AddBotChatMessage(
 					message: message
@@ -1261,7 +1379,7 @@ namespace Overlay
 					newChar: ' '
 				);
 				await SendWebSocketMessage(
-					message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{message}"
+					message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
 				);
 				AddBotChatMessage(
 					message: message
@@ -1274,10 +1392,10 @@ namespace Overlay
 		)
 		{
 			await SendWebSocketMessage(
-				message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{c_automatedMessages[AutomatedMessageType.Discord]}"
+				message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :{c_automatedMessages[key: AutomatedMessageType.Discord]}"
 			);
 			AddBotChatMessage(
-				message: $"{c_onScreenAutomatedMessages[AutomatedMessageType.Discord]}"
+				message: $"{c_onScreenAutomatedMessages[key: AutomatedMessageType.Discord]}"
 			);
 
 		}
@@ -1287,7 +1405,7 @@ namespace Overlay
 		)
 		{
 			var username = webSocketMessage.Username;
-            var name = webSocketMessage.Tags["display-name"];
+            var name = webSocketMessage.Tags[key: "display-name"];
 			var normalziedName = name.ToLower();
 			if (
 				normalziedName.Equals(
@@ -1307,7 +1425,7 @@ namespace Overlay
 			{
 				message = $"{name} tried to engage lurk mode, but little did they know SmoothDagger knew they were already lurking! Rekt. Try using !unlurk first, noobie.";
                 await SendWebSocketMessage(
-				    message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{message}"
+				    message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
 				);
 				AddBotChatMessage(
 				    message: message
@@ -1317,7 +1435,7 @@ namespace Overlay
 
             message = $"{name} engaged lurk mode!";
             await SendWebSocketMessage(
-                message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{message}"
+                message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
             );
             AddBotChatMessage(
                 message: message
@@ -1384,7 +1502,7 @@ namespace Overlay
 				var messageToChat = $"You've been following @SmoothDagger for {followTime}! Thanks for following!";
                 var messageToOverlay = $"You've been following @SmoothDagger for [color=CAFFBF]{followTime}[/color]! Thanks for following!";
                 await SendWebSocketMessage(
-					message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{messageToChat}"
+					message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :{messageToChat}"
 				);
 				AddBotChatMessage(
 					message: messageToOverlay
@@ -1397,15 +1515,56 @@ namespace Overlay
             );
         }
 
+		private async void HandleWebSocketMessagePrivMsgSongRequest(
+			WebSocketMessage webSocketMessage
+		)
+		{
+            var username = webSocketMessage.Username;
+            var channelSubscribers = m_twitchManager.GetChannelSubscribers();
+            if (
+                channelSubscribers.ContainsKey(
+                    key: username
+                ) is false
+            )
+            {
+                var message = $"You must be subscribed in order to use this command.";
+                await SendWebSocketMessage(
+                    message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
+                );
+                AddBotChatMessage(
+                    message: message
+                );
+                return;
+            }
+
+			var text = webSocketMessage.Text;
+            var trimmedText = text.Remove(
+			    startIndex: text.Length - c_webSocketMessageDelimiterLength
+			);
+            var searchParameters = trimmedText.Remove(
+				startIndex: 0, 
+				count: c_commands[key: CommandType.SongRequest].Length + 1
+			);
+			m_spotifyManager.AttemptToQueueTrackWithSearchParameters(
+                searchParameters
+            );
+			await SendWebSocketMessage(
+                message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :Attempting to queue first found result for {searchParameters}."
+			);
+			AddBotChatMessage(
+                message: $"Attempting to queue first found result for {searchParameters}."
+            );
+		}
+
 		private async void HandleWebSocketMessagePrivMsgRules(
 			WebSocketMessage webSocketMessage
 		)
 		{
 			await SendWebSocketMessage(
-                message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{c_automatedMessages[AutomatedMessageType.Rules]}"
+                message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :{c_automatedMessages[key: AutomatedMessageType.Rules]}"
 			);
 			AddBotChatMessage(
-                message: $"{c_onScreenAutomatedMessages[AutomatedMessageType.Rules]}"
+                message: $"{c_onScreenAutomatedMessages[key: AutomatedMessageType.Rules]}"
             );
 		}
 
@@ -1425,7 +1584,7 @@ namespace Overlay
             {
                 var message = $"You must be subscribed in order to use this command.";
                 await SendWebSocketMessage(
-                    message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{message}"
+                    message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
                 );
                 AddBotChatMessage(
                     message: message
@@ -1440,15 +1599,29 @@ namespace Overlay
             var normalizedText = trimmedText.ToLower();
             if (
                 normalizedText.Equals(
-					obj: $"{c_commands[CommandType.SetColor]}"
-				) is true
-			)
+					obj: $"{c_commands[key: CommandType.SetColor]}"
+				) is true ||
+                normalizedText.Equals(
+                    obj: $"{c_commands[key: CommandType.SetColour]}"
+                ) is true
+            )
 			{
                 await SendWebSocketMessage(
-                    message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{c_commandInfoMessages[CommandInfoMessageType.SetColor]}"
+                    message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :{c_commandInfoMessages[key: CommandInfoMessageType.SetColorUsage]}"
                 );
                 AddBotChatMessage(
-                    message: $"{c_onScreenCommandInfoMessages[CommandInfoMessageType.SetColor]}"
+                    message: $"{c_onScreenCommandInfoMessages[key: CommandInfoMessageType.SetColorUsage]}"
+                );
+
+				await Task.Delay(
+					millisecondsDelay: 1
+				);
+
+				await SendWebSocketMessage(
+                    message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :{c_commandInfoMessages[key: CommandInfoMessageType.SetColorSelection]}"
+                );
+                AddBotChatMessage(
+                    message: $"{c_onScreenCommandInfoMessages[key: CommandInfoMessageType.SetColorSelection]}"
                 );
                 return;
             }
@@ -1458,7 +1631,7 @@ namespace Overlay
 			);
 			var colorText = parsedText[indexColor];
 			var colorType = c_colorStringsAsTypes[colorText];
-			var colorCode = PastelInterpolator.GetColorByColorType(
+			var colorCode = PastelInterpolator.GetColorAsHexByColorType(
 				colorType: colorType
 			);
 
@@ -1490,10 +1663,10 @@ namespace Overlay
 		)
 		{
 			await SendWebSocketMessage(
-				message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{c_automatedMessages[AutomatedMessageType.Steam]}"
+				message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :{c_automatedMessages[key: AutomatedMessageType.Steam]}"
 			);
 			AddBotChatMessage(
-                message: $"{c_onScreenAutomatedMessages[AutomatedMessageType.Steam]}"
+                message: $"{c_onScreenAutomatedMessages[key: AutomatedMessageType.Steam]}"
             );
 		}
 
@@ -1502,10 +1675,10 @@ namespace Overlay
 		)
         {
             await SendWebSocketMessage(
-                message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{c_automatedMessages[AutomatedMessageType.StreamAvatars]}"
+                message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :{c_automatedMessages[key: AutomatedMessageType.StreamAvatars]}"
             );
             AddBotChatMessage(
-                message: $"{c_onScreenAutomatedMessages[AutomatedMessageType.StreamAvatars]}"
+                message: $"{c_onScreenAutomatedMessages[key: AutomatedMessageType.StreamAvatars]}"
             );
         }
 
@@ -1518,13 +1691,13 @@ namespace Overlay
 			if (
 				string.Compare(
 					strA: username,
-					strB: TwitchData.AccountUsername
+					strB: m_twitchData.AccountUsername
 				) is 0
 			)
 			{
 				var text = webSocketMessage.Text;
 				text = text.Replace(
-					oldValue: c_commands[CommandType.TextToSpeech] + ' ',
+					oldValue: c_commands[key: CommandType.TextToSpeech] + ' ',
 					newValue: string.Empty
 				);
 				m_audioManager.PlayTextToSpeech(
@@ -1540,7 +1713,7 @@ namespace Overlay
 			{
 				message = $"You can only use the subscriber !tts command once per stream.";
 				await SendWebSocketMessage(
-                    message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{message}"
+                    message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
 				);
 				AddBotChatMessage(
                     message: message
@@ -1557,7 +1730,7 @@ namespace Overlay
 			{
                 var text = webSocketMessage.Text;
                 text = text.Replace(
-                    oldValue: c_commands[CommandType.TextToSpeech],
+                    oldValue: c_commands[key: CommandType.TextToSpeech],
                     newValue: string.Empty
                 );
                 m_audioManager.PlayTextToSpeech(
@@ -1566,13 +1739,13 @@ namespace Overlay
                 m_subscribersWhoUsedTextToSpeech.Add(
                     item: username
                 );
-                c_commandTimers[CommandType.TextToSpeech] = c_commandCooldowns[CommandType.TextToSpeech];
+                c_commandTimers[key: CommandType.TextToSpeech] = c_commandCooldowns[key: CommandType.TextToSpeech];
                 return;
             }
 
 			message = $"You must be subscribed in order to use this command.";
 			await SendWebSocketMessage(
-                message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{message}"
+                message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
 			);
 			AddBotChatMessage(
                 message: message
@@ -1585,7 +1758,7 @@ namespace Overlay
 		{
 			var text = webSocketMessage.Text;
 			text = text.Replace(
-				oldValue: c_commands[CommandType.Time],
+				oldValue: c_commands[key: CommandType.Time],
 				newValue: string.Empty
 			);
 			text = text.Replace(
@@ -1595,13 +1768,13 @@ namespace Overlay
 			if (
 				string.IsNullOrEmpty(
 					value: text
-				)
+				) is true
 			)
 			{
 				var dateTime = DateTime.UtcNow;
 				var message = $"The current time in UTC is {dateTime:HH:mm:ss}.";
 				await SendWebSocketMessage(
-					message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{message}"
+					message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
 				);
 				AddBotChatMessage(
 					message: message
@@ -1623,7 +1796,7 @@ namespace Overlay
 				);
 				var message = $"The current time in {text} is {dateTime:HH:mm:ss}.";
 				await SendWebSocketMessage(
-                    message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{message}"
+                    message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
 				);
 				AddBotChatMessage(
                     message: message
@@ -1636,7 +1809,7 @@ namespace Overlay
 		)
 		{
 			var username = webSocketMessage.Username;
-            var name = webSocketMessage.Tags["display-name"];
+            var name = webSocketMessage.Tags[key: "display-name"];
             var normalziedName = name.ToLower();
             if (
                 normalziedName.Equals(
@@ -1656,7 +1829,7 @@ namespace Overlay
 			{
 				message = $"{name} tried to disengage lurk mode, but little did they know SmoothDagger knew they weren't lurking! Rekt. Try using !lurk first, noobie.";
                 await SendWebSocketMessage(
-				    message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{message}"
+				    message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
 				);
 				AddBotChatMessage(
 				    message: message
@@ -1666,7 +1839,7 @@ namespace Overlay
 
             message = $"{name} disengaged lurk mode!";
             await SendWebSocketMessage(
-                message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{message}"
+                message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
             );
             AddBotChatMessage(
                 message: message
@@ -1682,10 +1855,10 @@ namespace Overlay
 		)
 		{
 			await SendWebSocketMessage(
-                message: $"@reply-parent-msg-id={webSocketMessage.Tags["id"]} PRIVMSG #{TwitchData.TwitchChannel} :{c_automatedMessages[AutomatedMessageType.YouTube]}"
+                message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :{c_automatedMessages[key: AutomatedMessageType.YouTube]}"
 			);
 			AddBotChatMessage(
-                message: $"{c_onScreenAutomatedMessages[AutomatedMessageType.YouTube]}"
+                message: $"{c_onScreenAutomatedMessages[key: AutomatedMessageType.YouTube]}"
             );
 		}
 
@@ -1723,6 +1896,17 @@ namespace Overlay
                         commandLength: commandLength
                     ),
 
+				CommandType.SetColor or
+                CommandType.SetColour =>
+					IsOverlayCommandSetColorValid(
+						text: text	
+					),
+
+                CommandType.SongRequest =>
+					IsOverlayCommandSongRequestValid(
+						text: text
+					),
+
                 CommandType.TextToSpeech =>
 					IsOverlayCommandTextToSpeechValid(
                         commandType: commandType,
@@ -1730,10 +1914,7 @@ namespace Overlay
                         commandLength: commandLength
                     ),
 
-                CommandType.SetColor =>
-					IsOverlayCommandSetColorValid(
-						text: text	
-					),
+
 
                 _ => 
 					false,
@@ -1907,24 +2088,29 @@ namespace Overlay
 			var normalizedText = trimmedText.ToLower();
 			if (
                 normalizedText.Equals(
-					obj: $"{c_commands[CommandType.SetColor]}"
+					obj: $"{c_commands[key: CommandType.SetColor]}"
+                ) is true ||
+                normalizedText.Equals(
+                    obj: $"{c_commands[key: CommandType.SetColour]}"
                 ) is true
-			)
+            )
 			{
 				return true;
 			}
 
-			var pattern = $"^{c_commands[CommandType.SetColor]} (" +
-						  $"{c_colorTypesAsStrings[ColorType.Red]}|" +
-						  $"{c_colorTypesAsStrings[ColorType.Yellow]}|" +
-						  $"{c_colorTypesAsStrings[ColorType.Green]}|" +
-						  $"{c_colorTypesAsStrings[ColorType.Cyan]}|" +
-						  $"{c_colorTypesAsStrings[ColorType.Blue]}|" +
-						  $"{c_colorTypesAsStrings[ColorType.Magenta]}|" +
-						  $"{c_colorTypesAsStrings[ColorType.White]})$";
 			return Regex.IsMatch(
 				input: normalizedText,
-				pattern: pattern
+				pattern: c_setColorRegexPattern
+			) is true;
+        }
+
+		private static bool IsOverlayCommandSongRequestValid(
+			string text
+		)
+		{
+            var normalizedText = text.ToLower();
+            return normalizedText.StartsWith(
+				value: $"{c_commands[key: CommandType.SongRequest]} "
 			);
         }
 
@@ -2040,7 +2226,7 @@ namespace Overlay
 			var bitCount = @event.Bits;
             var message = $"{username} cheered with {bitCount} bit{(bitCount > 1u ? string.Empty : "ties")}! Cheers!";
             await SendWebSocketMessage(
-                message: $"PRIVMSG #{TwitchData.TwitchChannel} :{message}"
+                message: $"PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
             );
             AddBotChatMessage(
                 message: message
@@ -2054,14 +2240,14 @@ namespace Overlay
 			var username = @event.Username;
             var message = $"{username} followed! Welcome to the Smooth Crew! Make sure to check the Social section below for available follower commands you can use! Stay smooth & enjoy your stay!";
             await SendWebSocketMessage(
-                message: $"PRIVMSG #{TwitchData.TwitchChannel} :{message}"
+                message: $"PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
             );
             AddBotChatMessage(
                 message: message
             );
         }
 
-		private async void OnChannelPointsCustomRewardRedeemed(
+		private void OnChannelPointsCustomRewardRedeemed(
             TwitchWebSocketMessagePayloadEventChannelPointsCustomRewardRedeemed @event
         )
         {
@@ -2069,9 +2255,9 @@ namespace Overlay
 			var reward = @event.Reward;
 			var rewardTitle = reward.Title;
             var message = $"{username} claimed {rewardTitle}!";
-            await SendWebSocketMessage(
-                message: $"PRIVMSG #{TwitchData.TwitchChannel} :{message}"
-            );
+            //await SendWebSocketMessage(
+            //    message: $"PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
+            //);
             AddBotChatMessage(
                 message: message
             );
@@ -2085,7 +2271,7 @@ namespace Overlay
 			var viewerCount = @event.Viewers;
             var message = $"{username} is raiding with {viewerCount} viewer{(viewerCount > 1u ? "s" : string.Empty)}! Welcome in & enjoy your stay, raiders!";
             await SendWebSocketMessage(
-                message: $"PRIVMSG #{TwitchData.TwitchChannel} :{message}"
+                message: $"PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
             );
             AddBotChatMessage(
                 message: message
@@ -2097,9 +2283,9 @@ namespace Overlay
         )
         {
             var username = @event.Username;
-			var message = $"{username} subscribed! Thanks for supporting the channel! Make sure to check the Social section below for available subscriber commands you can use! Stay smooth & enjoy your stay!\"";
+			var message = $"{username} subscribed! Thanks for supporting the channel! Make sure to check the Social section below for available subscriber commands you can use! Stay smooth & enjoy your stay!";
             await SendWebSocketMessage(
-                message: $"PRIVMSG #{TwitchData.TwitchChannel} :{message}"
+                message: $"PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
             );
             AddBotChatMessage(
                 message: message
@@ -2114,7 +2300,7 @@ namespace Overlay
 			var total = @event.Total;
             var message = $"{username} gifted {total} subscription{(total > 1 ? "s" : string.Empty)}! Let's give a big shoutout to {username}! Thanks for supporting the channel! Make sure to check the Social section below for available subscriber commands you can use! Stay smooth & enjoy your stay!\"";
             await SendWebSocketMessage(
-                message: $"PRIVMSG #{TwitchData.TwitchChannel} :{message}"
+                message: $"PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
 			);
             AddBotChatMessage(
                 message: message
@@ -2342,7 +2528,7 @@ namespace Overlay
 		{
 			// process message for on-screen chat
 			var username = webSocketMessage.Username;
-			var isSubscriber = webSocketMessage.Tags["subscriber"].ToInt() > 0u;
+			var isSubscriber = webSocketMessage.Tags[key: "subscriber"].ToInt() > 0u;
 			string color;
 			if (isSubscriber)
 			{
@@ -2354,18 +2540,20 @@ namespace Overlay
 				)
 			)
 			{
-				color = m_usernameColors[username];
+				color = m_usernameColors[key: username];
 			}
 			else
 			{
-				var userColorInHex = webSocketMessage.Tags["color"];
+				var userColorInHex = webSocketMessage.Tags[key: "color"];
 				if (
 					string.IsNullOrWhiteSpace(
-						userColorInHex
-						) is true
+						value: userColorInHex
+					) is true
 					)
 				{
-					color = m_pastelInterpolator.GetColorAsHex();
+					color = m_pastelInterpolator.GetColorAsHex(
+						rainbowColorIndexType: RainbowColorIndexType.Color0	
+					);
 				}
 				else
 				{
@@ -2385,7 +2573,7 @@ namespace Overlay
                 );
 			}
 
-            var name = webSocketMessage.Tags["display-name"];
+            var name = webSocketMessage.Tags[key: "display-name"];
 			if (
 				string.Compare(
 					strA: name.ToLower(), 
@@ -2398,10 +2586,10 @@ namespace Overlay
 			var message = webSocketMessage.Text;
 			var emotes = webSocketMessage.Tags.ContainsKey(
 				key: "emotes"
-			) ? webSocketMessage.Tags["emotes"] : string.Empty;
+			) ? webSocketMessage.Tags[key: "emotes"] : string.Empty;
 			var badges = webSocketMessage.Tags.ContainsKey(
 				key: "badges"
-			) ? webSocketMessage.Tags["badges"] : string.Empty;
+			) ? webSocketMessage.Tags[key: "badges"] : string.Empty;
 
 			m_twitchChatManager.AddTwitchChatMessage(
 				username: username,
@@ -2416,30 +2604,44 @@ namespace Overlay
 
 		private void RetrieveResources()
 		{
+			var body = ApplicationManager.ReadRequiredFile(
+                requiredFileType: RequiredFileType.TwitchData
+            );
+            m_twitchData = JsonSerializer.Deserialize<TwitchData>(
+                json: Encoding.UTF8.GetString(
+                    bytes: body,
+                    index: 0,
+                    count: body.Length
+                )
+            );
+
 			m_audioManager = GetNode<AudioManager>(
-				path: NodeDirectory.NodePaths[NodeType.AudioManager]
+				path: NodeDirectory.NodePaths[key: NodeType.AudioManager]
 			);
 			m_pastelInterpolator = GetNode<PastelInterpolator>(
-                path: NodeDirectory.NodePaths[NodeType.PastelInterpolator]
+                path: NodeDirectory.NodePaths[key: NodeType.PastelInterpolator]
+			);
+			m_spotifyManager = GetNode<SpotifyManager>(
+                path: NodeDirectory.NodePaths[key: NodeType.SpotifyManager]
 			);
 			m_twitchChannelPointRewardsManager = GetNode<TwitchChannelPointRewardsManager>(
-				path: NodeDirectory.NodePaths[NodeType.TwitchChannelPointRewardsManager]
+				path: NodeDirectory.NodePaths[key: NodeType.TwitchChannelPointRewardsManager]
 			);
 			m_twitchChatManager = GetNode<TwitchChatManager>(
-                path: NodeDirectory.NodePaths[NodeType.TwitchChatManager]
+                path: NodeDirectory.NodePaths[key: NodeType.TwitchChatManager]
 			);
 			m_twitchManager = GetNode<TwitchManager>(
-                path: NodeDirectory.NodePaths[NodeType.TwitchManager]
+                path: NodeDirectory.NodePaths[key: NodeType.TwitchManager]
 			);
 		}
 
 		private async void SendAutomatedMessage()
 		{
 			await SendWebSocketMessage(
-				message: $"PRIVMSG #{TwitchData.TwitchChannel} :{c_automatedMessages[m_currentAutomatedMessage]}"
+				message: $"PRIVMSG #{m_twitchData.TwitchChannel} :{c_automatedMessages[key: m_currentAutomatedMessage]}"
 			);
 			AddBotChatMessage(
-				message: $"{c_onScreenAutomatedMessages[m_currentAutomatedMessage]}"
+				message: $"{c_onScreenAutomatedMessages[key: m_currentAutomatedMessage]}"
 			);
 		}
 

@@ -1,9 +1,10 @@
 
 namespace Overlay
 {
+    using System;
     using System.Text.Json.Serialization;
 
-    [System.Serializable]
+    [Serializable]
 	public sealed class TwitchWebSocketMessagePayloadEventChannelRaid : TwitchWebSocketMessagePayloadEvent
 	{
         [JsonPropertyName("from_broadcaster_user_id")]

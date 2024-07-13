@@ -1,14 +1,17 @@
+
 namespace Overlay
 {
 	using Godot;
 	using System.Collections.Generic;
+	using System.Runtime.Versioning;
     using System.Text.RegularExpressions;
     using NodeType = NodeDirectory.NodeType;
 
-    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+    [SupportedOSPlatform(platformName: "windows")]
     public sealed partial class TwitchChatManager : Node
 	{
-		public override void _Ready()
+        #region GODOT_INTRINSICS
+        public override void _Ready()
 		{
 			RetrieveResources();
 		}
@@ -20,8 +23,9 @@ namespace Overlay
 			ProcessQueuedTwitchChatMessage();
 			ProcessQueuedTwitchChatMessageData();
 		}
+        #endregion
 
-		public void AddTwitchChatMessage(
+        public void AddTwitchChatMessage(
 			string username,
 			string name,
 			string nameColor,
@@ -31,47 +35,65 @@ namespace Overlay
 			bool isSmoothGPT
 		)
 		{
-			if (isSmoothGPT is false)
+
+            if (isSmoothGPT is false)
 			{
-				var isTwitchChatMessageLegal = DoesTwitchChatMessageContainIllegalBbCode(
+				var isTwitchChatMessageLegal = IsTwitchChatMessageIllegal(
 					message: message
 				) is false;
 				if (isTwitchChatMessageLegal is false)
 				{
 					return;
 				}
-			}
+            }
 
-			var messageColor = string.Empty;
+            var messageColor = string.Empty;
             var isSubscriber = string.IsNullOrEmpty(
                 value: nameColor
             ) is true;
             if (isSubscriber is true)
             {
-				var customSubscriberData = m_twitchManager.GetCustomSubscriberData(
-					username: username
-				);
-				if (customSubscriberData is not null)
-				{
-                    messageColor = $"[color={customSubscriberData.CustomTextColor}]";
+                var customSubscriberData = m_twitchManager.GetCustomSubscriberData(
+                    username: username
+                );
+                if (customSubscriberData is not null)
+                {
+					var customTextColor = customSubscriberData.CustomTextColor;
+					if (
+						PastelInterpolator.IsColorHexTheRainbowColorType(
+							hexCode: customTextColor
+						) is true
+					)
+					{
+						messageColor = PastelInterpolator.GetRainbowColorTag();
+					}
+					else
+					{
+						messageColor = $"[color={customTextColor}]";
+                    }
                 }
             }
 
-            m_pendingTwitchChatMessageDatas.Enqueue(
-                item: new(
-                    name: name,
-                    nameColor: nameColor,
-                    message: message,
-					messageColor: messageColor,
-                    emotes: emotes,
-                    badges: badges,
-                    isSubscriber: isSubscriber,
-                    isSmoothGPT: isSmoothGPT
-                )
-            );
+			var twitchChatMessageData = new TwitchChatMessageData(
+				name: name,
+				nameColor: nameColor,
+				message: message,
+				messageColor: messageColor,
+				emotes: emotes,
+				badges: badges,
+				isSubscriber: isSubscriber,
+				isSmoothGPT: isSmoothGPT
+			);
+            lock (m_pendingTwitchChatMessagesLock)
+			{
+                m_pendingTwitchChatMessageDatas.Enqueue(
+				    item: twitchChatMessageData
+                );
+            }
         }
 
-		private struct TwitchChatMessageData
+        #region INTERNAL_VARIABLES_&_STRUCTURES
+        private struct TwitchChatMessageData
 		{
 			public string Name = string.Empty;
 			public string NameColor = string.Empty;
@@ -104,162 +126,186 @@ namespace Overlay
             }
         };
 
-        private static readonly HashSet<string> c_illegalBbCodes = new()
-        {
-            "alm",
-            "b",
-            "bgcolor",
-            "cell",
-            "center",
-            "code",
-            "color",
-            "dropcap",
-            "fade",
-            "fgcolor",
-            "fill",
-            "font",
-            "font_size",
-            "fsi",
-            "hint",
-            "i",
-            "img",
-            "indent",
-            "lb",
-            "left",
-            "lre",
-            "lri",
-            "lrm",
-            "lro",
-            "ol",
-            "opentype_features",
-            "outline_color",
-            "outline_size",
-            "p",
-            "pdf",
-            "pdi",
-            "rainbow",
-            "rb",
-            "right",
-            "rle",
-            "rli",
-            "rlm",
-            "rlo",
-            "s",
-            "shake",
-            "shy",
-            "table",
-            "tornado",
-            "u",
-            "ul",
-            "url",
-            "wave",
-            "wj",
-            "zwj",
-            "zwnj",
-        };
-
         private const int c_maxPixelCount = 420;
 		private const int c_pixelSpacing = 2;
+		private const string c_illegalBbCodePattern =
+			$"\\[(" +
+			$"alm" +
+            $"|b" +
+            $"|bgcolor" +
+            $"|cell" +
+            $"|center" +
+            $"|code" +
+            $"|color" +
+			$"|dropcap" +
+			$"|fade" +
+			$"|fgcolor" +
+			$"|fill" +
+			$"|font" +
+			$"|font_size" +
+			$"|fsi" +
+			$"|hint" +
+			$"|i" +
+			$"|img" +
+			$"|indent" +
+			$"|lb" +
+			$"|left" +
+			$"|lre" +
+			$"|lri" +
+			$"|lrm" +
+			$"|lro" +
+			$"|ol" +
+			$"|opentype_features" +
+			$"|outline_color" +
+			$"|outline_size" +
+			$"|p" +
+			$"|pdf" +
+			$"|pdi" +
+			$"|rainbow" +
+			$"|rb" +
+			$"|right" +
+			$"|rle" +
+			$"|rli" +
+			$"|rlm" +
+			$"|rlo" +
+			$"|s" +
+			$"|shake" +
+			$"|shy" +
+			$"|table" +
+			$"|tornado" +
+			$"|u" +
+			$"|ul" +
+			$"|url" +
+			$"|wave" +
+			$"|wj" +
+			$"|zwj" +
+			$"|zwnj" +
+			$")[^\\]]*\\]";
 
         private readonly Queue<TwitchChatMessageData> m_pendingTwitchChatMessageDatas = new();
         private readonly Queue<TwitchChatMessage> m_displayedTwitchChatMessages = new();
         private readonly Queue<TwitchChatMessage> m_queuedTwitchChatMessages = new();
+
+        private readonly object m_displayedTwitchChatMessagesLock = new();
+        private readonly object m_pendingTwitchChatMessagesLock = new();
+        private readonly object m_queuedTwitchChatMessagesLock = new();
 
         private Control m_chatPivot = null;
 		private HttpManager m_httpManager = null;
 		private PastelInterpolator m_pastelInterpolator = null;
 		private TwitchManager m_twitchManager = null;
 		private int m_currentPixel = 0;
+        #endregion
 
-		private static bool DoesTwitchChatMessageContainIllegalBbCode(
+        #region INTERNAL_FLAGS
+        private static bool IsTwitchChatMessageIllegal(
 			string message
         )
 		{
-			foreach (var bbCode in c_illegalBbCodes)
-			{
-				var pattern = $"\\[{bbCode}[^\\]]*\\]";
-                var match = Regex.Match(
-					input: message, 
-					pattern: pattern,
-					options: RegexOptions.IgnoreCase
-				);
-				if (
-					match is not null && 
-					match.Success is true
-				)
-				{
-					return true;
-				}
-			}
+            var match = Regex.Match(
+                input: message,
+                pattern: c_illegalBbCodePattern,
+                options: RegexOptions.IgnoreCase
+            );
 
-			return false;
+            return
+				match is not null &&
+                match.Success is true;
 		}
+        #endregion
 
-		private void OnTwitchChatMessageDestroyed()
+        #region INTERNAL_EVENT_HANDLERS
+        private void OnTwitchChatMessageDestroyed()
 		{
-			// remove oldest message
-			var oldestTwitchChatMessage = m_displayedTwitchChatMessages.Dequeue();
-			int oldestLabelHeight = oldestTwitchChatMessage.GetLabelHeightInPixels() + c_pixelSpacing;
-			m_currentPixel -= oldestLabelHeight;
-
-			// adjust position of other messages
-			foreach (var displayedTwitchChatMessage in m_displayedTwitchChatMessages)
+			TwitchChatMessage oldestTwitchChatMessage;
+            lock (m_displayedTwitchChatMessagesLock)
 			{
-				var position = displayedTwitchChatMessage.Position;
-				position -= new Vector2(
-					x: 0u,
-					y: oldestLabelHeight
-				);
+                oldestTwitchChatMessage = m_displayedTwitchChatMessages.Dequeue();
+            }
 
-				displayedTwitchChatMessage.Position = position;
-			}
+            var oldestLabelHeight = oldestTwitchChatMessage.GetLabelHeightInPixels() + c_pixelSpacing;
+            m_currentPixel -= oldestLabelHeight;
+
+            lock (m_displayedTwitchChatMessagesLock)
+			{ 
+                foreach (var displayedTwitchChatMessage in m_displayedTwitchChatMessages)
+                {
+                    var position = displayedTwitchChatMessage.Position;
+                    position -= new Vector2(
+                        x: 0u,
+                        y: oldestLabelHeight
+                    );
+
+                    displayedTwitchChatMessage.Position = position;
+                }
+            }
 		}
 
 		private void OnTwitchChatMessageGenerated(
 			TwitchChatMessage twitchChatMessage
 		)
 		{
-			m_queuedTwitchChatMessages.Enqueue(
-				item: twitchChatMessage
-			);
-		}
-
-		private void ProcessQueuedTwitchChatMessage()
-		{
-			if (m_queuedTwitchChatMessages.Count > 0u)
+			lock (m_queuedTwitchChatMessagesLock)
 			{
-                // move newest message
-                var twitchChatMessage = m_queuedTwitchChatMessages.Dequeue();
-				twitchChatMessage.Position = new Vector2(
+                m_queuedTwitchChatMessages.Enqueue(
+				    item: twitchChatMessage
+				);
+            }
+		}
+        #endregion
+
+        #region INTERNAL_PROCESSORS
+        private void ProcessQueuedTwitchChatMessage()
+		{
+            TwitchChatMessage twitchChatMessage = null;
+            lock (m_queuedTwitchChatMessagesLock)
+            {
+                if (m_queuedTwitchChatMessages.Count > 0u)
+                {
+                    twitchChatMessage = m_queuedTwitchChatMessages.Dequeue();
+                }
+            }
+            if (twitchChatMessage is not null)
+			{
+				twitchChatMessage.Position = new(
 					x: 0u,
 					y: m_currentPixel
 				);
 				twitchChatMessage.ShowLabel();
 
-				m_displayedTwitchChatMessages.Enqueue(
-					twitchChatMessage
-				);
+                lock (m_displayedTwitchChatMessagesLock)
+                {
+                    m_displayedTwitchChatMessages.Enqueue(
+                        item: twitchChatMessage
+                    );
+                }
 
-				// move messages upward & remove old messages
 				var labelHeight = twitchChatMessage.GetLabelHeightInPixels();
 				m_currentPixel = m_currentPixel + labelHeight + c_pixelSpacing;
 				while (m_currentPixel > c_maxPixelCount)
 				{
-					var oldestTwitchChatMessage = m_displayedTwitchChatMessages.Dequeue();
+                    TwitchChatMessage oldestTwitchChatMessage;
+                    lock (m_displayedTwitchChatMessagesLock)
+					{
+                        oldestTwitchChatMessage = m_displayedTwitchChatMessages.Dequeue();
+                    }
+
 					var oldestLabelHeight = oldestTwitchChatMessage.GetLabelHeightInPixels() + c_pixelSpacing;
 					m_currentPixel -= oldestLabelHeight;
 
-					// adjust position of other messages
 					var offset = new Vector2(
 						x: 0u,
 						y: oldestLabelHeight
 					);
-                    foreach (var displayedTwitchChatMessage in m_displayedTwitchChatMessages)
-					{
-						displayedTwitchChatMessage.Position -= offset;
-					}
 
-					// destroy old chat message
+                    lock (m_displayedTwitchChatMessagesLock)
+                    {
+                        foreach (var displayedTwitchChatMessage in m_displayedTwitchChatMessages)
+                        {
+                            displayedTwitchChatMessage.Position -= offset;
+                        }
+                    }
+
 					oldestTwitchChatMessage.QueueFree();
 				}
 			}
@@ -267,31 +313,42 @@ namespace Overlay
 
 		private void ProcessQueuedTwitchChatMessageData()
 		{
-			if (m_pendingTwitchChatMessageDatas.Count > 0u)
+            TwitchChatMessageData? messageData = null;
+            lock (m_pendingTwitchChatMessagesLock)
 			{
-				var messageData = m_pendingTwitchChatMessageDatas.Dequeue();
-				var twitchChatMessage = new TwitchChatMessage();
-				m_chatPivot.AddChild(
-					node: twitchChatMessage
-				);
-				twitchChatMessage.Generated = OnTwitchChatMessageGenerated;
-				twitchChatMessage.Destroyed = OnTwitchChatMessageDestroyed;
-				twitchChatMessage.Generate(
-					httpManager: m_httpManager,
-					pastelInterpolator: m_pastelInterpolator,
-					name: messageData.Name,
-					nameColor: messageData.NameColor,
-					message: messageData.Message,
-					messageColor: messageData.MessageColor,
-                    emotes: messageData.Emotes,
-					badges: messageData.Badges,
-					isSubscriber: messageData.IsSubscriber,
-					isSmoothGPT: messageData.IsSmoothGPT
-				);
-			}
-		}
+                if (m_pendingTwitchChatMessageDatas.Count > 0u)
+				{
+                    messageData = m_pendingTwitchChatMessageDatas.Dequeue();
+                }
+            }
 
-		private void RetrieveResources()
+			if (messageData.HasValue is true)
+			{
+				var latestMessageData = messageData.Value;
+                var twitchChatMessage = new TwitchChatMessage();
+                m_chatPivot.AddChild(
+                    node: twitchChatMessage
+                );
+                twitchChatMessage.Generated = OnTwitchChatMessageGenerated;
+                twitchChatMessage.Destroyed = OnTwitchChatMessageDestroyed;
+                twitchChatMessage.Generate(
+                    httpManager: m_httpManager,
+                    pastelInterpolator: m_pastelInterpolator,
+                    name: latestMessageData.Name,
+                    nameColor: latestMessageData.NameColor,
+                    message: latestMessageData.Message,
+                    messageColor: latestMessageData.MessageColor,
+                    emotes: latestMessageData.Emotes,
+                    badges: latestMessageData.Badges,
+                    isSubscriber: latestMessageData.IsSubscriber,
+                    isSmoothGPT: latestMessageData.IsSmoothGPT
+                );
+            }
+		}
+        #endregion
+
+        #region INTERNAL_INITIALIZATION
+        private void RetrieveResources()
 		{
 			m_chatPivot = GetNode<Control>(
 				path: "ChatPivot"
@@ -306,5 +363,6 @@ namespace Overlay
                 path: NodeDirectory.NodePaths[NodeType.TwitchManager]
 			);
 		}
-	}
+        #endregion
+    }
 }
