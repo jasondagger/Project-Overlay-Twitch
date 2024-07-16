@@ -5,6 +5,7 @@ namespace Overlay
 	using System;
 	using System.Collections.Generic;
     using System.Net.WebSockets;
+    using System.Runtime.Versioning;
     using System.Text;
     using System.Text.Json;
     using System.Text.RegularExpressions;
@@ -16,7 +17,7 @@ namespace Overlay
 	using RainbowColorIndexType = PastelInterpolator.RainbowColorIndexType;
     using RequiredFileType = ApplicationManager.RequiredFileType;
 
-    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+    [SupportedOSPlatform("windows")]
     public sealed partial class TwitchBot : Node
 	{
 		public override void _EnterTree()
@@ -32,7 +33,8 @@ namespace Overlay
 			//        $"chat%3Aedit"         // chat:edit
 			//);
 			RetrieveResources();
-			SubscribeToTwitchManagerEvents();
+			SubscribeToSpotifyManagerEvents();
+            SubscribeToTwitchManagerEvents();
         }
 
 		public override void _ExitTree()
@@ -44,24 +46,6 @@ namespace Overlay
 			double delta
 		)
 		{
-			foreach (var command in c_commandTimers)
-			{
-				var commandType = command.Key;
-				if (
-					IsCommandAvailable(
-						commandType: commandType
-					) is false
-				)
-				{
-					var commandTimer = command.Value;
-					commandTimer -= delta;
-					if (commandTimer < 0d)
-					{
-						commandTimer = 0d;
-					}
-					c_commandTimers[commandType] = commandTimer;
-				}
-			}
 			if (m_messageTimestamps.Count > 0u)
 			{
 				var elapsedMilliseconds = Time.GetTicksMsec();
@@ -116,14 +100,20 @@ namespace Overlay
         {
             AccountAge = 0u,
             Commands,
+			CS,
+			Current,
+			CurrentSong,
             Date,
             Discord,
             FollowAge,
             Lurk,
-			SongRequest,
             Rules,
             SetColor,
             SetColour,
+            Song,
+            SongRequest,
+			Specs,
+			SR,
             Steam,
             StreamAvatars,
             TextToSpeech,
@@ -213,7 +203,7 @@ namespace Overlay
             { AutomatedMessageType.Rules,           $"Make sure you're following the rules! Find them below in the rules section @ \n[color={PastelInterpolator.GetColorAsHexByColorType(colorType: ColorType.Cyan)}]https://www.twitch.tv/SmoothDagger/About" },
             { AutomatedMessageType.StreamAvatars,   $"Want to customize your stream avatar? Select an avatar below in the Stream Avatars section @ \n[color={PastelInterpolator.GetColorAsHexByColorType(colorType: ColorType.Cyan)}]https://www.twitch.tv/SmoothDagger/About" },
             { AutomatedMessageType.Steam,           $"Come play with us! Add me on Steam @ \n[color={PastelInterpolator.GetColorAsHexByColorType(colorType: ColorType.Cyan)}]https://steamcommunity.com/id/SmoothDagger/" },
-            { AutomatedMessageType.Supporter,       $"Are you a follower or subscriber? Check the Socials section below for exclusive chat commands @ \n[color{PastelInterpolator.GetColorAsHexByColorType(colorType: ColorType.Cyan)}]https://www.twitch.tv/SmoothDagger/About" },
+            { AutomatedMessageType.Supporter,       $"Are you a follower or subscriber? Check the Socials section below for exclusive chat commands @ \n[color={PastelInterpolator.GetColorAsHexByColorType(colorType: ColorType.Cyan)}]https://www.twitch.tv/SmoothDagger/About" },
             { AutomatedMessageType.TwitchFollow,    $"Enjoying the stream? [color={PastelInterpolator.GetColorAsHexByColorType(colorType: ColorType.Lime)}]Tap the follow button to get notified for any live streams!" },
             { AutomatedMessageType.TwitchSubscribe, $"Want ad-free viewing? Subscribe on Twitch @ \n[color={PastelInterpolator.GetColorAsHexByColorType(colorType: ColorType.Cyan)}]https://www.twitch.tv/subs/SmoothDagger" },
             { AutomatedMessageType.YouTube,         $"Looking for more content? Subscribe on YouTube @ \n[color={PastelInterpolator.GetColorAsHexByColorType(colorType: ColorType.Cyan)}]https://www.youtube.com/@SmoothDagger" },
@@ -255,215 +245,79 @@ namespace Overlay
         private static readonly Dictionary<CommandType, string> c_commands = new()
 		{
 			// Bot
-			{ CommandType.AccountAge,    "!accountage" },
-            { CommandType.Commands,      "!commands" },
-            { CommandType.Date,          "!date" },
-            { CommandType.Discord,       "!discord" },
-            { CommandType.FollowAge,     "!followage" },
-            { CommandType.Lurk,			 "!lurk" },
-            { CommandType.Rules,         "!rules" },
-            { CommandType.SetColor,      "!setcolor" },
-            { CommandType.SetColour,     "!setcolour" },
-            { CommandType.SongRequest,   "!songrequest" },
-            { CommandType.Steam,         "!steam" },
+			{ CommandType.AccountAge,    "!accountage"	  },
+            { CommandType.Commands,      "!commands"	  },
+            { CommandType.CS,			 "!cs"			  },
+            { CommandType.Current,		 "!current"		  },
+            { CommandType.CurrentSong,   "!currentsong"	  },
+            { CommandType.Date,          "!date"		  },
+            { CommandType.Discord,       "!discord"		  },
+            { CommandType.FollowAge,     "!followage"	  },
+            { CommandType.Lurk,			 "!lurk"		  },
+            { CommandType.Rules,         "!rules"		  },
+            { CommandType.SetColor,      "!setcolor"	  },
+            { CommandType.SetColour,     "!setcolour"	  },
+            { CommandType.Song,		     "!song"		  },
+            { CommandType.SongRequest,   "!songrequest"	  },
+            { CommandType.Specs,		 "!specs"		  },
+            { CommandType.SR,			 "!sr"			  },
+            { CommandType.Steam,         "!steam"		  },
             { CommandType.StreamAvatars, "!streamavatars" },
-            { CommandType.TextToSpeech,  "!tts" },
-            { CommandType.Time,          "!time" },
-            { CommandType.Unlurk,        "!unlurk" },
-            { CommandType.YouTube,       "!youtube" },
-
-			// Stream Avatars
-            { CommandType.Accept,		 "!accept" },
-            { CommandType.Actions,		 "!actions" },
-            { CommandType.Attack,		 "!attack" },
-            { CommandType.Avatar,		 "!avatar" },
-            { CommandType.Avatars,		 "!avatars" },
-            { CommandType.Basketball,	 "!basketball" },
-            { CommandType.BattleRoyale,	 "!battleroyale" },
-            { CommandType.Bet,			 "!bet" },
-            { CommandType.Blacklist,	 "!blacklist" },
-            { CommandType.Bomb,			 "!bomb" },
-            { CommandType.Boss,			 "!boss" },
-            { CommandType.Buy,			 "!buy" },
-            { CommandType.Change,		 "!change" },
-            { CommandType.Color,		 "!color" },
-            { CommandType.Currency,		 "!currency" },
-            { CommandType.Dance,		 "!dance" },
-            { CommandType.Decline,		 "!decline" },
-            { CommandType.Duel,			 "!duel" },
-            { CommandType.Explode,		 "!explode" },
-            { CommandType.Extension,	 "!extension" },
-            { CommandType.Fart,			 "!fart" },
-            { CommandType.Freeze,		 "!freeze" },
-            { CommandType.Game,			 "!game" },
-            { CommandType.Gear,			 "!gear" },
-            { CommandType.Gift,			 "!gift" },
-            { CommandType.HideAvatar,	 "!hideavatar" },
-            { CommandType.Hug,			 "!hug" },
-            { CommandType.Jump,			 "!jump" },
-            { CommandType.Leaderboard,	 "!leaderboard" },
-            { CommandType.Mass,			 "!mass" },
-            { CommandType.Mod,			 "!mod" },
-            { CommandType.NameTags,		 "!nametags" },
-            { CommandType.Pin,			 "!pin" },
-            { CommandType.Quote,		 "!quote" },
-            { CommandType.Random,		 "!random" },
-            { CommandType.Remove,		 "!remove" },
-            { CommandType.Roll,			 "!roll" },
-            { CommandType.Scale,		 "!scale" },
-            { CommandType.ScreenSaver,	 "!screensaver" },
-            { CommandType.Shop,			 "!shop" },
-            { CommandType.Shoutout,		 "!shoutout" },
-            { CommandType.Show,			 "!show" },
-            { CommandType.Sit,			 "!sit" },
-            { CommandType.Sling,		 "!sling" },
-            { CommandType.Slots,		 "!slots" },
-            { CommandType.Sounds,		 "!sounds" },
-            { CommandType.Spawn,		 "!spawn" },
-            { CommandType.Throw,		 "!throw" },
-            { CommandType.Whitelist,     "!whitelist" },
-        };
-		private static readonly Dictionary<CommandType, double> c_commandCooldowns = new()
-		{
-			// Bot
-			{ CommandType.AccountAge,    0d  },
-            { CommandType.Commands,      10d },
-            { CommandType.Date,          0d  },
-            { CommandType.Discord,       10d },
-            { CommandType.FollowAge,     0d  },
-            { CommandType.Lurk,			 0d  },
-            { CommandType.Rules,         10d },
-            { CommandType.SetColor,      0d  },
-            { CommandType.SetColour,     0d  },
-            { CommandType.SongRequest,	 0d  },
-            { CommandType.Steam,         10d },
-            { CommandType.StreamAvatars, 10d },
-            { CommandType.TextToSpeech,  0d  },
-            { CommandType.Time,          0d  },
-            { CommandType.Unlurk,		 0d  },
-            { CommandType.YouTube,       10d },
-
-			// Stream Avatars
-            { CommandType.Accept,        0d },
-            { CommandType.Actions,       0d },
-            { CommandType.Attack,        0d },
-            { CommandType.Avatar,        0d },
-            { CommandType.Avatars,       0d },
-            { CommandType.Basketball,    0d },
-            { CommandType.BattleRoyale,  0d },
-            { CommandType.Bet,           0d },
-            { CommandType.Blacklist,     0d },
-            { CommandType.Bomb,          0d },
-            { CommandType.Boss,          0d },
-            { CommandType.Buy,           0d },
-            { CommandType.Change,        0d },
-            { CommandType.Color,         0d },
-            { CommandType.Currency,      0d },
-            { CommandType.Dance,         0d },
-            { CommandType.Decline,       0d },
-            { CommandType.Duel,          0d },
-            { CommandType.Explode,       0d },
-            { CommandType.Extension,     0d },
-            { CommandType.Fart,          0d },
-            { CommandType.Freeze,        0d },
-            { CommandType.Game,          0d },
-            { CommandType.Gear,          0d },
-            { CommandType.Gift,          0d },
-            { CommandType.HideAvatar,    0d },
-            { CommandType.Hug,           0d },
-            { CommandType.Jump,          0d },
-            { CommandType.Leaderboard,   0d },
-            { CommandType.Mass,          0d },
-            { CommandType.Mod,           0d },
-            { CommandType.NameTags,      0d },
-            { CommandType.Pin,           0d },
-            { CommandType.Quote,         0d },
-            { CommandType.Random,        0d },
-            { CommandType.Remove,        0d },
-            { CommandType.Roll,          0d },
-            { CommandType.Scale,         0d },
-            { CommandType.ScreenSaver,   0d },
-            { CommandType.Shop,          0d },
-            { CommandType.Shoutout,      0d },
-            { CommandType.Show,          0d },
-            { CommandType.Sit,           0d },
-            { CommandType.Sling,         0d },
-            { CommandType.Slots,         0d },
-            { CommandType.Sounds,        0d },
-            { CommandType.Spawn,         0d },
-            { CommandType.Throw,         0d },
-            { CommandType.Whitelist,     0d },
-        };
-        private static readonly Dictionary<CommandType, double> c_commandTimers = new()
-		{
-			// Bot
-			{ CommandType.AccountAge,    0d },
-            { CommandType.Commands,      0d },
-            { CommandType.Date,          0d },
-            { CommandType.Discord,       0d },
-            { CommandType.FollowAge,     0d },
-            { CommandType.Lurk,			 0d },
-            { CommandType.Rules,         0d },
-            { CommandType.SetColor,      0d },
-            { CommandType.SetColour,     0d },
-            { CommandType.SongRequest,	 0d },
-            { CommandType.Steam,         0d },
-            { CommandType.StreamAvatars, 0d },
-            { CommandType.TextToSpeech,  0d },
-            { CommandType.Time,          0d },
-            { CommandType.Unlurk,		 0d },
-            { CommandType.YouTube,       0d },
-
-			// Stream Avatars
-			{ CommandType.Accept,        0d },
-            { CommandType.Actions,       0d },
-            { CommandType.Attack,        0d },
-            { CommandType.Avatar,        0d },
-            { CommandType.Avatars,       0d },
-            { CommandType.Basketball,    0d },
-            { CommandType.BattleRoyale,  0d },
-            { CommandType.Bet,           0d },
-            { CommandType.Blacklist,     0d },
-            { CommandType.Bomb,          0d },
-            { CommandType.Boss,          0d },
-            { CommandType.Buy,           0d },
-            { CommandType.Change,        0d },
-            { CommandType.Color,         0d },
-            { CommandType.Currency,      0d },
-            { CommandType.Dance,         0d },
-            { CommandType.Decline,       0d },
-            { CommandType.Duel,          0d },
-            { CommandType.Explode,       0d },
-            { CommandType.Extension,     0d },
-            { CommandType.Fart,          0d },
-            { CommandType.Freeze,        0d },
-            { CommandType.Game,          0d },
-            { CommandType.Gear,          0d },
-            { CommandType.Gift,          0d },
-            { CommandType.HideAvatar,    0d },
-            { CommandType.Hug,           0d },
-            { CommandType.Jump,          0d },
-            { CommandType.Leaderboard,   0d },
-            { CommandType.Mass,          0d },
-            { CommandType.Mod,           0d },
-            { CommandType.NameTags,      0d },
-            { CommandType.Pin,           0d },
-            { CommandType.Quote,         0d },
-            { CommandType.Random,        0d },
-            { CommandType.Remove,        0d },
-            { CommandType.Roll,          0d },
-            { CommandType.Scale,         0d },
-            { CommandType.ScreenSaver,   0d },
-            { CommandType.Shop,          0d },
-            { CommandType.Shoutout,      0d },
-            { CommandType.Show,          0d },
-            { CommandType.Sit,           0d },
-            { CommandType.Sling,         0d },
-            { CommandType.Slots,         0d },
-            { CommandType.Sounds,        0d },
-            { CommandType.Spawn,         0d },
-            { CommandType.Throw,         0d },
-            { CommandType.Whitelist,     0d },
+            { CommandType.TextToSpeech,  "!tts"			  },
+            { CommandType.Time,          "!time"		  },
+            { CommandType.Unlurk,        "!unlurk"		  },
+            { CommandType.YouTube,       "!youtube"		  },
+														  
+			// Stream Avatars							  
+            { CommandType.Accept,		 "!accept"		  },
+            { CommandType.Actions,		 "!actions"		  },
+            { CommandType.Attack,		 "!attack"		  },
+            { CommandType.Avatar,		 "!avatar"		  },
+            { CommandType.Avatars,		 "!avatars"		  },
+            { CommandType.Basketball,	 "!basketball"	  },
+            { CommandType.BattleRoyale,	 "!battleroyale"  },
+            { CommandType.Bet,			 "!bet"			  },
+            { CommandType.Blacklist,	 "!blacklist"	  },
+            { CommandType.Bomb,			 "!bomb"		  },
+            { CommandType.Boss,			 "!boss"		  },
+            { CommandType.Buy,			 "!buy"			  },
+            { CommandType.Change,		 "!change"		  },
+            { CommandType.Color,		 "!color"		  },
+            { CommandType.Currency,		 "!currency"	  },
+            { CommandType.Dance,		 "!dance"		  },
+            { CommandType.Decline,		 "!decline"		  },
+            { CommandType.Duel,			 "!duel"		  },
+            { CommandType.Explode,		 "!explode"		  },
+            { CommandType.Extension,	 "!extension"	  },
+            { CommandType.Fart,			 "!fart"		  },
+            { CommandType.Freeze,		 "!freeze"		  },
+            { CommandType.Game,			 "!game"		  },
+            { CommandType.Gear,			 "!gear"		  },
+            { CommandType.Gift,			 "!gift"		  },
+            { CommandType.HideAvatar,	 "!hideavatar"	  },
+            { CommandType.Hug,			 "!hug"			  },
+            { CommandType.Jump,			 "!jump"		  },
+            { CommandType.Leaderboard,	 "!leaderboard"	  },
+            { CommandType.Mass,			 "!mass"		  },
+            { CommandType.Mod,			 "!mod"			  },
+            { CommandType.NameTags,		 "!nametags"	  },
+            { CommandType.Pin,			 "!pin"			  },
+            { CommandType.Quote,		 "!quote"		  },
+            { CommandType.Random,		 "!random"		  },
+            { CommandType.Remove,		 "!remove"		  },
+            { CommandType.Roll,			 "!roll"		  },
+            { CommandType.Scale,		 "!scale"		  },
+            { CommandType.ScreenSaver,	 "!screensaver"	  },
+            { CommandType.Shop,			 "!shop"		  },
+            { CommandType.Shoutout,		 "!shoutout"	  },
+            { CommandType.Show,			 "!show"		  },
+            { CommandType.Sit,			 "!sit"			  },
+            { CommandType.Sling,		 "!sling"		  },
+            { CommandType.Slots,		 "!slots"		  },
+            { CommandType.Sounds,		 "!sounds"		  },
+            { CommandType.Spawn,		 "!spawn"		  },
+            { CommandType.Throw,		 "!throw"		  },
+            { CommandType.Whitelist,     "!whitelist"	  },
         };
         private static readonly Dictionary<CommandInfoMessageType, string> c_commandInfoMessages = new()
         {
@@ -688,7 +542,10 @@ namespace Overlay
             return commandType switch
             {
                 CommandType.AccountAge or
-				CommandType.Date or
+				CommandType.CS or
+                CommandType.Current or 
+				CommandType.CurrentSong or
+                CommandType.Date or
 				CommandType.Discord or
 				CommandType.Commands or
 				CommandType.FollowAge or
@@ -696,7 +553,10 @@ namespace Overlay
 				CommandType.Rules or
 				CommandType.SetColor or
 				CommandType.SetColour or
-				CommandType.SongRequest or
+				CommandType.Song or
+                CommandType.SongRequest or
+				CommandType.Specs or
+				CommandType.SR or
                 CommandType.Steam or
 				CommandType.StreamAvatars or
 				CommandType.TextToSpeech or
@@ -767,165 +627,166 @@ namespace Overlay
 		)
 		{
             var commandText = c_commands[commandType];
-            if (
-                IsCommandAvailable(
-                    commandType: commandType
-                ) is false
-            )
+            switch (commandType)
             {
-                HandleWebsSocketMessageCommandOnCooldown(
-                    webSocketMessage: webSocketMessage,
-                    commandText: commandText
-                );
-            }
-            else
-            {
-                c_commandTimers[key: commandType] = c_commandCooldowns[key: commandType];
-                switch (commandType)
-                {
-                    case CommandType.AccountAge:
-						HandleWebSocketMessagePrivMsgAccountAge(
-                            webSocketMessage: webSocketMessage
-                        );
-                        break;
+                case CommandType.AccountAge:
+                    HandleWebSocketMessagePrivMsgAccountAge(
+                        webSocketMessage: webSocketMessage
+                    );
+                    break;
 
-                    case CommandType.FollowAge:
-                        HandleWebSocketMessagePrivMsgFollowAge(
-                            webSocketMessage: webSocketMessage
-                        );
-                        break;
+				case CommandType.CS:
+				case CommandType.Current:
+                case CommandType.CurrentSong:
+				case CommandType.Song:
+                    HandleWebSocketMessagePrivMsgSongCurrent(
+                        webSocketMessage: webSocketMessage
+                    );
+                    break;
 
-                    case CommandType.Commands:
-                        HandleWebSocketMessagePrivMsgCommands(
-                            webSocketMessage: webSocketMessage
-                        );
-                        break;
+                case CommandType.FollowAge:
+                    HandleWebSocketMessagePrivMsgFollowAge(
+                        webSocketMessage: webSocketMessage
+                    );
+                    break;
 
-                    case CommandType.Date:
-                        HandleWebSocketMessagePrivMsgDate(
-                            webSocketMessage: webSocketMessage
-                        );
-                        break;
+                case CommandType.Commands:
+                    HandleWebSocketMessagePrivMsgCommands(
+                        webSocketMessage: webSocketMessage
+                    );
+                    break;
 
-                    case CommandType.Discord:
-                        HandleWebSocketMessagePrivMsgDiscord(
-                            webSocketMessage: webSocketMessage
-                        );
-                        break;
+                case CommandType.Date:
+                    HandleWebSocketMessagePrivMsgDate(
+                        webSocketMessage: webSocketMessage
+                    );
+                    break;
 
-                    case CommandType.Lurk:
-                        HandleWebSocketMessagePrivMsgLurk(
-                            webSocketMessage: webSocketMessage
-                        );
-                        break;
+                case CommandType.Discord:
+                    HandleWebSocketMessagePrivMsgDiscord(
+                        webSocketMessage: webSocketMessage
+                    );
+                    break;
 
-                    case CommandType.SongRequest:
-                        HandleWebSocketMessagePrivMsgSongRequest(
-                            webSocketMessage: webSocketMessage
-                        );
-                        break;
+                case CommandType.Lurk:
+                    HandleWebSocketMessagePrivMsgLurk(
+                        webSocketMessage: webSocketMessage
+                    );
+                    break;
 
-                    case CommandType.Rules:
-                        HandleWebSocketMessagePrivMsgRules(
-                            webSocketMessage: webSocketMessage
-                        );
-                        break;
+                case CommandType.Rules:
+                    HandleWebSocketMessagePrivMsgRules(
+                        webSocketMessage: webSocketMessage
+                    );
+                    break;
 
-                    case CommandType.SetColor:
-					case CommandType.SetColour:
-                        HandleWebSocketMessagePrivMsgSetColor(
-                            webSocketMessage: webSocketMessage
-                        );
-                        break;
+                case CommandType.SetColor:
+                case CommandType.SetColour:
+                    HandleWebSocketMessagePrivMsgSetColor(
+                        webSocketMessage: webSocketMessage
+                    );
+                    break;
 
-                    case CommandType.Steam:
-                        HandleWebSocketMessagePrivMsgSteam(
-                            webSocketMessage: webSocketMessage
-                        );
-                        break;
+                case CommandType.SongRequest:
+				case CommandType.SR:
+                    HandleWebSocketMessagePrivMsgSongRequest(
+                        webSocketMessage: webSocketMessage
+                    );
+                    break;
 
-                    case CommandType.StreamAvatars:
-                        HandleWebSocketMessagePrivMsgStreamAvatars(
-                            webSocketMessage: webSocketMessage
-                        );
-                        break;
+				case CommandType.Specs:
+                    HandleWebSocketMessagePrivMsgSpecs(
+                        webSocketMessage: webSocketMessage
+                    );
+					break;
 
-                    case CommandType.TextToSpeech:
-                        HandleWebSocketMessagePrivMsgTextToSpeech(
-                            webSocketMessage: webSocketMessage
-                        );
-                        break;
+                case CommandType.Steam:
+                    HandleWebSocketMessagePrivMsgSteam(
+                        webSocketMessage: webSocketMessage
+                    );
+                    break;
 
-                    case CommandType.Time:
-                        HandleWebSocketMessagePrivMsgTime(
-                            webSocketMessage: webSocketMessage
-                        );
-                        break;
+                case CommandType.StreamAvatars:
+                    HandleWebSocketMessagePrivMsgStreamAvatars(
+                        webSocketMessage: webSocketMessage
+                    );
+                    break;
 
-                    case CommandType.Unlurk:
-                        HandleWebSocketMessagePrivMsgUnlurk(
-                            webSocketMessage: webSocketMessage
-                        );
-                        break;
+                case CommandType.TextToSpeech:
+                    HandleWebSocketMessagePrivMsgTextToSpeech(
+                        webSocketMessage: webSocketMessage
+                    );
+                    break;
 
-                    case CommandType.YouTube:
-                        HandleWebSocketMessagePrivMsgYouTube(
-                            webSocketMessage: webSocketMessage
-                        );
-                        break;
+                case CommandType.Time:
+                    HandleWebSocketMessagePrivMsgTime(
+                        webSocketMessage: webSocketMessage
+                    );
+                    break;
 
-                    case CommandType.Accept:
-                    case CommandType.Actions:
-                    case CommandType.Attack:
-                    case CommandType.Avatar:
-                    case CommandType.Avatars:
-                    case CommandType.Basketball:
-                    case CommandType.BattleRoyale:
-                    case CommandType.Bet:
-                    case CommandType.Blacklist:
-                    case CommandType.Bomb:
-                    case CommandType.Boss:
-                    case CommandType.Buy:
-                    case CommandType.Change:
-                    case CommandType.Color:
-                    case CommandType.Currency:
-                    case CommandType.Dance:
-                    case CommandType.Decline:
-                    case CommandType.Duel:
-                    case CommandType.Explode:
-                    case CommandType.Extension:
-                    case CommandType.Fart:
-                    case CommandType.Freeze:
-                    case CommandType.Game:
-                    case CommandType.Gear:
-                    case CommandType.Gift:
-                    case CommandType.HideAvatar:
-                    case CommandType.Hug:
-                    case CommandType.Jump:
-                    case CommandType.Leaderboard:
-                    case CommandType.Mass:
-                    case CommandType.Mod:
-                    case CommandType.NameTags:
-                    case CommandType.Pin:
-                    case CommandType.Quote:
-                    case CommandType.Random:
-                    case CommandType.Remove:
-                    case CommandType.Roll:
-                    case CommandType.Scale:
-                    case CommandType.ScreenSaver:
-                    case CommandType.Shop:
-                    case CommandType.Shoutout:
-                    case CommandType.Show:
-                    case CommandType.Sit:
-                    case CommandType.Sling:
-                    case CommandType.Slots:
-                    case CommandType.Sounds:
-                    case CommandType.Spawn:
-                    case CommandType.Throw:
-                    case CommandType.Whitelist:
-                    default:
-                        break;
-                }
+                case CommandType.Unlurk:
+                    HandleWebSocketMessagePrivMsgUnlurk(
+                        webSocketMessage: webSocketMessage
+                    );
+                    break;
+
+                case CommandType.YouTube:
+                    HandleWebSocketMessagePrivMsgYouTube(
+                        webSocketMessage: webSocketMessage
+                    );
+                    break;
+
+                case CommandType.Accept:
+                case CommandType.Actions:
+                case CommandType.Attack:
+                case CommandType.Avatar:
+                case CommandType.Avatars:
+                case CommandType.Basketball:
+                case CommandType.BattleRoyale:
+                case CommandType.Bet:
+                case CommandType.Blacklist:
+                case CommandType.Bomb:
+                case CommandType.Boss:
+                case CommandType.Buy:
+                case CommandType.Change:
+                case CommandType.Color:
+                case CommandType.Currency:
+                case CommandType.Dance:
+                case CommandType.Decline:
+                case CommandType.Duel:
+                case CommandType.Explode:
+                case CommandType.Extension:
+                case CommandType.Fart:
+                case CommandType.Freeze:
+                case CommandType.Game:
+                case CommandType.Gear:
+                case CommandType.Gift:
+                case CommandType.HideAvatar:
+                case CommandType.Hug:
+                case CommandType.Jump:
+                case CommandType.Leaderboard:
+                case CommandType.Mass:
+                case CommandType.Mod:
+                case CommandType.NameTags:
+                case CommandType.Pin:
+                case CommandType.Quote:
+                case CommandType.Random:
+                case CommandType.Remove:
+                case CommandType.Roll:
+                case CommandType.Scale:
+                case CommandType.ScreenSaver:
+                case CommandType.Shop:
+                case CommandType.Shoutout:
+                case CommandType.Show:
+                case CommandType.Sit:
+                case CommandType.Sling:
+                case CommandType.Slots:
+                case CommandType.Sounds:
+                case CommandType.Spawn:
+                case CommandType.Throw:
+                case CommandType.Whitelist:
+                default:
+                    break;
             }
         }
 
@@ -981,9 +842,8 @@ namespace Overlay
 			var username = isChatterAnonymous ? "@Anonymous" : $"@{@event.ChatterUsername}";
 			var communitySubGiftText = $" Thank you so much for the {communitySubGiftTotal} tier {communitySubGiftTier} gifted community sub{(communitySubGiftTotal > 1u ? "s" : string.Empty)}!";
 			var communitySubGiftCumulativeText = $" {username} has gifted a total of {communitySubGiftCumulativeTotal} community sub{(communitySubGiftCumulativeTotal > 1u ? "s" : string.Empty)}!";
-            var communitySubGiftCommandsText = " Make sure to check out the available sub commands in the Social section below for your sub benefits @ https://www.twitch.tv/smoothdagger/about";
 			await SendWebSocketMessage(
-                message: $"PRIVMSG #{m_twitchData.TwitchChannel} :{username}{communitySubGiftText}{communitySubGiftCumulativeText}{communitySubGiftCommandsText}"
+                message: $"PRIVMSG #{m_twitchData.TwitchChannel} :{username}{communitySubGiftText}{communitySubGiftCumulativeText}"
 			);
 		}
 
@@ -1236,20 +1096,6 @@ namespace Overlay
 			}
 		}
 
-		private async void HandleWebsSocketMessageCommandOnCooldown(
-			WebSocketMessage webSocketMessage,
-			string commandText
-		)
-		{
-			var message = $"{commandText} is currently on cooldown.";
-			await SendWebSocketMessage(
-                message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
-			);
-			AddBotChatMessage(
-                message: message
-			);
-		}
-
 		private async void HandleWebSocketMessagePrivMsgAccountAge(
 			WebSocketMessage webSocketMessage
 		)
@@ -1400,52 +1246,6 @@ namespace Overlay
 
 		}
 
-		private async void HandleWebSocketMessagePrivMsgLurk(
-			WebSocketMessage webSocketMessage
-		)
-		{
-			var username = webSocketMessage.Username;
-            var name = webSocketMessage.Tags[key: "display-name"];
-			var normalziedName = name.ToLower();
-			if (
-				normalziedName.Equals(
-					obj: username
-				) is false
-            )
-            {
-                name += $" ({username})";
-            }
-
-			string message;
-			if (
-				m_usersLurking.Contains(
-					item: username
-				) is true
-			)
-			{
-				message = $"{name} tried to engage lurk mode, but little did they know SmoothDagger knew they were already lurking! Rekt. Try using !unlurk first, noobie.";
-                await SendWebSocketMessage(
-				    message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
-				);
-				AddBotChatMessage(
-				    message: message
-				);
-				return;
-			}
-
-            message = $"{name} engaged lurk mode!";
-            await SendWebSocketMessage(
-                message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
-            );
-            AddBotChatMessage(
-                message: message
-            );
-
-			m_usersLurking.Add(
-				item: username	
-			);
-        }
-
 		private async void HandleWebSocketMessagePrivMsgFollowAge(
 			WebSocketMessage webSocketMessage
 		)
@@ -1515,46 +1315,51 @@ namespace Overlay
             );
         }
 
-		private async void HandleWebSocketMessagePrivMsgSongRequest(
+		private async void HandleWebSocketMessagePrivMsgLurk(
 			WebSocketMessage webSocketMessage
 		)
 		{
-            var username = webSocketMessage.Username;
-            var channelSubscribers = m_twitchManager.GetChannelSubscribers();
-            if (
-                channelSubscribers.ContainsKey(
-                    key: username
-                ) is false
+			var username = webSocketMessage.Username;
+            var name = webSocketMessage.Tags[key: "display-name"];
+			var normalziedName = name.ToLower();
+			if (
+				normalziedName.Equals(
+					obj: username
+				) is false
             )
             {
-                var message = $"You must be subscribed in order to use this command.";
-                await SendWebSocketMessage(
-                    message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
-                );
-                AddBotChatMessage(
-                    message: message
-                );
-                return;
+                name += $" ({username})";
             }
 
-			var text = webSocketMessage.Text;
-            var trimmedText = text.Remove(
-			    startIndex: text.Length - c_webSocketMessageDelimiterLength
-			);
-            var searchParameters = trimmedText.Remove(
-				startIndex: 0, 
-				count: c_commands[key: CommandType.SongRequest].Length + 1
-			);
-			m_spotifyManager.AttemptToQueueTrackWithSearchParameters(
-                searchParameters
+			string message;
+			if (
+				m_usersLurking.Contains(
+					item: username
+				) is true
+			)
+			{
+				message = $"{name} tried to engage lurk mode, but little did they know SmoothDagger knew they were already lurking! Rekt. Try using !unlurk first, noobie.";
+                await SendWebSocketMessage(
+				    message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
+				);
+				AddBotChatMessage(
+				    message: message
+				);
+				return;
+			}
+
+            message = $"{name} engaged lurk mode!";
+            await SendWebSocketMessage(
+                message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
             );
-			await SendWebSocketMessage(
-                message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :Attempting to queue first found result for {searchParameters}."
-			);
-			AddBotChatMessage(
-                message: $"Attempting to queue first found result for {searchParameters}."
+            AddBotChatMessage(
+                message: message
             );
-		}
+
+			m_usersLurking.Add(
+				item: username	
+			);
+        }
 
 		private async void HandleWebSocketMessagePrivMsgRules(
 			WebSocketMessage webSocketMessage
@@ -1658,6 +1463,65 @@ namespace Overlay
 			}
 		}
 
+		private void HandleWebSocketMessagePrivMsgSongCurrent(
+			WebSocketMessage webSocketMessage
+		)
+		{
+			var twitchChatMessageId = webSocketMessage.Tags[key: "id"];
+            m_spotifyManager.QueueRequestCurrentTrack(
+				twitchChatMessageId: twitchChatMessageId
+            );
+		}
+
+		private async void HandleWebSocketMessagePrivMsgSongRequest(
+			WebSocketMessage webSocketMessage
+		)
+		{
+            var username = webSocketMessage.Username;
+            var channelSubscribers = m_twitchManager.GetChannelSubscribers();
+            if (
+                channelSubscribers.ContainsKey(
+                    key: username
+                ) is false
+            )
+            {
+                var message = $"You must be subscribed in order to use this command.";
+                await SendWebSocketMessage(
+                    message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
+                );
+                AddBotChatMessage(
+                    message: message
+                );
+                return;
+            }
+
+			var text = webSocketMessage.Text;
+            var trimmedText = text.Remove(
+			    startIndex: text.Length - c_webSocketMessageDelimiterLength
+			);
+            var searchParameters = trimmedText.Remove(
+				startIndex: 0, 
+				count: c_commands[key: CommandType.SongRequest].Length + 1
+			);
+			var twitchChatMessageId = webSocketMessage.Tags[key: "id"];
+            m_spotifyManager.QueueRequestTrackQueue(
+                twitchChatMessageId: twitchChatMessageId,
+                searchParameters: searchParameters
+            );
+		}
+
+		private async void HandleWebSocketMessagePrivMsgSpecs(
+			WebSocketMessage webSocketMessage
+		)
+		{
+            await SendWebSocketMessage(
+                message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :Check the Hardware section below for the list of PC rig parts & peripherals @ https://www.twitch.tv/SmoothDagger/About"
+            );
+            AddBotChatMessage(
+                message: $"Check the Hardware section below for the list of rig parts & peripherals @ \n[color={PastelInterpolator.GetColorAsHexByColorType(colorType: ColorType.Cyan)}]https://www.twitch.tv/SmoothDagger/About"
+            );
+        }
+
 		private async void HandleWebSocketMessagePrivMsgSteam(
 			WebSocketMessage webSocketMessage
 		)
@@ -1739,7 +1603,6 @@ namespace Overlay
                 m_subscribersWhoUsedTextToSpeech.Add(
                     item: username
                 );
-                c_commandTimers[key: CommandType.TextToSpeech] = c_commandCooldowns[key: CommandType.TextToSpeech];
                 return;
             }
 
@@ -1873,11 +1736,16 @@ namespace Overlay
             return commandType switch
             {
                 CommandType.AccountAge or
-				CommandType.Discord or
+				CommandType.CS or
+                CommandType.Current or
+                CommandType.CurrentSong or
+                CommandType.Discord or
 				CommandType.Commands or
 				CommandType.FollowAge or
 				CommandType.Lurk or
 				CommandType.Rules or
+				CommandType.Song or
+				CommandType.Specs or
 				CommandType.Steam or
 				CommandType.StreamAvatars or
 				CommandType.Unlurk or
@@ -1902,7 +1770,8 @@ namespace Overlay
 						text: text	
 					),
 
-                CommandType.SongRequest =>
+                CommandType.SongRequest or
+				CommandType.SR =>
 					IsOverlayCommandSongRequestValid(
 						text: text
 					),
@@ -1913,8 +1782,6 @@ namespace Overlay
                         text: text,
                         commandLength: commandLength
                     ),
-
-
 
                 _ => 
 					false,
@@ -1995,29 +1862,30 @@ namespace Overlay
 
                 CommandType.AccountAge or
                 CommandType.Commands or
+                CommandType.CS or
+                CommandType.Current or
+				CommandType.CurrentSong or
                 CommandType.Date or
                 CommandType.Discord or
                 CommandType.FollowAge or
+				CommandType.Lurk or
                 CommandType.Rules or
+                CommandType.SetColor or
+                CommandType.SetColour or
+                CommandType.Song or
+				CommandType.SongRequest or
+				CommandType.Specs or
+                CommandType.SR or
                 CommandType.Steam or
                 CommandType.StreamAvatars or
                 CommandType.TextToSpeech or
                 CommandType.Time or
+                CommandType.Unlurk or
                 CommandType.YouTube or
                 _ =>
 					false,
             };
         }
-
-        private static bool IsCommandAvailable(
-			CommandType commandType
-		)
-		{
-			return Mathf.IsEqualApprox(
-				a: c_commandTimers[commandType],
-				b: 0d
-			);
-		}
 
 		private static bool IsOverlayCommandDateTimeValid(
 			CommandType commandType,
@@ -2110,6 +1978,9 @@ namespace Overlay
 		{
             var normalizedText = text.ToLower();
             return normalizedText.StartsWith(
+                value: $"{c_commands[key: CommandType.SR]} "
+            ) ||
+			normalizedText.StartsWith(
 				value: $"{c_commands[key: CommandType.SongRequest]} "
 			);
         }
@@ -2305,6 +2176,61 @@ namespace Overlay
             AddBotChatMessage(
                 message: message
             );
+        }
+
+		private async void OnSpotifyCurrentTrackRetrieved(
+            SpotifyTwitchData spotifyTwitchData
+        )
+        {
+			var colorCodeGreen = PastelInterpolator.GetColorAsHexByColorType(
+				colorType: ColorType.Green
+			);
+			var colorCodeWhite = PastelInterpolator.GetColorAsHexByColorType(
+				colorType: ColorType.White
+			);
+
+            var message = $"Current Song: {spotifyTwitchData.TrackName} by {spotifyTwitchData.ArtistName}.";
+			var onScreenMessage = $"Current Song: [color={colorCodeGreen}]{spotifyTwitchData.TrackName} [color={colorCodeWhite}]by[/color] {spotifyTwitchData.ArtistName}[/color].";
+            await SendWebSocketMessage(
+                message: $"@reply-parent-msg-id={spotifyTwitchData.TwitchChatMessageId} PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
+            );
+            AddBotChatMessage(
+                message: onScreenMessage
+            );
+        }
+
+		private async void OnSpotifyTrackQueuedCompleted(
+            SpotifyTwitchData spotifyTwitchData
+        )
+        {
+			var colorCodeGreen = PastelInterpolator.GetColorAsHexByColorType(
+				colorType: ColorType.Green
+			);
+			var colorCodeWhite = PastelInterpolator.GetColorAsHexByColorType(
+				colorType: ColorType.White
+			);
+
+            var message = $"{spotifyTwitchData.TrackName} by {spotifyTwitchData.ArtistName} was added to the queue.";
+            var onScreenMessage = $"[color={colorCodeGreen}]{spotifyTwitchData.TrackName} [color={colorCodeWhite}]by[/color] {spotifyTwitchData.ArtistName}[/color] was added to the queue.";
+            await SendWebSocketMessage(
+                message: $"@reply-parent-msg-id={spotifyTwitchData.TwitchChatMessageId} PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
+            );
+            AddBotChatMessage(
+                message: onScreenMessage
+            );
+        }
+
+		private async void OnSpotifyErrored(
+            SpotifyTwitchData spotifyTwitchData
+        )
+        {
+            var message = spotifyTwitchData.ErrorMessage;
+            await SendWebSocketMessage(
+                message: $"@reply-parent-msg-id={spotifyTwitchData.TwitchChatMessageId} PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
+            );
+            AddBotChatMessage(
+                message: $"[color={PastelInterpolator.GetColorAsHexByColorType(colorType: ColorType.Red)}]{message}"
+			);
         }
 
 		private static string ParseTextSubCommand(
@@ -2659,7 +2585,14 @@ namespace Overlay
 			);
 		}
 
-		private void SubscribeToTwitchManagerEvents()
+        private void SubscribeToSpotifyManagerEvents()
+        {
+            m_spotifyManager.CurrentTrackRetrieved += OnSpotifyCurrentTrackRetrieved;
+            m_spotifyManager.TrackQueuedCompleted += OnSpotifyTrackQueuedCompleted;
+            m_spotifyManager.Errored += OnSpotifyErrored;
+        }
+
+        private void SubscribeToTwitchManagerEvents()
 		{
 			m_twitchManager.ChannelChatNotification += OnChannelChatNotification;
 			m_twitchManager.ChannelCheered += OnChannelCheered;
