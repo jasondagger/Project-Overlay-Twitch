@@ -110,9 +110,11 @@ namespace Overlay
             Rules,
             SetColor,
             SetColour,
+			Skip,
             Song,
             SongRequest,
-			Specs,
+			SongSkip,
+            Specs,
 			SR,
             Steam,
             StreamAvatars,
@@ -257,8 +259,10 @@ namespace Overlay
             { CommandType.Rules,         "!rules"		  },
             { CommandType.SetColor,      "!setcolor"	  },
             { CommandType.SetColour,     "!setcolour"	  },
+            { CommandType.Skip,			 "!skip"		  },
             { CommandType.Song,		     "!song"		  },
             { CommandType.SongRequest,   "!songrequest"	  },
+            { CommandType.SongSkip,		 "!songskip"	  },
             { CommandType.Specs,		 "!specs"		  },
             { CommandType.SR,			 "!sr"			  },
             { CommandType.Steam,         "!steam"		  },
@@ -553,9 +557,11 @@ namespace Overlay
 				CommandType.Rules or
 				CommandType.SetColor or
 				CommandType.SetColour or
-				CommandType.Song or
+				CommandType.Skip or
+                CommandType.Song or
                 CommandType.SongRequest or
-				CommandType.Specs or
+                CommandType.SongSkip or
+                CommandType.Specs or
 				CommandType.SR or
                 CommandType.Steam or
 				CommandType.StreamAvatars or
@@ -687,6 +693,13 @@ namespace Overlay
                     );
                     break;
 
+                case CommandType.Skip:
+                case CommandType.SongSkip:
+                    HandleWebSocketMessagePrivMsgSongSkip(
+                        webSocketMessage: webSocketMessage
+                    );
+                    break;
+
                 case CommandType.SongRequest:
 				case CommandType.SR:
                     HandleWebSocketMessagePrivMsgSongRequest(
@@ -694,7 +707,7 @@ namespace Overlay
                     );
                     break;
 
-				case CommandType.Specs:
+                case CommandType.Specs:
                     HandleWebSocketMessagePrivMsgSpecs(
                         webSocketMessage: webSocketMessage
                     );
@@ -962,9 +975,8 @@ namespace Overlay
 			var usernameRecipient = $"@{subGift.RecipientUsername}";
 			var subGiftText = $" Thank you so much for the tier {subGiftTier} {subGiftDuration} month gifted sub to @{usernameRecipient}!";
 			var subGiftMonthsText = isChatterAnonymous ? string.Empty : $"{username} has gifted a total of {subGiftCumulativeTotal} sub{(subGiftCumulativeTotal > 1u ? "s" : string.Empty)}!";
-			var subCommandsText = " Make sure to check out the available sub commands in the Social section below for your sub benefits @ https://www.twitch.tv/smoothdagger/about";
 			await SendWebSocketMessage(
-				$"PRIVMSG #{m_twitchData.TwitchChannel} :{username}{subGiftText}{subGiftMonthsText}{subCommandsText}"
+				$"PRIVMSG #{m_twitchData.TwitchChannel} :{username}{subGiftText}{subGiftMonthsText}"
 			);
 		}
 
@@ -1468,7 +1480,9 @@ namespace Overlay
 		)
 		{
 			var twitchChatMessageId = webSocketMessage.Tags[key: "id"];
+			var twitchUserName = webSocketMessage.Tags[key: "display-name"];
             m_spotifyManager.QueueRequestCurrentTrack(
+                twitchUserName: twitchUserName,
 				twitchChatMessageId: twitchChatMessageId
             );
 		}
@@ -1478,10 +1492,11 @@ namespace Overlay
 		)
 		{
             var username = webSocketMessage.Username;
+			var usernameAdjusted = username.ToLower();
             var channelSubscribers = m_twitchManager.GetChannelSubscribers();
             if (
                 channelSubscribers.ContainsKey(
-                    key: username
+                    key: usernameAdjusted
                 ) is false
             )
             {
@@ -1495,20 +1510,83 @@ namespace Overlay
                 return;
             }
 
-			var text = webSocketMessage.Text;
+			var twitchUserName = webSocketMessage.Tags[key: "display-name"];
+            var text = webSocketMessage.Text;
             var trimmedText = text.Remove(
 			    startIndex: text.Length - c_webSocketMessageDelimiterLength
 			);
-            var searchParameters = trimmedText.Remove(
+
+            var searchText = trimmedText.Remove(
 				startIndex: 0, 
-				count: c_commands[key: CommandType.SongRequest].Length + 1
+				count: trimmedText.StartsWith(
+                    c_commands[key: CommandType.SR]
+                ) ? c_commands[key: CommandType.SR].Length + 1 : 
+					c_commands[key: CommandType.SongRequest].Length + 1
 			);
+
 			var twitchChatMessageId = webSocketMessage.Tags[key: "id"];
-            m_spotifyManager.QueueRequestTrackQueue(
-                twitchChatMessageId: twitchChatMessageId,
-                searchParameters: searchParameters
-            );
+            if (
+				SpotifyManager.StartsWithValidSpotifyUrl(
+					url: searchText
+                ) is true
+			)
+			{
+				var trackId = SpotifyManager.ParseSpotifyUrlForTrackId(
+					url: searchText
+                );
+				m_spotifyManager.QueueRequestTrackQueueByTrackId(
+					twitchUserName: twitchUserName,
+                    twitchChatMessageId: twitchChatMessageId,
+				    trackId: trackId
+                );
+			}
+			else
+			{
+				m_spotifyManager.QueueRequestTrackQueueBySeachTerms(
+                    twitchUserName: twitchUserName,
+                    twitchChatMessageId: twitchChatMessageId,
+				    searchParameters: searchText
+                );
+			}
 		}
+
+		private async void HandleWebSocketMessagePrivMsgSongSkip(
+			WebSocketMessage webSocketMessage
+		)
+		{
+            var username = webSocketMessage.Username;
+			if (
+                username.Equals(
+                     value: m_twitchData.AccountUsername
+                ) is false
+			)
+			{
+                var usernameAdjusted = username.ToLower();
+                var channelModerators = m_twitchManager.GetChannelModerators();
+                if (
+                    channelModerators.ContainsKey(
+                        key: usernameAdjusted
+                    ) is false
+                )
+                {
+                    var message = $"You must be a moderator in order to use this command.";
+                    await SendWebSocketMessage(
+                        message: $"@reply-parent-msg-id={webSocketMessage.Tags[key: "id"]} PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
+                    );
+                    AddBotChatMessage(
+                        message: message
+                    );
+                    return;
+                }
+            }
+
+			var twitchChatMessageId = webSocketMessage.Tags[key: "id"];
+			var twitchUserName = webSocketMessage.Tags[key: "display-name"];
+            m_spotifyManager.QueueSkipTrack(
+				twitchUserName: twitchUserName,
+                twitchChatMessageId: twitchChatMessageId
+            );
+        }
 
 		private async void HandleWebSocketMessagePrivMsgSpecs(
 			WebSocketMessage webSocketMessage
@@ -1553,10 +1631,9 @@ namespace Overlay
 			string message;
 			var username = webSocketMessage.Username;
 			if (
-				string.Compare(
-					strA: username,
-					strB: m_twitchData.AccountUsername
-				) is 0
+                username.Equals(
+                     value: m_twitchData.AccountUsername
+                ) is true
 			)
 			{
 				var text = webSocketMessage.Text;
@@ -1744,7 +1821,9 @@ namespace Overlay
 				CommandType.FollowAge or
 				CommandType.Lurk or
 				CommandType.Rules or
+				CommandType.Skip or
 				CommandType.Song or
+                CommandType.SongSkip or
 				CommandType.Specs or
 				CommandType.Steam or
 				CommandType.StreamAvatars or
@@ -1872,9 +1951,11 @@ namespace Overlay
                 CommandType.Rules or
                 CommandType.SetColor or
                 CommandType.SetColour or
+                CommandType.Skip or
                 CommandType.Song or
-				CommandType.SongRequest or
-				CommandType.Specs or
+                CommandType.SongRequest or
+                CommandType.SongSkip or
+                CommandType.Specs or
                 CommandType.SR or
                 CommandType.Steam or
                 CommandType.StreamAvatars or
@@ -2126,9 +2207,6 @@ namespace Overlay
 			var reward = @event.Reward;
 			var rewardTitle = reward.Title;
             var message = $"{username} claimed {rewardTitle}!";
-            //await SendWebSocketMessage(
-            //    message: $"PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
-            //);
             AddBotChatMessage(
                 message: message
             );
@@ -2192,11 +2270,28 @@ namespace Overlay
             var message = $"Current Song: {spotifyTwitchData.TrackName} by {spotifyTwitchData.ArtistName}.";
 			var onScreenMessage = $"Current Song: [color={colorCodeGreen}]{spotifyTwitchData.TrackName} [color={colorCodeWhite}]by[/color] {spotifyTwitchData.ArtistName}[/color].";
             await SendWebSocketMessage(
-                message: $"@reply-parent-msg-id={spotifyTwitchData.TwitchChatMessageId} PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
+                message: $"{(string.IsNullOrEmpty(value: spotifyTwitchData.TwitchChatMessageId) is false ? $"@reply-parent-msg-id={spotifyTwitchData.TwitchChatMessageId} " : "")}PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
             );
             AddBotChatMessage(
                 message: onScreenMessage
             );
+        }
+
+		private async void OnSpotifyErrored(
+            SpotifyTwitchData spotifyTwitchData
+        )
+        {
+			var colorCodeRed = PastelInterpolator.GetColorAsHexByColorType(
+				colorType: ColorType.Red
+			);
+
+            var message = spotifyTwitchData.ErrorMessage;
+            await SendWebSocketMessage(
+                message: $"{(string.IsNullOrEmpty(value: spotifyTwitchData.TwitchChatMessageId) is false ? $"@reply-parent-msg-id={spotifyTwitchData.TwitchChatMessageId} " : "")}PRIVMSG #{m_twitchData.TwitchChannel} :{spotifyTwitchData.TwitchUserName}, {message}"
+            );
+            AddBotChatMessage(
+                message: $"[color={colorCodeRed}]{message}"
+			);
         }
 
 		private async void OnSpotifyTrackQueuedCompleted(
@@ -2210,40 +2305,45 @@ namespace Overlay
 				colorType: ColorType.White
 			);
 
-            var message = $"{spotifyTwitchData.TrackName} by {spotifyTwitchData.ArtistName} was added to the queue.";
-            var onScreenMessage = $"[color={colorCodeGreen}]{spotifyTwitchData.TrackName} [color={colorCodeWhite}]by[/color] {spotifyTwitchData.ArtistName}[/color] was added to the queue.";
+            var message = $"{spotifyTwitchData.TwitchUserName}, {spotifyTwitchData.TrackName} by {spotifyTwitchData.ArtistName} was added to the queue at position {spotifyTwitchData.QueuePosition}.";
+            var onScreenMessage = $"{spotifyTwitchData.TwitchUserName}, [color={colorCodeGreen}]{spotifyTwitchData.TrackName} [color={colorCodeWhite}]by[/color] {spotifyTwitchData.ArtistName}[/color] was added to the queue at [color={colorCodeGreen}]position {spotifyTwitchData.QueuePosition}[/color].";
             await SendWebSocketMessage(
-                message: $"@reply-parent-msg-id={spotifyTwitchData.TwitchChatMessageId} PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
+                message: $"{(string.IsNullOrEmpty(value: spotifyTwitchData.TwitchChatMessageId) is false ? $"@reply-parent-msg-id={spotifyTwitchData.TwitchChatMessageId} " : "")}PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
             );
             AddBotChatMessage(
                 message: onScreenMessage
             );
         }
 
-		private async void OnSpotifyErrored(
-            SpotifyTwitchData spotifyTwitchData
-        )
+        private async void OnSpotifyTrackSkipCompleted(
+		    SpotifyTwitchData spotifyTwitchData
+		)
         {
-            var message = spotifyTwitchData.ErrorMessage;
+            var colorCodeGreen = PastelInterpolator.GetColorAsHexByColorType(
+                colorType: ColorType.Green
+            );
+
+            var message = $"{spotifyTwitchData.TwitchUserName}, track was successfully skipped.";
+            var onScreenMessage = $"{spotifyTwitchData.TwitchUserName}, [color={colorCodeGreen}]track was successfully skipped.";
             await SendWebSocketMessage(
-                message: $"@reply-parent-msg-id={spotifyTwitchData.TwitchChatMessageId} PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
+                message: $"{(string.IsNullOrEmpty(value: spotifyTwitchData.TwitchChatMessageId) is false ? $"@reply-parent-msg-id={spotifyTwitchData.TwitchChatMessageId} " : "")}PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
             );
             AddBotChatMessage(
-                message: $"[color={PastelInterpolator.GetColorAsHexByColorType(colorType: ColorType.Red)}]{message}"
-			);
+                message: onScreenMessage
+            );
         }
 
-		private static string ParseTextSubCommand(
+        private static string ParseTextSubCommand(
 			string text
 		)
 		{
 			var subCommand = string.Empty;
 			var index = 0;
-			while (text[index++] is not ' ') ;
+			while (text[index: index++] is not ' ') ;
 
 			while (index < text.Length)
 			{
-				subCommand += text[index++];
+				subCommand += text[index: index++];
 			}
 
 			subCommand = subCommand.Remove(
@@ -2272,22 +2372,22 @@ namespace Overlay
 				);
 
 				// parse tags
-				if (message[index] is '@')
+				if (message[index: index] is '@')
 				{
 					index++;
 					while (true)
 					{
 						var key = string.Empty;
-						while (message[index] is not '=')
+						while (message[index: index] is not '=')
 						{
-							key += message[index++];
+							key += message[index: index++];
 						}
 						index++;
 
 						var value = string.Empty;
-						while (message[index] is not ';' && message[index] is not ' ')
+						while (message[index: index] is not ';' && message[index: index] is not ' ')
 						{
-							value += message[index++];
+							value += message[index: index++];
 						}
 
 						webSocketMessage.Tags.Add(
@@ -2295,7 +2395,7 @@ namespace Overlay
 							value: value
 						);
 
-						if (message[index++] is ' ')
+						if (message[index: index++] is ' ')
 						{
 							break;
 						}
@@ -2303,19 +2403,19 @@ namespace Overlay
 				}
 
 				// parse username
-				if (message[index] is ':')
+				if (message[index: index] is ':')
 				{
-					while (message[index] is not '@' && message[index] is not ' ')
+					while (message[index: index] is not '@' && message[index: index] is not ' ')
 					{
 						index++;
 					}
-					if (message[index++] is '@')
+					if (message[index: index++] is '@')
 					{
-						while (message[index] is not '.')
+						while (message[index: index] is not '.')
 						{
-							webSocketMessage.Username += message[index++];
+							webSocketMessage.Username += message[index: index++];
 						}
-						while (message[index] is not ' ')
+						while (message[index: index] is not ' ')
 						{
 							index++;
 						}
@@ -2326,10 +2426,10 @@ namespace Overlay
 				// parse command
 				while (
 					index < message.Length &&
-					message[index] is not ' '
+					message[index: index] is not ' '
 				)
 				{
-					webSocketMessage.Command += message[index++];
+					webSocketMessage.Command += message[index: index++];
 				}
 
 				if (
@@ -2347,9 +2447,9 @@ namespace Overlay
 				{
 					// parse extraneous information up to possible text message
 					var parse = string.Empty;
-					while (message[index] is not ':')
+					while (message[index: index] is not ':')
 					{
-						parse += message[index++];
+						parse += message[index: index++];
 						if (
 							parse.EndsWith(
 								value: c_webSocketMessagedelimiter
@@ -2383,7 +2483,7 @@ namespace Overlay
 								break;
 							}
 
-							webSocketMessage.Text += message[index++];
+							webSocketMessage.Text += message[index: index++];
 						}
 					}
 				}
@@ -2399,7 +2499,7 @@ namespace Overlay
 		)
 		{
 			var text = webSocketMessage.Text;
-			if (text[0] is '!')
+			if (text[index: 0] is '!')
 			{
 				foreach (var command in c_commands)
 				{
@@ -2439,7 +2539,6 @@ namespace Overlay
 
 						case ApplicationCommandType.Invalid:
 						default:
-							// should never hit, something went wrong
 							break;
 					}
 				}
@@ -2452,7 +2551,6 @@ namespace Overlay
 			WebSocketMessage webSocketMessage
 		)
 		{
-			// process message for on-screen chat
 			var username = webSocketMessage.Username;
 			var isSubscriber = webSocketMessage.Tags[key: "subscriber"].ToInt() > 0u;
 			string color;
@@ -2588,8 +2686,9 @@ namespace Overlay
         private void SubscribeToSpotifyManagerEvents()
         {
             m_spotifyManager.CurrentTrackRetrieved += OnSpotifyCurrentTrackRetrieved;
-            m_spotifyManager.TrackQueuedCompleted += OnSpotifyTrackQueuedCompleted;
             m_spotifyManager.Errored += OnSpotifyErrored;
+            m_spotifyManager.TrackQueuedCompleted += OnSpotifyTrackQueuedCompleted;
+			m_spotifyManager.TrackSkipped += OnSpotifyTrackSkipCompleted;
         }
 
         private void SubscribeToTwitchManagerEvents()
@@ -2644,7 +2743,8 @@ namespace Overlay
 		private async void StartWebSocketMessageReader()
 		{
 			await Task.Run(
-				function: async () =>
+				function: 
+				async () =>
 				{
 #if DEBUG
 					GD.Print(

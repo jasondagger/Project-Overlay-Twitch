@@ -3,22 +3,22 @@ namespace Overlay
 {
     using Godot;
     using System;
+    using System.Collections.Generic;
     using System.Text;
     using System.Text.Json;
     using System.Threading.Tasks;
+    using System.Linq;
+    using static Godot.HttpClient;
     using NodeType = NodeDirectory.NodeType;
     using RequiredFileType = ApplicationManager.RequiredFileType;
-    using static Godot.HttpClient;
-    using System.Collections.Generic;
-    using System.Linq;
 
     public sealed partial class SpotifyManager : Node
     {
         public Action<SpotifyTwitchData> CurrentTrackRetrieved = null;
         public Action<SpotifyTwitchData> Errored = null;
         public Action<SpotifyTwitchData> TrackQueuedCompleted = null;
+        public Action<SpotifyTwitchData> TrackSkipped = null;
 
-        #region GODOT_INTRINSTICS
         public override void _Process(
             double delta    
         )
@@ -30,35 +30,57 @@ namespace Overlay
         {
             RetrieveResources();
         }
-        #endregion
+
+        public static bool StartsWithValidSpotifyUrl(
+            string url    
+        )
+        {
+            if (
+                url.StartsWith(
+                    value: c_urlHttpPrefixInsecure
+                )
+            )
+            {
+                url = url.Replace(
+                    what: c_urlHttpPrefixInsecure,
+                    forwhat: c_urlHttpPrefixSecure
+                );
+            }
+
+            return url.StartsWith(
+                value: c_urlSpotifyTrackSecure    
+            ) is true;
+        }
+
+        public static string ParseSpotifyUrlForTrackId(
+            string url    
+        )
+        {
+            var count = url.StartsWith(
+                value: c_urlHttpPrefixInsecure
+            ) ? c_urlSpotifyTrackInsecureLength : c_urlSpotifyTrackSecureLength;
+
+            var urlSplit = url.Split(
+                separator: '?'
+            );
+            var trackId = urlSplit[0].Remove(
+                startIndex: 0,
+                count: count
+            );
+            return trackId;
+        }
 
         public void QueueRequestCurrentTrack(
+            string twitchUserName,
             string twitchChatMessageId
         )
         {
             var spotifyTwitchData = new SpotifyTwitchData(
-                spotifyTwitchDataRequestType: SpotifyTwitchDataRequestType.CurrentTrack,
-                twitchChatMessageId: twitchChatMessageId
-            );
-            lock (m_currentSpotifyTwitchDatasLock)
-            {
-                m_currentSpotifyTwitchDatas.Enqueue(
-                    item: spotifyTwitchData
-                );
-            }
-        }
-
-        public void QueueRequestTrackQueue(
-            string twitchChatMessageId,
-            string searchParameters
-        )
-        {
-            var spotifyTwitchData = new SpotifyTwitchData(
-                spotifyTwitchDataRequestType: SpotifyTwitchDataRequestType.TrackQueue,
-                twitchChatMessageId: twitchChatMessageId
+                spotifyTwitchDataRequestType: SpotifyTwitchDataRequestType.CurrentTrack
             )
             {
-                SearchParameters = searchParameters,
+                TwitchChatMessageId = twitchChatMessageId,
+                TwitchUserName = $"@{twitchUserName}",
             };
             lock (m_currentSpotifyTwitchDatasLock)
             {
@@ -68,13 +90,84 @@ namespace Overlay
             }
         }
 
-        #region INTERNAL_VARIABLES_&_STRUCTURES
+        public void QueueRequestTrackQueueBySeachTerms(
+            string twitchUserName,
+            string twitchChatMessageId,
+            string searchParameters
+        )
+        {
+            var spotifyTwitchData = new SpotifyTwitchData(
+                spotifyTwitchDataRequestType: SpotifyTwitchDataRequestType.TrackQueueBySearchTerms
+            )
+            {
+                SearchParameters = searchParameters,
+                TwitchChatMessageId = twitchChatMessageId,
+                TwitchUserName = $"@{twitchUserName}",
+            };
+            lock (m_currentSpotifyTwitchDatasLock)
+            {
+                m_currentSpotifyTwitchDatas.Enqueue(
+                    item: spotifyTwitchData
+                );
+            }
+        }
+
+        public void QueueRequestTrackQueueByTrackId(
+            string twitchUserName,
+            string twitchChatMessageId,
+            string trackId
+        )
+        {
+            var spotifyTwitchData = new SpotifyTwitchData(
+                spotifyTwitchDataRequestType: SpotifyTwitchDataRequestType.TrackQueueByTrackId
+            )
+            {
+                TrackId = trackId,
+                TwitchChatMessageId = twitchChatMessageId,
+                TwitchUserName = $"@{twitchUserName}",
+            };
+            lock (m_currentSpotifyTwitchDatasLock)
+            {
+                m_currentSpotifyTwitchDatas.Enqueue(
+                    item: spotifyTwitchData
+                );
+            }
+        }
+
+        public void QueueSkipTrack(
+            string twitchUserName,
+            string twitchChatMessageId
+        )
+        {
+            var spotifyTwitchData = new SpotifyTwitchData(
+                spotifyTwitchDataRequestType: SpotifyTwitchDataRequestType.TrackSkip
+            )
+            {
+                TwitchChatMessageId = twitchChatMessageId,
+                TwitchUserName = $"@{twitchUserName}",
+            };
+            lock (m_currentSpotifyTwitchDatasLock)
+            {
+                m_currentSpotifyTwitchDatas.Enqueue(
+                    item: spotifyTwitchData
+                );
+            }
+        }
+
         private const int c_accessTokenRefreshTimeInMilliseconds = 3600000;
         private const string c_authorizationCode = "AQCsZ-HvlDJyhOOJ52TZsvnNZQAibiQXupDEjdTrK497FW8oTXj1q8P3vLGm89yP8JIfZkIR_jO3s7Rn63RPRW6xC9ocRWPPal4xqEaBLiglYZBIS3TL0XJ84rI-2axiODaFH27kLnLGyd38hBBzE9aieNBdCi0_B5B1i-iizw4eswPVp84qWyarLLea9u6N4fj3QZUs_9TJ6od-zflrYl34oy4Q0iEpvdy9YbJwd2vsNxf8shpcE2fsHD5zA4wGw60znkZRkGAtqzkg5ZFbaOVCIXco";
+
         private const string c_redirectUri = "http://localhost:8888/callback";
         private const string c_urlAPI = "https://api.spotify.com/v1";
+        private const string c_urlHttpPrefixSecure = "https://";
+        private const string c_urlHttpPrefixInsecure = "http://";
         private const string c_urlAccessToken = "https://accounts.spotify.com/api/token";
+        private const string c_urlSpotifyTrackSecure = "https://open.spotify.com/track/";
+        private const string c_urlSpotifyTrackInsecure = "http://open.spotify.com/track/";
         private const string c_userAccessScopes = "user-modify-playback-state user-read-currently-playing user-read-playback-state";
+
+        private static readonly int c_urlSpotifyTrackSecureLength = c_urlSpotifyTrackSecure.Length;
+        private static readonly int c_urlSpotifyTrackInsecureLength = c_urlSpotifyTrackInsecure.Length;
 
         private readonly Queue<SpotifyTwitchData> m_currentSpotifyTwitchDatas = new();
         private readonly object m_currentSpotifyTwitchDatasLock = new();
@@ -82,10 +175,40 @@ namespace Overlay
         private HttpManager m_httpManager = null;
         private SpotifyAccessToken m_spotifyAccessToken = null;
         private SpotifyData m_spotifyData = null;
+        private SpotifyResponseTrack[] m_spotifyTrackQueue = null;
         private SpotifyTwitchData m_spotifyTwitchData = null;
-        #endregion
 
-        #region INTERNAL_FLAGS
+        private void BindTwitchChannelPointRewards()
+        {
+            var twitchChannelPointRewardsManager = GetNode<TwitchChannelPointRewardsManager>(
+                path: NodeDirectory.NodePaths[key: NodeType.TwitchChannelPointRewardsManager]
+            );
+            
+            twitchChannelPointRewardsManager.CommandRequestSongClaimed += OnChannelPointRewardsRedeemedRequestSong;
+            twitchChannelPointRewardsManager.CommandSkipSongClaimed += OnChannelPointRewardsRedeemedSkipSong;
+        }
+
+        private static bool ContainsAValidSpotifyUrl(
+            string url
+        )
+        {
+            if (
+                url.Contains(
+                    value: c_urlHttpPrefixInsecure
+                )
+            )
+            {
+                url = url.Replace(
+                    what: c_urlHttpPrefixInsecure,
+                    forwhat: c_urlHttpPrefixSecure
+                );
+            }
+
+            return url.Contains(
+                value: c_urlSpotifyTrackSecure    
+            ) is true;
+        }
+
         private bool IsAccessTokenExpired()
         {
             return DateTime.Compare(
@@ -97,9 +220,67 @@ namespace Overlay
                 )
             ) >= 0;
         }
-        #endregion
 
-        #region INTERNAL_EVENT_HANDLERS
+        private void OnChannelPointRewardsRedeemedRequestSong(
+            string searchText,
+            string userName
+        )
+        {
+            SpotifyTwitchData spotifyTwitchData;
+            if (
+                ContainsAValidSpotifyUrl(
+					url: searchText
+                ) is true
+			)
+			{
+				var trackId = ParseSearchTextForTrackId(
+					searchText: searchText
+                );
+                spotifyTwitchData = new SpotifyTwitchData(
+                    spotifyTwitchDataRequestType: SpotifyTwitchDataRequestType.TrackQueueByTrackId
+                )
+                {
+                    TwitchUserName = $"@{userName}",
+                    TrackId = trackId,
+                };
+			}
+			else
+			{
+                spotifyTwitchData = new SpotifyTwitchData(
+                    spotifyTwitchDataRequestType: SpotifyTwitchDataRequestType.TrackQueueBySearchTerms
+                )
+                {
+                    TwitchUserName = $"@{userName}",
+                    SearchParameters = searchText,
+                };
+            }
+
+            lock (m_currentSpotifyTwitchDatasLock)
+            {
+                m_currentSpotifyTwitchDatas.Enqueue(
+                    item: spotifyTwitchData
+                );
+            }
+        }
+
+        private void OnChannelPointRewardsRedeemedSkipSong(
+            string userName    
+        )
+        {
+            var spotifyTwitchData = new SpotifyTwitchData(
+                spotifyTwitchDataRequestType: SpotifyTwitchDataRequestType.TrackSkip
+            )
+            {
+                TwitchUserName = $"@{userName}"
+            };
+            lock (m_currentSpotifyTwitchDatasLock)
+            {
+                m_currentSpotifyTwitchDatas.Enqueue(
+                    item: spotifyTwitchData
+                );
+            }
+        }
+
         private void OnRequestAccessTokenCompleted(
             long result,
             long responseCode,
@@ -344,6 +525,11 @@ namespace Overlay
                     what: $"{nameof(SpotifyManager)}.{nameof(OnRequestSkipToNextCompleted)}() - Web request {responseCode} POST successful."
                 );
 #endif
+
+                TrackSkipped?.Invoke(
+                    obj: m_spotifyTwitchData
+                );
+                ResetSpotifyTwitchData();
             }
             else
             {
@@ -352,7 +538,114 @@ namespace Overlay
                     what: $"{nameof(SpotifyManager)}.{nameof(OnRequestSkipToNextCompleted)}() - Web request POST failed with code {responseCode}."
                 );
 #endif
+
+                m_spotifyTwitchData.ErrorMessage = $"Failed to skip current track.";
+                Errored?.Invoke(
+                    obj: m_spotifyTwitchData
+                );
+
+                ResetSpotifyTwitchData();
             }
+        }
+
+        private void OnRequestTrackQueueCompleted(
+            long result,
+            long responseCode,
+            string[] headers,
+            byte[] body
+        )
+        {
+            if (
+                HttpManager.IsResponseCodeSuccessful(
+                    responseCode: responseCode
+                ) is true
+            )
+            {
+#if DEBUG
+                GD.Print(
+                    what: $"{nameof(SpotifyManager)}.{nameof(OnRequestTrackQueueCompleted)}() - Web request {responseCode} POST successful."
+                );
+#endif
+
+                RequestUserQueueAfterTrackQueued();
+            }
+            else
+            {
+#if DEBUG
+                GD.PrintErr(
+                    what: $"{nameof(SpotifyManager)}.{nameof(OnRequestTrackQueueCompleted)}() - Web request POST failed with code {responseCode}."
+                );
+#endif
+
+                m_spotifyTwitchData.ErrorMessage = $"Failed to queue the track \"{m_spotifyTwitchData.TrackName} - {m_spotifyTwitchData.ArtistName}.\"";
+                Errored?.Invoke(
+                    obj: m_spotifyTwitchData
+                );
+
+                ResetSpotifyTwitchData();
+            }
+        }
+
+        private void OnRequestTrackSearchCompleted(
+            long result,
+            long responseCode,
+            string[] headers,
+            byte[] body
+        )
+        {
+            if (
+                HttpManager.IsResponseCodeSuccessful(
+                    responseCode: responseCode
+                ) is true
+            )
+            {
+#if DEBUG
+                GD.Print(
+                    what: $"{nameof(SpotifyManager)}.{nameof(OnRequestTrackSearchCompleted)}() - Web request {responseCode} POST successful."
+                );
+#endif
+
+                var spotifyResponse = JsonSerializer.Deserialize<SpotifyResponseSearchItem>(
+                    json: Encoding.UTF8.GetString(
+                        bytes: body,
+                        index: 0,
+                        count: body.Length
+                    )
+                );
+
+                if (spotifyResponse is not null)
+                {
+                    var tracks = spotifyResponse.Tracks;
+                    if (tracks is not null)
+                    {
+                        var items = tracks.Items;
+                        if (items is not null && items.Length > 0)
+                        {
+                            var track = items[0];
+                            var uri = track.Uri;
+                            RequestTrackAddedToQueue(
+                                trackUri: uri
+                            );
+                            return;
+                        }
+                    }
+                }
+            }
+            else
+            {
+#if DEBUG
+                GD.PrintErr(
+                    what: $"{nameof(SpotifyManager)}.{nameof(OnRequestTrackSearchCompleted)}() - Web request POST failed with code {responseCode}."
+                );
+#endif
+            }
+
+            m_spotifyTwitchData.ErrorMessage = $"Failed to find a track using \"{m_spotifyTwitchData.SearchParameters}.\"";
+            Errored?.Invoke(
+                obj: m_spotifyTwitchData
+            );
+
+            ResetSpotifyTwitchData();
         }
 
         private void OnRequestUserAuthorizationCompleted(
@@ -392,7 +685,7 @@ namespace Overlay
             }
         }
 
-        private void OnTrackQueueCompleted(
+        private void OnRequestUserQueueAfterTrackQueuedCompleted(
             long result,
             long responseCode,
             string[] headers,
@@ -407,78 +700,39 @@ namespace Overlay
             {
 #if DEBUG
                 GD.Print(
-                    what: $"{nameof(SpotifyManager)}.{nameof(OnTrackQueueCompleted)}() - Web request {responseCode} POST successful."
+                    what: $"{nameof(SpotifyManager)}.{nameof(OnRequestUserQueueAfterTrackQueuedCompleted)}() - Web request {responseCode} POST successful."
                 );
 #endif
 
-                TrackQueuedCompleted?.Invoke(
-                    obj: m_spotifyTwitchData    
-                );
-                ResetSpotifyTwitchData();
-            }
-            else
-            {
-#if DEBUG
-                GD.PrintErr(
-                    what: $"{nameof(SpotifyManager)}.{nameof(OnTrackQueueCompleted)}() - Web request POST failed with code {responseCode}."
-                );
-#endif
-
-                m_spotifyTwitchData.ErrorMessage = $"Failed to queue the track \"{m_spotifyTwitchData.TrackName} - {m_spotifyTwitchData.ArtistName}.\"";
-                Errored?.Invoke(
-                    obj: m_spotifyTwitchData
-                );
-
-                ResetSpotifyTwitchData();
-            }
-        }
-
-        private void OnTrackSearchCompleted(
-            long result,
-            long responseCode,
-            string[] headers,
-            byte[] body
-        )
-        {
-            if (
-                HttpManager.IsResponseCodeSuccessful(
-                    responseCode: responseCode
-                ) is true
-            )
-            {
-#if DEBUG
-                GD.Print(
-                    what: $"{nameof(SpotifyManager)}.{nameof(OnTrackSearchCompleted)}() - Web request {responseCode} POST successful."
-                );
-#endif
-
-                var spotifyResponse = JsonSerializer.Deserialize<SpotifyResponseSearchItem>(
-					json: Encoding.UTF8.GetString(
+                var spotifyResponse = JsonSerializer.Deserialize<SpotifyResponseQueue>(
+                    json: Encoding.UTF8.GetString(
                         bytes: body,
                         index: 0,
                         count: body.Length
                     )
-				);
+                );
 
-                if (spotifyResponse is not null)
+                var queue = spotifyResponse.Queue;
+                for (var i = 0; i < queue.Length; i++)
                 {
-                    var tracks = spotifyResponse.Tracks;
-                    if (tracks is not null)
-                    {
-                        var items = tracks.Items;
-                        if (items is not null && items.Length > 0)
-                        {
-                            var track = items[0];
-                            SaveArtistAndTrackInTwitchData(
-                                track: track    
-                            );
+                    var newQueueTrack = queue[i];
+                    var oldQueueTrack = m_spotifyTrackQueue[i];
 
-                            var uri = track.Uri;
-                            RequestTrackAddedToQueue(
-                                trackUri: uri
-                            );
-                            return;
-                        }
+                    if (
+                        newQueueTrack.Id.Equals(
+                            value: oldQueueTrack.Id
+                        ) is false
+                    )
+                    {
+                        m_spotifyTwitchData.QueuePosition = i + 1;
+                        SaveArtistAndTrackInTwitchData(
+                            track: newQueueTrack
+                        );
+                        TrackQueuedCompleted?.Invoke(
+                            obj: m_spotifyTwitchData
+                        );
+                        ResetSpotifyTwitchData();
+                        return;
                     }
                 }
             }
@@ -486,19 +740,143 @@ namespace Overlay
             {
 #if DEBUG
                 GD.PrintErr(
-                    what: $"{nameof(SpotifyManager)}.{nameof(OnTrackSearchCompleted)}() - Web request POST failed with code {responseCode}."
+                    what: $"{nameof(SpotifyManager)}.{nameof(OnRequestUserQueueAfterTrackQueuedCompleted)}() - Web request POST failed with code {responseCode}."
                 );
 #endif
             }
 
-            m_spotifyTwitchData.ErrorMessage = $"Failed to find a track using \"{m_spotifyTwitchData.SearchParameters}.\"";
+            m_spotifyTwitchData.ErrorMessage = $"Failed to retrieve queue after queuing track.";
             Errored?.Invoke(
                 obj: m_spotifyTwitchData
             );
-
-            ResetSpotifyTwitchData();
         }
-        #endregion
+
+        private void OnRequestUserQueueBeforeTrackQueuedBySearchTermsCompleted(
+            long result,
+            long responseCode,
+            string[] headers,
+            byte[] body
+        )
+        {
+            if (
+                HttpManager.IsResponseCodeSuccessful(
+                    responseCode: responseCode
+                ) is true
+            )
+            {
+#if DEBUG
+                GD.Print(
+                    what: $"{nameof(SpotifyManager)}.{nameof(OnRequestUserQueueBeforeTrackQueuedBySearchTermsCompleted)}() - Web request {responseCode} POST successful."
+                );
+#endif
+
+                var spotifyResponse = JsonSerializer.Deserialize<SpotifyResponseQueue>(
+                    json: Encoding.UTF8.GetString(
+                        bytes: body,
+                        index: 0,
+                        count: body.Length
+                    )
+                );
+
+                m_spotifyTrackQueue = spotifyResponse.Queue;
+                RequestTrackQueueBySearchTerms();
+            }
+            else
+            {
+#if DEBUG
+                GD.PrintErr(
+                    what: $"{nameof(SpotifyManager)}.{nameof(OnRequestUserQueueBeforeTrackQueuedBySearchTermsCompleted)}() - Web request POST failed with code {responseCode}."
+                );
+#endif
+
+                m_spotifyTwitchData.ErrorMessage = $"Failed to retrieve queue after queuing track.";
+                Errored?.Invoke(
+                    obj: m_spotifyTwitchData
+                );
+            }
+        }
+
+        private void OnRequestUserQueueBeforeTrackQueuedByTrackIdCompleted(
+            long result,
+            long responseCode,
+            string[] headers,
+            byte[] body
+        )
+        {
+            if (
+                HttpManager.IsResponseCodeSuccessful(
+                    responseCode: responseCode
+                ) is true
+            )
+            {
+#if DEBUG
+                GD.Print(
+                    what: $"{nameof(SpotifyManager)}.{nameof(OnRequestUserQueueBeforeTrackQueuedByTrackIdCompleted)}() - Web request {responseCode} POST successful."
+                );
+#endif
+
+                var spotifyResponse = JsonSerializer.Deserialize<SpotifyResponseQueue>(
+                    json: Encoding.UTF8.GetString(
+                        bytes: body,
+                        index: 0,
+                        count: body.Length
+                    )
+                );
+
+                m_spotifyTrackQueue = spotifyResponse.Queue;
+                RequestTrackQueueByTrackId();
+            }
+            else
+            {
+#if DEBUG
+                GD.PrintErr(
+                    what: $"{nameof(SpotifyManager)}.{nameof(OnRequestUserQueueBeforeTrackQueuedByTrackIdCompleted)}() - Web request POST failed with code {responseCode}."
+                );
+#endif
+
+                m_spotifyTwitchData.ErrorMessage = $"Failed to retrieve queue after queuing track.";
+                Errored?.Invoke(
+                    obj: m_spotifyTwitchData
+                );
+            }
+        }
+
+        public static string ParseSearchTextForTrackId(
+            string searchText    
+        )
+        {
+            var searchTextSplit = searchText.Split(
+                separator: '?'
+            );
+
+            foreach (var subSearchText in searchTextSplit)
+            {
+                if (
+                    subSearchText.Contains(
+                        value: c_urlSpotifyTrackSecure
+                    ) is true
+                )
+                {
+                    var subSearchTextSplit = subSearchText.Split(
+                        divisor: c_urlSpotifyTrackSecure
+                    );
+                    return subSearchTextSplit.Last();
+                }
+                else if (
+                    subSearchText.Contains(
+                        value: c_urlSpotifyTrackInsecure
+                    ) is true
+                )
+                {
+                    var subSearchTextSplit = subSearchText.Split(
+                        divisor: c_urlSpotifyTrackInsecure
+                    );
+                    return subSearchTextSplit.Last();
+                }
+            }
+
+            return string.Empty;
+        }
 
         private void ProcessHttpRequests()
         {
@@ -523,8 +901,16 @@ namespace Overlay
                         RequestCurrentTrack();
                         break;
 
-                    case SpotifyTwitchDataRequestType.TrackQueue:
-                        RequestTrackQueue();
+                    case SpotifyTwitchDataRequestType.TrackQueueBySearchTerms:
+                        RequestUserQueueBeforeTrackQueuedBySearchTerms();
+                        break;
+
+                    case SpotifyTwitchDataRequestType.TrackQueueByTrackId:
+                        RequestUserQueueBeforeTrackQueuedByTrackId();
+                        break;
+
+                    case SpotifyTwitchDataRequestType.TrackSkip:
+                        RequestSkipToNext();
                         break;
 
                     default:
@@ -553,7 +939,6 @@ namespace Overlay
             );
         }
 
-        #region INTERNAL_HTTP_REQUESTS
         private void RequestAccessToken()
         {
             var headers = new List<string>()
@@ -621,7 +1006,7 @@ namespace Overlay
             );
         }
 
-        private void RequestTrackQueue()
+        private void RequestTrackQueueBySearchTerms()
         {
             var headers = new List<string>()
             {
@@ -632,7 +1017,22 @@ namespace Overlay
                 headers: headers,
                 method: Method.Get,
                 json: string.Empty,
-                requestCompletedHandler: OnTrackSearchCompleted
+                requestCompletedHandler: OnRequestTrackSearchCompleted
+            );
+        }
+
+        private void RequestTrackQueueByTrackId()
+        {
+            var headers = new List<string>()
+            {
+                $"Authorization: Bearer {m_spotifyAccessToken.AccessToken}",
+            };
+            m_httpManager.SendHttpRequest(
+                url: $"{c_urlAPI}/me/player/queue?uri={Uri.EscapeDataString(stringToEscape: $"spotify:track:{m_spotifyTwitchData.TrackId}")}",
+                headers: headers,
+                method: Method.Post,
+                json: string.Empty,
+                requestCompletedHandler: OnRequestTrackQueueCompleted
             );
         }
 
@@ -679,7 +1079,7 @@ namespace Overlay
                 headers: headers,
                 method: Method.Post,
                 json: string.Empty,
-                requestCompletedHandler: OnTrackQueueCompleted
+                requestCompletedHandler: OnRequestTrackQueueCompleted
             );
         }
 
@@ -693,14 +1093,57 @@ namespace Overlay
                      $"scope={Uri.EscapeDataString(c_userAccessScopes)}"
             );
         }
-        #endregion
+
+        private void RequestUserQueueBeforeTrackQueuedBySearchTerms()
+        {
+            var headers = new List<string>()
+            {
+                $"Authorization: Bearer {m_spotifyAccessToken.AccessToken}",
+            };
+            m_httpManager.SendHttpRequest(
+                url: $"{c_urlAPI}/me/player/queue",
+                headers: headers,
+                method: Method.Get,
+                json: string.Empty,
+                requestCompletedHandler: OnRequestUserQueueBeforeTrackQueuedBySearchTermsCompleted
+            );
+        }
+
+        private void RequestUserQueueBeforeTrackQueuedByTrackId()
+        {
+            var headers = new List<string>()
+            {
+                $"Authorization: Bearer {m_spotifyAccessToken.AccessToken}",
+            };
+            m_httpManager.SendHttpRequest(
+                url: $"{c_urlAPI}/me/player/queue",
+                headers: headers,
+                method: Method.Get,
+                json: string.Empty,
+                requestCompletedHandler: OnRequestUserQueueBeforeTrackQueuedByTrackIdCompleted
+            );
+        }
+
+        private void RequestUserQueueAfterTrackQueued()
+        {
+            var headers = new List<string>()
+            {
+                $"Authorization: Bearer {m_spotifyAccessToken.AccessToken}",
+            };
+            m_httpManager.SendHttpRequest(
+                url: $"{c_urlAPI}/me/player/queue",
+                headers: headers,
+                method: Method.Get,
+                json: string.Empty,
+                requestCompletedHandler: OnRequestUserQueueAfterTrackQueuedCompleted
+            );
+        }
 
         private void ResetSpotifyTwitchData()
         {
             m_spotifyTwitchData = null;
         }
 
-        #region INTERNAL_INITIALIZATION
         private void RetrieveResources()
         {
             var spotifyAccessTokenBody = ApplicationManager.ReadRequiredFile(
@@ -742,8 +1185,9 @@ namespace Overlay
             {
                 QueueAccessTokenRefresh();
             }
+
+            BindTwitchChannelPointRewards();
         }
-        #endregion
 
         private void SaveArtistAndTrackInTwitchData(
             SpotifyResponseTrack track    
@@ -762,7 +1206,6 @@ namespace Overlay
             m_spotifyTwitchData.TrackName = track.Name;
         }
 
-        #region INTERNAL_FILE_WRITE
         private void WriteAccessToken(
             SpotifyResponseAccessToken response,
             bool wasRefreshed
@@ -784,6 +1227,5 @@ namespace Overlay
                 )
             );
         }
-        #endregion
     }
 }

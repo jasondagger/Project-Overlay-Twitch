@@ -22,19 +22,31 @@ namespace Overlay
 			double delta
 		)
 		{
-			if (m_soundAlertsQueue.Count > 0u && m_isSoundAlertPlaying is false)
+			if (m_isSoundAlertPlaying is false)
 			{
-				var soundAlertType = m_soundAlertsQueue.Dequeue();
-				PlaySoundAlert(
-					soundAlertType: soundAlertType
-				);
-			}
+				SoundAlertType soundAlertType;
+                lock (m_soundAlertsQueueLock)
+                {
+					if (m_soundAlertsQueue.Count > 0u)
+					{
+                        soundAlertType = m_soundAlertsQueue.Dequeue();
+                    }
+					else
+					{
+						return;
+					}
+                }
+
+                PlaySoundAlert(
+                    soundAlertType: soundAlertType
+                );
+            }
 		}
 
 		public enum BusLayoutType : uint
 		{
 			Master = 0u,
-			SoundAlert
+			SoundAlert,
 		}
 
 		public enum SoundAlertType : uint
@@ -49,8 +61,6 @@ namespace Overlay
 			KegFuse,
 			Nice,
 		}
-
-		public Action ChangedSoundtrack = null;
 
 		public void PlayTextToSpeech(
 			string text
@@ -73,6 +83,7 @@ namespace Overlay
 
 		private readonly Dictionary<SoundAlertType, AudioStreamPlayer> m_soundAlerts = new();
 		private readonly Queue<SoundAlertType> m_soundAlertsQueue = new();
+		private readonly object m_soundAlertsQueueLock = new();
 
 		private bool m_isSoundAlertPlaying = false;
 		private string m_textToSpeechId = string.Empty;
@@ -80,26 +91,26 @@ namespace Overlay
 		private void BindTwitchChannelPointRewards()
 		{
 			var twitchChannelPointRewardsManager = GetNode<TwitchChannelPointRewardsManager>(
-				path: NodeDirectory.NodePaths[NodeType.TwitchChannelPointRewardsManager]
+				path: NodeDirectory.NodePaths[key: NodeType.TwitchChannelPointRewardsManager]
 			);
 
-			twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertApplause] = OnChannelPointRewardsRedeemedApplause;
-			twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertFirstBlood] = OnChannelPointRewardsRedeemedFirstBlood;
-			twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertGodlike] = OnChannelPointRewardsRedeemedGodlike;
-			twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertHeartbeat] = OnChannelPointRewardsRedeemedHeartbeat;
-			twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertHolyShit] = OnChannelPointRewardsRedeemedHolyShit;
-			twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertHowdy] = OnChannelPointRewardsRedeemedHowdy;
-			twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertKegExplosion] = OnChannelPointRewardsRedeemedKegExplosion;
-			twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertKegFuse] = OnChannelPointRewardsRedeemedKegFuse;
-			twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertNice] = OnChannelPointRewardsRedeemedNice;
+			twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[key: ChannelPointRewardsType.SoundAlertApplause] = OnChannelPointRewardsRedeemedApplause;
+			twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[key: ChannelPointRewardsType.SoundAlertFirstBlood] = OnChannelPointRewardsRedeemedFirstBlood;
+			twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[key: ChannelPointRewardsType.SoundAlertGodlike] = OnChannelPointRewardsRedeemedGodlike;
+			twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[key: ChannelPointRewardsType.SoundAlertHeartbeat] = OnChannelPointRewardsRedeemedHeartbeat;
+			twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[key: ChannelPointRewardsType.SoundAlertHolyShit] = OnChannelPointRewardsRedeemedHolyShit;
+			twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[key: ChannelPointRewardsType.SoundAlertHowdy] = OnChannelPointRewardsRedeemedHowdy;
+			twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[key: ChannelPointRewardsType.SoundAlertKegExplosion] = OnChannelPointRewardsRedeemedKegExplosion;
+			twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[key: ChannelPointRewardsType.SoundAlertKegFuse] = OnChannelPointRewardsRedeemedKegFuse;
+			twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[key: ChannelPointRewardsType.SoundAlertNice] = OnChannelPointRewardsRedeemedNice;
 
-			twitchChannelPointRewardsManager.RedeemableRewardsWithStringInput[ChannelPointRewardsType.TextToSpeech] = OnChannelPointRewardsRedeemedTextToSpeech;
+			twitchChannelPointRewardsManager.CommandTextToSpeedClaimed = OnChannelPointRewardsRedeemedTextToSpeech;
 		}
 
 		private void BindTwitchCheer()
 		{
 			var twitchManager = GetNode<TwitchManager>(
-				path: NodeDirectory.NodePaths[NodeType.TwitchManager]
+				path: NodeDirectory.NodePaths[key: NodeType.TwitchManager]
 			);
 
 			twitchManager.ChannelChatNotification += OnChannelChatNotification;
@@ -157,63 +168,63 @@ namespace Overlay
 
 		private void OnChannelPointRewardsRedeemedApplause()
 		{
-			m_soundAlertsQueue.Enqueue(
+			lock (m_soundAlertsQueueLock) m_soundAlertsQueue.Enqueue(
                 item: SoundAlertType.Applause
 			);
 		}
 
 		private void OnChannelPointRewardsRedeemedFirstBlood()
 		{
-			m_soundAlertsQueue.Enqueue(
+            lock (m_soundAlertsQueueLock) m_soundAlertsQueue.Enqueue(
                 item: SoundAlertType.FirstBlood
 			);
 		}
 
 		private void OnChannelPointRewardsRedeemedGodlike()
 		{
-			m_soundAlertsQueue.Enqueue(
+            lock (m_soundAlertsQueueLock) m_soundAlertsQueue.Enqueue(
                 item: SoundAlertType.Godlike
 			);
 		}
 
 		private void OnChannelPointRewardsRedeemedHeartbeat()
 		{
-			m_soundAlertsQueue.Enqueue(
+            lock (m_soundAlertsQueueLock) m_soundAlertsQueue.Enqueue(
                 item: SoundAlertType.Heartbeat
 			);
 		}
 
 		private void OnChannelPointRewardsRedeemedHolyShit()
 		{
-			m_soundAlertsQueue.Enqueue(
+            lock (m_soundAlertsQueueLock) m_soundAlertsQueue.Enqueue(
                 item: SoundAlertType.HolyShit
 			);
 		}
 
 		private void OnChannelPointRewardsRedeemedHowdy()
 		{
-			m_soundAlertsQueue.Enqueue(
+            lock (m_soundAlertsQueueLock) m_soundAlertsQueue.Enqueue(
                 item: SoundAlertType.Howdy
 			);
 		}
 
 		private void OnChannelPointRewardsRedeemedKegExplosion()
 		{
-			m_soundAlertsQueue.Enqueue(
+            lock (m_soundAlertsQueueLock) m_soundAlertsQueue.Enqueue(
                 item: SoundAlertType.KegExplosion
 			);
 		}
 
 		private void OnChannelPointRewardsRedeemedKegFuse()
 		{
-			m_soundAlertsQueue.Enqueue(
+            lock (m_soundAlertsQueueLock) m_soundAlertsQueue.Enqueue(
                 item: SoundAlertType.KegFuse
 			);
 		}
 
 		private void OnChannelPointRewardsRedeemedNice()
 		{
-			m_soundAlertsQueue.Enqueue(
+            lock (m_soundAlertsQueueLock) m_soundAlertsQueue.Enqueue(
 				item: SoundAlertType.Nice
 			);
 		}
@@ -231,7 +242,7 @@ namespace Overlay
 			SoundAlertType soundAlertType
 		)
 		{
-			var soundAlert = m_soundAlerts[soundAlertType];
+			var soundAlert = m_soundAlerts[key: soundAlertType];
 			soundAlert.Play();
 			m_isSoundAlertPlaying = true;
 

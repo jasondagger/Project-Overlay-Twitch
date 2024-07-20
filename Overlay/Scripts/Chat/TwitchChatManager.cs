@@ -10,7 +10,6 @@ namespace Overlay
     [SupportedOSPlatform(platformName: "windows")]
     public sealed partial class TwitchChatManager : Node
 	{
-        #region GODOT_INTRINSICS
         public override void _Ready()
 		{
 			RetrieveResources();
@@ -23,7 +22,6 @@ namespace Overlay
 			ProcessQueuedTwitchChatMessage();
 			ProcessQueuedTwitchChatMessageData();
 		}
-        #endregion
 
         public void AddTwitchChatMessage(
 			string username,
@@ -35,7 +33,6 @@ namespace Overlay
 			bool isSmoothGPT
 		)
 		{
-
             if (isSmoothGPT is false)
 			{
 				var isTwitchChatMessageLegal = IsTwitchChatMessageIllegal(
@@ -92,7 +89,6 @@ namespace Overlay
             }
         }
 
-        #region INTERNAL_VARIABLES_&_STRUCTURES
         private struct TwitchChatMessageData
 		{
 			public string Name = string.Empty;
@@ -195,9 +191,7 @@ namespace Overlay
 		private PastelInterpolator m_pastelInterpolator = null;
 		private TwitchManager m_twitchManager = null;
 		private int m_currentPixel = 0;
-        #endregion
 
-        #region INTERNAL_FLAGS
         private static bool IsTwitchChatMessageIllegal(
 			string message
         )
@@ -212,9 +206,7 @@ namespace Overlay
 				match is not null &&
                 match.Success is true;
 		}
-        #endregion
 
-        #region INTERNAL_EVENT_HANDLERS
         private void OnTwitchChatMessageDestroyed()
 		{
 			TwitchChatMessage oldestTwitchChatMessage;
@@ -252,9 +244,7 @@ namespace Overlay
 				);
             }
 		}
-        #endregion
 
-        #region INTERNAL_PROCESSORS
         private void ProcessQueuedTwitchChatMessage()
 		{
             TwitchChatMessage twitchChatMessage = null;
@@ -345,9 +335,7 @@ namespace Overlay
                 );
             }
 		}
-        #endregion
 
-        #region INTERNAL_INITIALIZATION
         private void RetrieveResources()
 		{
 			m_chatPivot = GetNode<Control>(
@@ -363,6 +351,5 @@ namespace Overlay
                 path: NodeDirectory.NodePaths[NodeType.TwitchManager]
 			);
 		}
-        #endregion
     }
 }

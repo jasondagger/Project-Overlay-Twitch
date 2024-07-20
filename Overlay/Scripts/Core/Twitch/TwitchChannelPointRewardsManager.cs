@@ -4,471 +4,471 @@ namespace Overlay
 	using Godot;
 	using System;
 	using System.Collections.Generic;
-	using NodeType = NodeDirectory.NodeType;
+	using ColorType = PastelInterpolator.ColorType;
+    using NodeType = NodeDirectory.NodeType;
 
-	public partial class TwitchChannelPointRewardsManager : Node
+	public sealed partial class TwitchChannelPointRewardsManager : Node
 	{
-		public override void _EnterTree()
+        public enum ChannelPointRewardsType : uint
+        {
+            CommandRequestSong = 0u,
+            CommandSkipSong,
+            CommandTextToSpeech,
+
+            IRLHydrate,
+            IRLPostureCheck,
+            IRLShowKitty,
+            IRLShowPuppy,
+            IRLStreeeeeetch,
+
+            SoundAlertApplause,
+            SoundAlertFirstBlood,
+            SoundAlertGodlike,
+            SoundAlertHeartbeat,
+            SoundAlertHolyShit,
+            SoundAlertHowdy,
+            SoundAlertKegExplosion,
+            SoundAlertKegFuse,
+            SoundAlertNice,
+        }
+
+        public struct ChannelPointRewardData
+        {
+            public ChannelPointRewardsType TwitchChannelPointRewardsType { get; set; } = ChannelPointRewardsType.SoundAlertApplause;
+            public string Id { get; set; } = string.Empty;
+
+            public ChannelPointRewardData(
+                ChannelPointRewardsType twitchChannelPointRewardsType,
+                string id
+            )
+            {
+                this.TwitchChannelPointRewardsType = twitchChannelPointRewardsType;
+                this.Id = id;
+            }
+        };
+
+        public struct ChannelPointReward
+        {
+            public string BackgroundColor { get; set; } = string.Empty;
+            public long Cost { get; set; } = 0;
+            public long GlobalCooldownSeconds { get; set; } = 0;
+            public bool IsEnabled { get; set; } = false;
+            public bool IsGlobalCooldownEnabled { get; set; } = false;
+            public bool IsMaxPerStreamEnabled { get; set; } = false;
+            public bool IsMaxPerUserPerStreamEnabled { get; set; } = false;
+            public bool IsPaused { get; set; } = false;
+            public bool IsUserInputRequired { get; set; } = false;
+            public long MaxPerStream { get; set; } = 0;
+            public long MaxPerUserPerStream { get; set; } = 0;
+            public string Prompt { get; set; } = string.Empty;
+            public bool ShouldRedemptionsSkipRequestQueue { get; set; } = false;
+            public string Title { get; set; } = string.Empty;
+
+            public ChannelPointReward(
+                string backgroundColor,
+                long cost,
+                long globalCooldownSeconds,
+                bool isEnabled,
+                bool isGlobalCooldownEnabled,
+                bool isMaxPerStreamEnabled,
+                bool isMaxPerUserPerStreamEnabled,
+                bool isPaused,
+                bool isUserInputRequired,
+                long maxPerStream,
+                long maxPerUserPerStream,
+                string prompt,
+                bool shouldRedemptionSkipRequestQueue,
+                string title
+            )
+            {
+                this.BackgroundColor = backgroundColor;
+                this.Cost = cost;
+                this.GlobalCooldownSeconds = globalCooldownSeconds;
+                this.IsEnabled = isEnabled;
+                this.IsGlobalCooldownEnabled = isGlobalCooldownEnabled;
+                this.IsMaxPerStreamEnabled = isMaxPerStreamEnabled;
+                this.IsMaxPerUserPerStreamEnabled = isMaxPerUserPerStreamEnabled;
+                this.IsPaused = isPaused;
+                this.IsUserInputRequired = isUserInputRequired;
+                this.MaxPerStream = maxPerStream;
+                this.MaxPerUserPerStream = maxPerUserPerStream;
+                this.Prompt = prompt;
+                this.ShouldRedemptionsSkipRequestQueue = shouldRedemptionSkipRequestQueue;
+                this.Title = title;
+            }
+        };
+
+        public readonly Dictionary<ChannelPointRewardsType, ChannelPointReward> TwitchChannelPointRewards = new()
+        {
+            {
+                ChannelPointRewardsType.CommandRequestSong,
+                new(
+                    backgroundColor:                  c_channelRewardPointColorTypes[ChannelRewardPointColorType.Command],
+                    cost:                             1000,
+                    globalCooldownSeconds:            0,
+                    isEnabled:                        true,
+                    isGlobalCooldownEnabled:          false,
+                    isMaxPerStreamEnabled:            false,
+                    isMaxPerUserPerStreamEnabled:     false,
+                    isPaused:                         false,
+                    isUserInputRequired:              true,
+                    maxPerStream:                     0,
+                    maxPerUserPerStream:              0,
+                    prompt:                           "Want to listen to something? Enter a spotify song url or try your luck searching!",
+                    shouldRedemptionSkipRequestQueue: false,
+                    title:                            c_channelRewardPointNames[ChannelPointRewardsType.CommandRequestSong]
+                )
+            },
+            {
+                ChannelPointRewardsType.CommandSkipSong,
+                new(
+                    backgroundColor:                  c_channelRewardPointColorTypes[ChannelRewardPointColorType.Command],
+                    cost:                             2000,
+                    globalCooldownSeconds:            5,
+                    isEnabled:                        true,
+                    isGlobalCooldownEnabled:          true,
+                    isMaxPerStreamEnabled:            false,
+                    isMaxPerUserPerStreamEnabled:     false,
+                    isPaused:                         false,
+                    isUserInputRequired:              false,
+                    maxPerStream:                     0,
+                    maxPerUserPerStream:              0,
+                    prompt:                           "Don't like what's playing? Skip it!",
+                    shouldRedemptionSkipRequestQueue: false,
+                    title:                            c_channelRewardPointNames[ChannelPointRewardsType.CommandSkipSong]
+                )
+            },
+            {
+                ChannelPointRewardsType.CommandTextToSpeech,
+                new(
+                    backgroundColor:                  c_channelRewardPointColorTypes[ChannelRewardPointColorType.Command],
+                    cost:                             1000,
+                    globalCooldownSeconds:            0,
+                    isEnabled:                        true,
+                    isGlobalCooldownEnabled:          false,
+                    isMaxPerStreamEnabled:            false,
+                    isMaxPerUserPerStreamEnabled:     false,
+                    isPaused:                         false,
+                    isUserInputRequired:              true,
+                    maxPerStream:                     0,
+                    maxPerUserPerStream:              0,
+                    prompt:                           "Have a good joke? Have AI read it for you outloud!",
+                    shouldRedemptionSkipRequestQueue: false,
+                    title:                            c_channelRewardPointNames[ChannelPointRewardsType.CommandTextToSpeech]
+                )
+            },
+            {
+                ChannelPointRewardsType.IRLHydrate,
+                new(
+                    backgroundColor:                  c_channelRewardPointColorTypes[ChannelRewardPointColorType.IRL],
+                    cost:                             50,
+                    globalCooldownSeconds:            60,
+                    isEnabled:                        true,
+                    isGlobalCooldownEnabled:          true,
+                    isMaxPerStreamEnabled:            false,
+                    isMaxPerUserPerStreamEnabled:     false,
+                    isPaused:                         false,
+                    isUserInputRequired:              false,
+                    maxPerStream:                     0,
+                    maxPerUserPerStream:              0,
+                    prompt:                           "Sips water..",
+                    shouldRedemptionSkipRequestQueue: false,
+                    title:                            c_channelRewardPointNames[ChannelPointRewardsType.IRLHydrate]
+                )
+            },
+            {
+                ChannelPointRewardsType.IRLPostureCheck,
+                new(
+                    backgroundColor:                  c_channelRewardPointColorTypes[ChannelRewardPointColorType.IRL],
+                    cost:                             50,
+                    globalCooldownSeconds:            60,
+                    isEnabled:                        true,
+                    isGlobalCooldownEnabled:          true,
+                    isMaxPerStreamEnabled:            false,
+                    isMaxPerUserPerStreamEnabled:     false,
+                    isPaused:                         false,
+                    isUserInputRequired:              false,
+                    maxPerStream:                     0,
+                    maxPerUserPerStream:              0,
+                    prompt:                           "Good posture is good habit.",
+                    shouldRedemptionSkipRequestQueue: false,
+                    title:                            c_channelRewardPointNames[ChannelPointRewardsType.IRLPostureCheck]
+                )
+            },
+            {
+                ChannelPointRewardsType.IRLShowKitty,
+                new(
+                    backgroundColor:                  c_channelRewardPointColorTypes[ChannelRewardPointColorType.IRL],
+                    cost:                             1500,
+                    globalCooldownSeconds:            300,
+                    isEnabled:                        true,
+                    isGlobalCooldownEnabled:          false,
+                    isMaxPerStreamEnabled:            false,
+                    isMaxPerUserPerStreamEnabled:     false,
+                    isPaused:                         false,
+                    isUserInputRequired:              false,
+                    maxPerStream:                     0,
+                    maxPerUserPerStream:              0,
+                    prompt:                           "Show the cutest of kitties! Disclaimer: May appear on stream anyways.",
+                    shouldRedemptionSkipRequestQueue: false,
+                    title:                            c_channelRewardPointNames[ChannelPointRewardsType.IRLShowKitty]
+                )
+            },
+            {
+                ChannelPointRewardsType.IRLShowPuppy,
+                new(
+                    backgroundColor:                  c_channelRewardPointColorTypes[ChannelRewardPointColorType.IRL],
+                    cost:                             2500,
+                    globalCooldownSeconds:            300,
+                    isEnabled:                        true,
+                    isGlobalCooldownEnabled:          false,
+                    isMaxPerStreamEnabled:            false,
+                    isMaxPerUserPerStreamEnabled:     false,
+                    isPaused:                         false,
+                    isUserInputRequired:              false,
+                    maxPerStream:                     0,
+                    maxPerUserPerStream:              0,
+                    prompt:                           "Show the goodest of puppies! Disclaimer: May appear on stream anyways.",
+                    shouldRedemptionSkipRequestQueue: false,
+                    title:                            c_channelRewardPointNames[ChannelPointRewardsType.IRLShowPuppy]
+                )
+            },
+            {
+                ChannelPointRewardsType.IRLStreeeeeetch,
+                new(
+                    backgroundColor:                  c_channelRewardPointColorTypes[ChannelRewardPointColorType.IRL],
+                    cost:                             50,
+                    globalCooldownSeconds:            60,
+                    isEnabled:                        true,
+                    isGlobalCooldownEnabled:          true,
+                    isMaxPerStreamEnabled:            false,
+                    isMaxPerUserPerStreamEnabled:     false,
+                    isPaused:                         false,
+                    isUserInputRequired:              false,
+                    maxPerStream:                     0,
+                    maxPerUserPerStream:              0,
+                    prompt:                           "Good streeeeeetch is best streeeeeetch!",
+                    shouldRedemptionSkipRequestQueue: false,
+                    title:                            c_channelRewardPointNames[ChannelPointRewardsType.IRLStreeeeeetch]
+                )
+            },
+            {
+                ChannelPointRewardsType.SoundAlertApplause,
+                new(
+                    backgroundColor:c_channelRewardPointColorTypes[ChannelRewardPointColorType.SoundAlert],
+                    cost:                             100,
+                    globalCooldownSeconds:            0,
+                    isEnabled:                        true,
+                    isGlobalCooldownEnabled:          false,
+                    isMaxPerStreamEnabled:            false,
+                    isMaxPerUserPerStreamEnabled:     false,
+                    isPaused:                         false,
+                    isUserInputRequired:              false,
+                    maxPerStream:                     0,
+                    maxPerUserPerStream:              0,
+                    prompt:                           "Nice round of applause for the chap on stream.",
+                    shouldRedemptionSkipRequestQueue: false,
+                    title:                            c_channelRewardPointNames[ChannelPointRewardsType.SoundAlertApplause]
+                )
+            },
+            {
+                ChannelPointRewardsType.SoundAlertFirstBlood,
+                new(
+                    backgroundColor:                  c_channelRewardPointColorTypes[ChannelRewardPointColorType.SoundAlert],
+                    cost:                             1,
+                    globalCooldownSeconds:            0,
+                    isEnabled:                        true,
+                    isGlobalCooldownEnabled:          false,
+                    isMaxPerStreamEnabled:            true,
+                    isMaxPerUserPerStreamEnabled:     false,
+                    isPaused:                         false,
+                    isUserInputRequired:              false,
+                    maxPerStream:                     1,
+                    maxPerUserPerStream:              0,
+                    prompt:                           "First is the worst, though.",
+                    shouldRedemptionSkipRequestQueue: false,
+                    title:                            c_channelRewardPointNames[ChannelPointRewardsType.SoundAlertFirstBlood]
+                )
+            },
+            {
+                ChannelPointRewardsType.SoundAlertGodlike,
+                new(
+                    backgroundColor:                  c_channelRewardPointColorTypes[ChannelRewardPointColorType.SoundAlert],
+                    cost:                             300,
+                    globalCooldownSeconds:            0,
+                    isEnabled:                        true,
+                    isGlobalCooldownEnabled:          false,
+                    isMaxPerStreamEnabled:            false,
+                    isMaxPerUserPerStreamEnabled:     false,
+                    isPaused:                         false,
+                    isUserInputRequired:              false,
+                    maxPerStream:                     0,
+                    maxPerUserPerStream:              0,
+                    prompt:                           "We're basically gods here.",
+                    shouldRedemptionSkipRequestQueue: false,
+                    title:                            c_channelRewardPointNames[ChannelPointRewardsType.SoundAlertGodlike]
+                )
+            },
+            {
+                ChannelPointRewardsType.SoundAlertHeartbeat,
+                new(
+                    backgroundColor:                  c_channelRewardPointColorTypes[ChannelRewardPointColorType.SoundAlert],
+                    cost:                             300,
+                    globalCooldownSeconds:            0,
+                    isEnabled:                        true,
+                    isGlobalCooldownEnabled:          false,
+                    isMaxPerStreamEnabled:            false,
+                    isMaxPerUserPerStreamEnabled:     false,
+                    isPaused:                         false,
+                    isUserInputRequired:              false,
+                    maxPerStream:                     0,
+                    maxPerUserPerStream:              0,
+                    prompt:                           "The beat goes on.",
+                    shouldRedemptionSkipRequestQueue: false,
+                    title:                            c_channelRewardPointNames[ChannelPointRewardsType.SoundAlertHeartbeat]
+                )
+            },
+            {
+                ChannelPointRewardsType.SoundAlertHolyShit,
+                new(
+                    backgroundColor:                  c_channelRewardPointColorTypes[ChannelRewardPointColorType.SoundAlert],
+                    cost:                             300,
+                    globalCooldownSeconds:            0,
+                    isEnabled:                        true,
+                    isGlobalCooldownEnabled:          false,
+                    isMaxPerStreamEnabled:            false,
+                    isMaxPerUserPerStreamEnabled:     false,
+                    isPaused:                         false,
+                    isUserInputRequired:              false,
+                    maxPerStream:                     0,
+                    maxPerUserPerStream:              0,
+                    prompt:                           "Even gods can poop.",
+                    shouldRedemptionSkipRequestQueue: false,
+                    title:                            c_channelRewardPointNames[ChannelPointRewardsType.SoundAlertHolyShit]
+                )
+            },
+            {
+                ChannelPointRewardsType.SoundAlertHowdy,
+                new(
+                    backgroundColor:                  c_channelRewardPointColorTypes[ChannelRewardPointColorType.SoundAlert],
+                    cost:                             50,
+                    globalCooldownSeconds:            0,
+                    isEnabled:                        true,
+                    isGlobalCooldownEnabled:          false,
+                    isMaxPerStreamEnabled:            false,
+                    isMaxPerUserPerStreamEnabled:     true,
+                    isPaused:                         false,
+                    isUserInputRequired:              false,
+                    maxPerStream:                     0,
+                    maxPerUserPerStream:              1,
+                    prompt:                           "Howdy, friend!",
+                    shouldRedemptionSkipRequestQueue: false,
+                    title:                            c_channelRewardPointNames[ChannelPointRewardsType.SoundAlertHowdy]
+                )
+            },
+            {
+                ChannelPointRewardsType.SoundAlertKegExplosion,
+                new(
+                    backgroundColor:                  c_channelRewardPointColorTypes[ChannelRewardPointColorType.SoundAlert],
+                    cost:                             300,
+                    globalCooldownSeconds:            0,
+                    isEnabled:                        true,
+                    isGlobalCooldownEnabled:          false,
+                    isMaxPerStreamEnabled:            false,
+                    isMaxPerUserPerStreamEnabled:     false,
+                    isPaused:                         false,
+                    isUserInputRequired:              false,
+                    maxPerStream:                     0,
+                    maxPerUserPerStream:              0,
+                    prompt:                           "Spontaneous exploderinos!",
+                    shouldRedemptionSkipRequestQueue: false,
+                    title:                            c_channelRewardPointNames[ChannelPointRewardsType.SoundAlertKegExplosion]
+                )
+            },
+            {
+                ChannelPointRewardsType.SoundAlertKegFuse,
+                new(
+                    backgroundColor:                  c_channelRewardPointColorTypes[ChannelRewardPointColorType.SoundAlert],
+                    cost:                             300,
+                    globalCooldownSeconds:            0,
+                    isEnabled:                        true,
+                    isGlobalCooldownEnabled:          false,
+                    isMaxPerStreamEnabled:            false,
+                    isMaxPerUserPerStreamEnabled:     false,
+                    isPaused:                         false,
+                    isUserInputRequired:              false,
+                    maxPerStream:                     0,
+                    maxPerUserPerStream:              0,
+                    prompt:                           "The suspense is killing me!",
+                    shouldRedemptionSkipRequestQueue: false,
+                    title:                            c_channelRewardPointNames[ChannelPointRewardsType.SoundAlertKegFuse]
+                )
+            },
+            {
+                ChannelPointRewardsType.SoundAlertNice,
+                new(
+                    backgroundColor:                  c_channelRewardPointColorTypes[ChannelRewardPointColorType.SoundAlert],
+                    cost:                             69,
+                    globalCooldownSeconds:            0,
+                    isEnabled:                        true,
+                    isGlobalCooldownEnabled:          false,
+                    isMaxPerStreamEnabled:            false,
+                    isMaxPerUserPerStreamEnabled:     true,
+                    isPaused:                         false,
+                    isUserInputRequired:              false,
+                    maxPerStream:                     0,
+                    maxPerUserPerStream:              1,
+                    prompt:                           "Is nice, no?",
+                    shouldRedemptionSkipRequestQueue: false,
+                    title:                            c_channelRewardPointNames[ChannelPointRewardsType.SoundAlertNice]
+                )
+            },
+        };
+
+        public readonly Dictionary<ChannelPointRewardsType, Action> RedeemableRewardsWithNoInput = new()
+        {
+            { ChannelPointRewardsType.IRLHydrate,             null },
+            { ChannelPointRewardsType.IRLPostureCheck,        null },
+            { ChannelPointRewardsType.IRLShowKitty,           null },
+            { ChannelPointRewardsType.IRLShowPuppy,           null },
+            { ChannelPointRewardsType.IRLStreeeeeetch,        null },
+            { ChannelPointRewardsType.SoundAlertApplause,     null },
+            { ChannelPointRewardsType.SoundAlertFirstBlood,   null },
+            { ChannelPointRewardsType.SoundAlertGodlike,      null },
+            { ChannelPointRewardsType.SoundAlertHeartbeat,    null },
+            { ChannelPointRewardsType.SoundAlertHolyShit,     null },
+            { ChannelPointRewardsType.SoundAlertHowdy,        null },
+            { ChannelPointRewardsType.SoundAlertKegExplosion, null },
+            { ChannelPointRewardsType.SoundAlertKegFuse,      null },
+            { ChannelPointRewardsType.SoundAlertNice,         null },
+        };
+        public Action<string, string> CommandRequestSongClaimed = null;
+        public Action<string> CommandSkipSongClaimed = null;
+        public Action<string> CommandTextToSpeedClaimed = null;
+
+        public override void _EnterTree()
 		{
 			SubscribeToTwitchEvents();
 		}
-
-		public enum ChannelPointRewardsType : uint
-		{
-			CommandRequestSong = 0u,
-
-			IRLHydrate,
-			IRLNoCursing,
-			IRLPostureCheck,
-			IRLShowKitty,
-			IRLShowPuppy,
-			IRLStreeeeeetch,
-
-			SoundAlertApplause,
-			SoundAlertFirstBlood,
-			SoundAlertGodlike,
-			SoundAlertHeartbeat,
-			SoundAlertHolyShit,
-			SoundAlertHowdy,
-			SoundAlertKegExplosion,
-			SoundAlertKegFuse,
-			SoundAlertNice,
-
-			TextToSpeech,
-		}
-
-		public struct ChannelPointRewardData
-		{
-			public ChannelPointRewardsType TwitchChannelPointRewardsType = ChannelPointRewardsType.SoundAlertApplause;
-			public string Id = string.Empty;
-
-			public ChannelPointRewardData(
-				ChannelPointRewardsType twitchChannelPointRewardsType,
-				string id
-			)
-			{
-				this.TwitchChannelPointRewardsType = twitchChannelPointRewardsType;
-				this.Id = id;
-			}
-		};
-
-		public struct ChannelPointReward
-		{
-			public string BackgroundColor = string.Empty;
-			public long Cost = 0;
-			public long GlobalCooldownSeconds = 0;
-			public bool IsEnabled = false;
-			public bool IsGlobalCooldownEnabled = false;
-			public bool IsMaxPerStreamEnabled = false;
-			public bool IsMaxPerUserPerStreamEnabled = false;
-			public bool IsPaused = false;
-			public bool IsUserInputRequired = false;
-			public long MaxPerStream = 0;
-			public long MaxPerUserPerStream = 0;
-			public string Prompt = string.Empty;
-			public bool ShouldRedemptionsSkipRequestQueue = false;
-			public string Title = string.Empty;
-
-			public ChannelPointReward(
-				string backgroundColor,
-				long cost,
-				long globalCooldownSeconds,
-				bool isEnabled,
-				bool isGlobalCooldownEnabled,
-				bool isMaxPerStreamEnabled,
-				bool isMaxPerUserPerStreamEnabled,
-				bool isPaused,
-				bool isUserInputRequired,
-				long maxPerStream,
-				long maxPerUserPerStream,
-				string prompt,
-				bool shouldRedemptionSkipRequestQueue,
-				string title
-			)
-			{
-				this.BackgroundColor = backgroundColor;
-				this.Cost = cost;
-				this.GlobalCooldownSeconds = globalCooldownSeconds;
-				this.IsEnabled = isEnabled;
-				this.IsGlobalCooldownEnabled = isGlobalCooldownEnabled;
-				this.IsMaxPerStreamEnabled = isMaxPerStreamEnabled;
-				this.IsMaxPerUserPerStreamEnabled = isMaxPerUserPerStreamEnabled;
-				this.IsPaused = isPaused;
-				this.IsUserInputRequired = isUserInputRequired;
-				this.MaxPerStream = maxPerStream;
-				this.MaxPerUserPerStream = maxPerUserPerStream;
-				this.Prompt = prompt;
-				this.ShouldRedemptionsSkipRequestQueue = shouldRedemptionSkipRequestQueue;
-				this.Title = title;
-			}
-		};
-
-		public readonly Dictionary<ChannelPointRewardsType, ChannelPointReward> TwitchChannelPointRewards = new()
-		{
-			{
-				ChannelPointRewardsType.CommandRequestSong,
-				new(
-					c_channelRewardPointColorTypes[ChannelRewardPointColorType.Command],
-					1000,
-					0,
-					false,
-					false,
-					false,
-					false,
-					false,
-					false,
-					0,
-					0,
-					string.Empty,
-					false,
-					c_channelRewardPointNames[ChannelPointRewardsType.CommandRequestSong]
-				)
-			},
-			{
-				ChannelPointRewardsType.IRLHydrate,
-				new(
-					c_channelRewardPointColorTypes[ChannelRewardPointColorType.IRL],
-					300,
-					120,
-					true,
-					true,
-					false,
-					false,
-					false,
-					false,
-					0,
-					0,
-					"Sips water..",
-					false,
-					c_channelRewardPointNames[ChannelPointRewardsType.IRLHydrate]
-				)
-			},
-			{
-				ChannelPointRewardsType.IRLNoCursing,
-				new(
-					c_channelRewardPointColorTypes[ChannelRewardPointColorType.IRL],
-					1000,
-					900,
-					true,
-					true,
-					false,
-					false,
-					false,
-					false,
-					0,
-					0,
-					"Cursing is bad, don't do it.",
-					false,
-					c_channelRewardPointNames[ChannelPointRewardsType.IRLNoCursing]
-				)
-			},
-			{
-				ChannelPointRewardsType.IRLPostureCheck,
-				new(
-					c_channelRewardPointColorTypes[ChannelRewardPointColorType.IRL],
-					300,
-					300,
-					true,
-					true,
-					false,
-					false,
-					false,
-					false,
-					0,
-					0,
-					"Good posture is good habit.",
-					false,
-					c_channelRewardPointNames[ChannelPointRewardsType.IRLPostureCheck]
-				)
-			},
-			{
-				ChannelPointRewardsType.IRLShowKitty,
-				new(
-					c_channelRewardPointColorTypes[ChannelRewardPointColorType.IRL],
-					1500,
-					0,
-					true,
-					false,
-					false,
-					false,
-					false,
-					false,
-					0,
-					0,
-					"Show the cutest of kitties! Disclaimer: May appear on stream anyways.",
-					false,
-					c_channelRewardPointNames[ChannelPointRewardsType.IRLShowKitty]
-				)
-			},
-			{
-				ChannelPointRewardsType.IRLShowPuppy,
-				new(
-					c_channelRewardPointColorTypes[ChannelRewardPointColorType.IRL],
-					1500,
-					0,
-					true,
-					false,
-					false,
-					false,
-					false,
-					false,
-					0,
-					0,
-					"Show the goodest of puppies! Disclaimer: May appear on stream anyways.",
-					false,
-					c_channelRewardPointNames[ChannelPointRewardsType.IRLShowPuppy]
-				)
-			},
-			{
-				ChannelPointRewardsType.IRLStreeeeeetch,
-				new(
-					c_channelRewardPointColorTypes[ChannelRewardPointColorType.IRL],
-					300,
-					300,
-					true,
-					true,
-					false,
-					false,
-					false,
-					false,
-					0,
-					0,
-					"Good streeeeeetch is best streeeeeetch!",
-					false,
-					c_channelRewardPointNames[ChannelPointRewardsType.IRLStreeeeeetch]
-				)
-			},
-			{
-				ChannelPointRewardsType.SoundAlertApplause,
-				new(
-					c_channelRewardPointColorTypes[ChannelRewardPointColorType.SoundAlert],
-					300,
-					0,
-					true,
-					false,
-					false,
-					false,
-					false,
-					false,
-					0,
-					0,
-					"Nice round of applause for the chap on stream.",
-					false,
-					c_channelRewardPointNames[ChannelPointRewardsType.SoundAlertApplause]
-				)
-			},
-			{
-				ChannelPointRewardsType.SoundAlertFirstBlood,
-				new(
-					c_channelRewardPointColorTypes[ChannelRewardPointColorType.SoundAlert],
-					1,
-					0,
-					true,
-					false,
-					true,
-					false,
-					false,
-					false,
-					1,
-					0,
-					"First is the worst, though.",
-					false,
-					c_channelRewardPointNames[ChannelPointRewardsType.SoundAlertFirstBlood]
-				)
-			},
-			{
-				ChannelPointRewardsType.SoundAlertGodlike,
-				new(
-					c_channelRewardPointColorTypes[ChannelRewardPointColorType.SoundAlert],
-					500,
-					0,
-					true,
-					false,
-					false,
-					false,
-					false,
-					false,
-					0,
-					0,
-					"We're basically gods here.",
-					false,
-					c_channelRewardPointNames[ChannelPointRewardsType.SoundAlertGodlike]
-				)
-			},
-			{
-				ChannelPointRewardsType.SoundAlertHeartbeat,
-				new(
-					c_channelRewardPointColorTypes[ChannelRewardPointColorType.SoundAlert],
-					300,
-					0,
-					true,
-					false,
-					false,
-					false,
-					false,
-					false,
-					0,
-					0,
-					"The beat goes on.",
-					false,
-					c_channelRewardPointNames[ChannelPointRewardsType.SoundAlertHeartbeat]
-				)
-			},
-			{
-				ChannelPointRewardsType.SoundAlertHolyShit,
-				new(
-					c_channelRewardPointColorTypes[ChannelRewardPointColorType.SoundAlert],
-					500,
-					0,
-					true,
-					false,
-					false,
-					false,
-					false,
-					false,
-					0,
-					0,
-					"Even gods can poop.",
-					false,
-					c_channelRewardPointNames[ChannelPointRewardsType.SoundAlertHolyShit]
-				)
-			},
-			{
-				ChannelPointRewardsType.SoundAlertHowdy,
-				new(
-					c_channelRewardPointColorTypes[ChannelRewardPointColorType.SoundAlert],
-					50,
-					0,
-					true,
-					false,
-					false,
-					true,
-					false,
-					false,
-					0,
-					1,
-					"Howdy, friend!",
-					false,
-					c_channelRewardPointNames[ChannelPointRewardsType.SoundAlertHowdy]
-				)
-			},
-			{
-				ChannelPointRewardsType.SoundAlertKegExplosion,
-				new(
-					c_channelRewardPointColorTypes[ChannelRewardPointColorType.SoundAlert],
-					500,
-					0,
-					true,
-					false,
-					false,
-					false,
-					false,
-					false,
-					0,
-					0,
-					"Spontaneous exploderinos!",
-					false,
-					c_channelRewardPointNames[ChannelPointRewardsType.SoundAlertKegExplosion]
-				)
-			},
-			{
-				ChannelPointRewardsType.SoundAlertKegFuse,
-				new(
-					c_channelRewardPointColorTypes[ChannelRewardPointColorType.SoundAlert],
-					500,
-					0,
-					true,
-					false,
-					false,
-					false,
-					false,
-					false,
-					0,
-					0,
-					"The suspense is killing me!",
-					false,
-					c_channelRewardPointNames[ChannelPointRewardsType.SoundAlertKegFuse]
-				)
-			},
-			{
-				ChannelPointRewardsType.SoundAlertNice,
-				new(
-					c_channelRewardPointColorTypes[ChannelRewardPointColorType.SoundAlert],
-					69,
-					0,
-					true,
-					false,
-					false,
-					true,
-					false,
-					false,
-					0,
-					1,
-					"Is nice, no?",
-					false,
-					c_channelRewardPointNames[ChannelPointRewardsType.SoundAlertNice]
-				)
-			},
-			{
-				ChannelPointRewardsType.TextToSpeech,
-				new(
-					c_channelRewardPointColorTypes[ChannelRewardPointColorType.TextToSpeech],
-					2000,
-					5,
-					true,
-					true,
-					false,
-					false,
-					false,
-					true,
-					0,
-					0,
-					"What would you like to hear?",
-					false,
-					c_channelRewardPointNames[ChannelPointRewardsType.TextToSpeech]
-				)
-			},
-		};
-
-		public readonly Dictionary<ChannelPointRewardsType, Action> RedeemableRewardsWithNoInput = new()
-		{
-			{ ChannelPointRewardsType.IRLHydrate,             null },
-			{ ChannelPointRewardsType.IRLNoCursing,           null },
-			{ ChannelPointRewardsType.IRLPostureCheck,        null },
-			{ ChannelPointRewardsType.IRLShowKitty,           null },
-			{ ChannelPointRewardsType.IRLShowPuppy,           null },
-			{ ChannelPointRewardsType.IRLStreeeeeetch,        null },
-			{ ChannelPointRewardsType.SoundAlertApplause,     null },
-			{ ChannelPointRewardsType.SoundAlertFirstBlood,   null },
-			{ ChannelPointRewardsType.SoundAlertGodlike,      null },
-			{ ChannelPointRewardsType.SoundAlertHeartbeat,    null },
-			{ ChannelPointRewardsType.SoundAlertHolyShit,     null },
-			{ ChannelPointRewardsType.SoundAlertHowdy,        null },
-			{ ChannelPointRewardsType.SoundAlertKegExplosion, null },
-			{ ChannelPointRewardsType.SoundAlertKegFuse,      null },
-			{ ChannelPointRewardsType.SoundAlertNice,         null },
-		};
-
-		public readonly Dictionary<ChannelPointRewardsType, Action<string>> RedeemableRewardsWithStringInput = new()
-		{
-			{ ChannelPointRewardsType.CommandRequestSong, null },
-			{ ChannelPointRewardsType.TextToSpeech,       null },
-		};
 
 		public void ClaimReward(
 			string username,
 			string id
 		)
 		{
-			for (var i = 0; i < m_pendingUserRewards[username].Count; i++)
+			for (var i = 0; i < m_pendingUserRewards[key: username].Count; i++)
 			{
-				if (m_pendingUserRewards[username][i].Id == id)
+				if (
+					m_pendingUserRewards[key: username][index: i].Id.Equals(
+						value: id
+					) is true
+				)
 				{
-					m_pendingUserRewards[username].RemoveAt(
+					m_pendingUserRewards[key: username].RemoveAt(
 						index: i
 					);
 
-					if (m_pendingUserRewards[username].Count == 0)
+					if (m_pendingUserRewards[key: username].Count is 0)
 					{
 						m_pendingUserRewards.Remove(
 							key: username
@@ -481,7 +481,7 @@ namespace Overlay
 
 		public List<ChannelPointRewardData> GetPendingRewards()
 		{
-			List<ChannelPointRewardData> pendingChannelPointRewardDatas = new();
+			var pendingChannelPointRewardDatas = new List<ChannelPointRewardData>();
 
 			foreach (var pendingUserRewards in m_pendingUserRewards)
 			{
@@ -498,9 +498,13 @@ namespace Overlay
 			ChannelPointRewardsType channelPointRewardsType
 		)
 		{
-			foreach (var channelPointRewardData in m_pendingUserRewards[username])
+			foreach (var channelPointRewardData in m_pendingUserRewards[key: username])
 			{
-				if (channelPointRewardData.TwitchChannelPointRewardsType == channelPointRewardsType)
+				if (
+					channelPointRewardData.TwitchChannelPointRewardsType.Equals(
+						obj: channelPointRewardsType
+					) is true
+				)
 				{
 					return channelPointRewardData.Id;
 				}
@@ -517,12 +521,16 @@ namespace Overlay
 			if (
 				m_pendingUserRewards.ContainsKey(
 					key: username
-				)
+				) is true
 			)
 			{
-				foreach (var channelPointRewardData in m_pendingUserRewards[username])
+				foreach (var channelPointRewardData in m_pendingUserRewards[key: username])
 				{
-					if (channelPointRewardData.TwitchChannelPointRewardsType == channelPointRewardsType)
+					if (
+						channelPointRewardData.TwitchChannelPointRewardsType.Equals(
+							obj: channelPointRewardsType
+						) is true
+					)
 					{
 						return true;
 					}
@@ -532,7 +540,7 @@ namespace Overlay
 			return false;
 		}
 
-		public ChannelPointRewardsType GetRewardTypeByName(
+		public static ChannelPointRewardsType GetRewardTypeByName(
 			string rewardName
 		)
 		{
@@ -552,22 +560,20 @@ namespace Overlay
 			Command = 0u,
 			IRL,
 			SoundAlert,
-			TextToSpeech,
 		}
 
 		private static readonly Dictionary<ChannelRewardPointColorType, string> c_channelRewardPointColorTypes = new()
 		{
-			{ ChannelRewardPointColorType.Command,      "#FFA9FF" },
-			{ ChannelRewardPointColorType.IRL,          "#FFFFA9" },
-			{ ChannelRewardPointColorType.SoundAlert,   "#A9FFFF" },
-			{ ChannelRewardPointColorType.TextToSpeech, "#FFA9A9" },
+			{ ChannelRewardPointColorType.Command,    $"#{PastelInterpolator.GetColorAsHexByColorType(colorType: ColorType.Magenta)}" },
+			{ ChannelRewardPointColorType.IRL,        $"#{PastelInterpolator.GetColorAsHexByColorType(colorType: ColorType.Yellow)}" },
+			{ ChannelRewardPointColorType.SoundAlert, $"#{PastelInterpolator.GetColorAsHexByColorType(colorType: ColorType.Cyan)}" },
 		};
-
 		private static readonly Dictionary<ChannelPointRewardsType, string> c_channelRewardPointNames = new()
 		{
 			{ ChannelPointRewardsType.CommandRequestSong,     "Command: Request Song"      },
-			{ ChannelPointRewardsType.IRLHydrate,             "IRL: Hydrate"               },
-			{ ChannelPointRewardsType.IRLNoCursing,           "IRL: No Cursing"            },
+			{ ChannelPointRewardsType.CommandSkipSong,        "Command: Skip Song"         },
+            { ChannelPointRewardsType.CommandTextToSpeech,    "Command: Text To Speech"    },
+            { ChannelPointRewardsType.IRLHydrate,             "IRL: Hydrate"               },
 			{ ChannelPointRewardsType.IRLPostureCheck,        "IRL: Posture Check"         },
 			{ ChannelPointRewardsType.IRLShowKitty,           "IRL: Show Kitty"            },
 			{ ChannelPointRewardsType.IRLShowPuppy,           "IRL: Show Puppy"            },
@@ -581,7 +587,6 @@ namespace Overlay
 			{ ChannelPointRewardsType.SoundAlertKegExplosion, "Sound Alert: Keg Explosion" },
 			{ ChannelPointRewardsType.SoundAlertKegFuse,      "Sound Alert: Keg Fuse"      },
 			{ ChannelPointRewardsType.SoundAlertNice,         "Sound Alert: Nice"          },
-			{ ChannelPointRewardsType.TextToSpeech,           "Text To Speech"             },
 		};
 
 		private readonly Dictionary<string, List<ChannelPointRewardData>> m_pendingUserRewards = new();
@@ -589,7 +594,7 @@ namespace Overlay
 		private void SubscribeToTwitchEvents()
 		{
 			var twitchManager = GetNode<TwitchManager>(
-				path: NodeDirectory.NodePaths[NodeType.TwitchManager]
+				path: NodeDirectory.NodePaths[key: NodeType.TwitchManager]
 			);
 
 			twitchManager.ChannelPointsCustomRewardRedeemed += OnChannelPointsCustomRewardRedemptionAdded;
@@ -602,17 +607,26 @@ namespace Overlay
 			switch (@event.Reward.Title)
 			{
 				case "Command: Request Song":
-					RedeemableRewardsWithStringInput[ChannelPointRewardsType.CommandRequestSong]?.Invoke(
-						@event.UserInput
+                    CommandRequestSongClaimed?.Invoke(
+						@event.UserInput,
+                        @event.Username
 					);
 					break;
 
-				case "IRL: Hydrate":
-					RedeemableRewardsWithNoInput[ChannelPointRewardsType.IRLHydrate]?.Invoke();
-					break;
+                case "Command: Skip Song":
+                    CommandSkipSongClaimed?.Invoke(
+                        @event.Username
+                    );
+                    break;
 
-				case "IRL: No Cursing":
-					RedeemableRewardsWithNoInput[ChannelPointRewardsType.IRLNoCursing]?.Invoke();
+                case "Command: Text To Speech":
+                    CommandTextToSpeedClaimed?.Invoke(
+                        @event.UserInput
+                    );
+                    break;
+
+                case "IRL: Hydrate":
+					RedeemableRewardsWithNoInput[ChannelPointRewardsType.IRLHydrate]?.Invoke();
 					break;
 
 				case "IRL: Posture Check":
@@ -659,12 +673,6 @@ namespace Overlay
 					RedeemableRewardsWithNoInput[ChannelPointRewardsType.SoundAlertNice]?.Invoke();
 					break;
 
-				case "Text To Speech":
-					RedeemableRewardsWithStringInput[ChannelPointRewardsType.TextToSpeech]?.Invoke(
-						@event.UserInput
-					);
-					break;
-
 				default:
 					break;
 			}
@@ -677,21 +685,21 @@ namespace Overlay
 		)
 		{
 			if (
-				!m_pendingUserRewards.ContainsKey(
-					username
-				)
+				m_pendingUserRewards.ContainsKey(
+					key: username
+				) is false
 			)
 			{
 				m_pendingUserRewards.Add(
-					username,
-					new()
+					key: username,
+					value: new()
 				);
 			}
 
 			m_pendingUserRewards[username].Add(
-				new(
-					channelPointRewardsType,
-					channelPointRewardsId
+				item: new(
+					twitchChannelPointRewardsType: channelPointRewardsType,
+					id: channelPointRewardsId
 				)
 			);
 		}

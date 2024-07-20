@@ -46,9 +46,9 @@ namespace Overlay
 		public override void _EnterTree()
 		{
 			RetrieveResources();
-		}
+        }
 
-		public override void _ExitTree()
+        public override void _ExitTree()
 		{
 			m_shutdown = true;
 		}
@@ -154,6 +154,9 @@ namespace Overlay
 			RequestFollowers(
 				pageId: string.Empty
 			);
+			RequestModerators(
+                pageId: string.Empty
+            );
 			RequestSubscribers(
 				pageId: string.Empty
 			);
@@ -164,7 +167,12 @@ namespace Overlay
 			return m_channelFollowers;
 		}
 
-		public Dictionary<string, TwitchResponseUsersSubscribersData> GetChannelSubscribers()
+        public Dictionary<string, TwitchResponseUsersModeratorsData> GetChannelModerators()
+        {
+            return m_channelModerators;
+        }
+
+        public Dictionary<string, TwitchResponseUsersSubscribersData> GetChannelSubscribers()
 		{
 			return m_channelSubscribers;
 		}
@@ -232,23 +240,23 @@ namespace Overlay
 
         private static readonly Dictionary<ChannelPointRewardType, string> m_channelPointRewardIds = new()
         {
-            { ChannelPointRewardType.CommandRequestSong,     "dfab89a2-0015-4a1e-9cb2-456fcc5e452b" },
-            { ChannelPointRewardType.IRLHydrate,             "583a4ba8-ed2d-45c7-820a-588a0c2e8a15" },
-            { ChannelPointRewardType.IRLNoCursing,           "41628d62-a144-4bad-98be-99f0dabcdd02" },
-            { ChannelPointRewardType.IRLPostureCheck,        "21bf998e-41e3-45ec-9d28-f54c3de85f41" },
-            { ChannelPointRewardType.IRLShowKitty,           "fd3f5dc7-7c13-48eb-8fc6-c20c189d7788" },
-            { ChannelPointRewardType.IRLShowPuppy,           "9fdb73b2-ad6d-489f-be2e-ee87932918d4" },
-            { ChannelPointRewardType.IRLStreeeeeetch,        "938ea7ec-506e-4dbb-8122-59f913069ba3" },
-            { ChannelPointRewardType.SoundAlertApplause,     "265e1208-03db-41ec-96b9-9606b02272aa" },
-            { ChannelPointRewardType.SoundAlertFirstBlood,   "ec7e240c-ce14-4a9f-abaa-d5a70733ac4a" },
-            { ChannelPointRewardType.SoundAlertGodlike,      "7afe008e-9f04-4b6d-a1ac-a2d605387789" },
-            { ChannelPointRewardType.SoundAlertHeartbeat,    "40931e72-0530-43e1-a4e3-565c053c41a7" },
-            { ChannelPointRewardType.SoundAlertHolyShit,     "41ddd4ce-a65a-4089-88e5-0ae3ab75f20b" },
-            { ChannelPointRewardType.SoundAlertHowdy,        "a0586a0f-a24f-4d43-8e5a-7e79b267a9ff" },
-            { ChannelPointRewardType.SoundAlertKegExplosion, "eead1d30-b76c-40f9-9454-7872944d4281" },
-            { ChannelPointRewardType.SoundAlertKegFuse,      "94e3188e-51af-4377-9815-cb8b385f669e" },
-            { ChannelPointRewardType.SoundAlertNice,         "162c662b-e007-49d0-b91c-0fccd8ba9f3b" },
-            { ChannelPointRewardType.TextToSpeech,           "fef9d5e7-6482-4bf5-82cf-f63a5cb08118" },
+            { ChannelPointRewardType.CommandRequestSong,     "7d97527b-4273-4dea-b459-57ff7c2c733c" },
+            { ChannelPointRewardType.CommandSkipSong,        "4846d1ff-cd6c-4003-8ca8-55a5b6c77bb5" },
+            { ChannelPointRewardType.CommandTextToSpeech,    "6f25eefb-f4d9-4f9c-aeb9-8f03fa5218d5" },
+            { ChannelPointRewardType.IRLHydrate,             "af4cc25f-69e6-4ba9-8305-4607405c452b" },
+            { ChannelPointRewardType.IRLPostureCheck,        "99d81eb9-8666-4b14-b9cc-6599dc4622b5" },
+            { ChannelPointRewardType.IRLShowKitty,           "d2fb0d25-f8a9-4954-bbaf-26518ddda3f0" },
+            { ChannelPointRewardType.IRLShowPuppy,           "11f60d29-25aa-4f77-b1ea-c98ed235c2a5" },
+            { ChannelPointRewardType.IRLStreeeeeetch,        "d00329d6-641f-40f3-b6d0-62d2e2d19b8c" },
+            { ChannelPointRewardType.SoundAlertApplause,     "8e568083-bd18-4b64-a8fc-82bbc8d9592c" },
+            { ChannelPointRewardType.SoundAlertFirstBlood,   "5d9d0dc4-ddbd-42f2-95a0-3baa8134c3d0" },
+            { ChannelPointRewardType.SoundAlertGodlike,      "5c5eada6-c92f-43f9-ac78-179eebe395d8" },
+            { ChannelPointRewardType.SoundAlertHeartbeat,    "2a8d8760-cec7-45e2-98bb-f6f529eed596" },
+            { ChannelPointRewardType.SoundAlertHolyShit,     "c31f5531-6b50-46c6-81c5-196183f20ed5" },
+            { ChannelPointRewardType.SoundAlertHowdy,        "f928abd1-b242-4b3b-b7b2-a1afd01ec166" },
+            { ChannelPointRewardType.SoundAlertKegExplosion, "142fcecf-cc8e-44b0-ba32-ed9f9de92e0f" },
+            { ChannelPointRewardType.SoundAlertKegFuse,      "45be47a8-00fb-416e-bfb6-dad659652793" },
+            { ChannelPointRewardType.SoundAlertNice,         "ac30f8a9-4517-4b62-abd5-fc2132ab3e53" },
         };
         private static readonly HashSet<string> c_twitchChannelBadges = new()
         {
@@ -258,7 +266,7 @@ namespace Overlay
 
         private const string c_urlAPI = "https://api.twitch.tv/helix";
 		private const string c_urlOAuth = "https://id.twitch.tv/oauth2/token";
-		private const string c_userAccessScopes = "bits:read channel:read:subscriptions channel:manage:redemptions moderator:read:followers user:read:chat";
+		private const string c_userAccessScopes = "bits:read channel:read:subscriptions channel:manage:redemptions moderation:read moderator:read:followers user:read:chat";
 
         private const string c_webSocketAddress = "wss://eventsub.wss.twitch.tv/ws";
 		private const char c_twitchUTCSuffix = 'S';
@@ -285,8 +293,9 @@ namespace Overlay
 			}
 		}
 
-        private readonly Dictionary<string, TwitchResponseUsersSubscribersData> m_channelSubscribers = new();
         private readonly Dictionary<string, TwitchResponseChannelFollowersData> m_channelFollowers = new();
+        private readonly Dictionary<string, TwitchResponseUsersModeratorsData> m_channelModerators = new();
+        private readonly Dictionary<string, TwitchResponseUsersSubscribersData> m_channelSubscribers = new();
 		private readonly List<TwitchResponseUsersSubscribersData> m_giftedSubscribers = new();
 		private readonly Dictionary<string, TwitchResponseUser> m_users = new();
 		private readonly Queue<TwitchMessage> m_messageQueue = new();
@@ -742,7 +751,7 @@ namespace Overlay
 			byte[] body
 		)
 		{
-			if (
+            if (
 				HttpManager.IsResponseCodeSuccessful(
 					responseCode: responseCode
 				)
@@ -762,14 +771,14 @@ namespace Overlay
 					)
 				);
 
-				var channelRewardType = m_twitchChannelPointRewardsManager.GetRewardTypeByName(
+				var channelRewardType = TwitchChannelPointRewardsManager.GetRewardTypeByName(
 					rewardName: twitchResponse.Data[0].Title
 				);
 				m_channelPointRewardIds[channelRewardType] = twitchResponse.Data[0].Id;
 
 #if DEBUG
 				GD.Print(
-					what: $"{channelRewardType} Id: {m_channelPointRewardIds[channelRewardType]}"
+					what: $"{channelRewardType} Id: {m_channelPointRewardIds[key: channelRewardType]}"
 				);
 #endif
 			}
@@ -1096,7 +1105,71 @@ namespace Overlay
 			}
 		}
 
-		private void OnRequestOAuthCompleted(
+        private void OnRequestModeratorsCompleted(
+		    long result,
+		    long responseCode,
+		    string[] headers,
+		    byte[] body
+		)
+        {
+            if (
+                HttpManager.IsResponseCodeSuccessful(
+                    responseCode: responseCode
+                ) is true
+            )
+            {
+#if DEBUG
+                GD.Print(
+                    what: $"{nameof(TwitchManager)}.{nameof(OnRequestModeratorsCompleted)}() - Web request {responseCode} POST successful."
+                );
+#endif
+
+                var twitchResponse = JsonSerializer.Deserialize<TwitchResponseUsersModerators>(
+                    json: Encoding.UTF8.GetString(
+                        bytes: body,
+                        index: 0,
+                        count: body.Length
+                    )
+                );
+
+                foreach (var data in twitchResponse.Data)
+                {
+                    m_channelModerators.Add(
+                        key: data.UserLogin,
+                        value: data
+                    );
+                }
+
+                if (
+					twitchResponse.Pagination.Cursor.Equals(
+						value: string.Empty
+					) is false
+				)
+                {
+                    RequestModerators(
+                        pageId: twitchResponse.Pagination.Cursor
+                    );
+                }
+                else
+                {
+#if DEBUG
+                    GD.Print(
+                        what: $"{nameof(TwitchManager)}.{nameof(OnRequestModeratorsCompleted)}() - Number of Moderators: {m_channelModerators.Count}."
+                    );
+#endif
+                }
+            }
+            else
+            {
+#if DEBUG
+                GD.PrintErr(
+                    what: $"{nameof(TwitchManager)}.{nameof(OnRequestModeratorsCompleted)}() - Web request POST failed with code {responseCode}."
+                );
+#endif
+            }
+        }
+
+        private void OnRequestOAuthCompleted(
 			long result,
 			long responseCode,
 			string[] headers,
@@ -1138,7 +1211,7 @@ namespace Overlay
 			{
 #if DEBUG
 				GD.Print(
-					what: $"{nameof(TwitchManager)}.{nameof(RequestSubscribers)}() - Web request {responseCode} POST successful."
+					what: $"{nameof(TwitchManager)}.{nameof(OnRequestSubscribersCompleted)}() - Web request {responseCode} POST successful."
 				);
 #endif
 
@@ -1169,7 +1242,7 @@ namespace Overlay
 				{
 #if DEBUG
 					GD.Print(
-						what: $"{nameof(TwitchManager)}.{nameof(RequestSubscribers)}() - Number of Subscribers: {m_channelSubscribers.Count}."
+						what: $"{nameof(TwitchManager)}.{nameof(OnRequestSubscribersCompleted)}() - Number of Subscribers: {m_channelSubscribers.Count}."
 					);
 #endif
 
@@ -1197,7 +1270,7 @@ namespace Overlay
 			{
 #if DEBUG
 				GD.PrintErr(
-					what: $"{nameof(TwitchManager)}.{nameof(RequestSubscribers)}() - Web request POST failed with code {responseCode}."
+					what: $"{nameof(TwitchManager)}.{nameof(OnRequestSubscribersCompleted)}() - Web request POST failed with code {responseCode}."
 				);
 #endif
 			}
@@ -1561,11 +1634,11 @@ namespace Overlay
 				}
 
 				var channelPointRewardData = channelPointReward.Value;
-				var payload = "{" +
-																				$"\"background_color\":\"{channelPointRewardData.BackgroundColor}\"," +
+				var payload = $"{{" +
+																				$"\"background_color\":\"{channelPointRewardData.BackgroundColor.Remove(startIndex: channelPointRewardData.BackgroundColor.Length - 2)}\"," +
 																				$"\"cost\":\"{channelPointRewardData.Cost}\"," +
 					(channelPointRewardData.GlobalCooldownSeconds > 0 ?			$"\"global_cooldown_seconds\":\"{channelPointRewardData.GlobalCooldownSeconds}\"," : "") +
-					(channelPointRewardData.IsEnabled == false ?				$"\"is_enabled\":\"{channelPointRewardData.IsEnabled}\"," : "") +
+					(channelPointRewardData.IsEnabled is false ?				$"\"is_enabled\":\"{channelPointRewardData.IsEnabled}\"," : "") +
 					(channelPointRewardData.IsGlobalCooldownEnabled ?			$"\"is_global_cooldown_enabled\":\"{channelPointRewardData.IsGlobalCooldownEnabled}\"," : "") +
 					(channelPointRewardData.IsMaxPerStreamEnabled ?				$"\"is_max_per_stream_enabled\":\"{channelPointRewardData.IsMaxPerStreamEnabled}\"," : "") +
 					(channelPointRewardData.IsMaxPerUserPerStreamEnabled ?		$"\"is_max_per_user_per_stream_enabled\":\"{channelPointRewardData.IsMaxPerUserPerStreamEnabled}\"," : "") +
@@ -1575,7 +1648,7 @@ namespace Overlay
 					(channelPointRewardData.Prompt != string.Empty ?			$"\"prompt\":\"{channelPointRewardData.Prompt}\"," : "") +
 					(channelPointRewardData.ShouldRedemptionsSkipRequestQueue ? $"\"should_redemptions_skip_request_queue\":\"{channelPointRewardData.ShouldRedemptionsSkipRequestQueue}\"," : "") +
 																				$"\"title\":\"{channelPointRewardData.Title}\"" +
-				"}";
+				$"}}";
 				m_httpManager.SendHttpRequest(
 					url: $"{c_urlAPI}/channel_points/custom_rewards?broadcaster_id={m_twitchData.AccountId}",
 					headers: headers,
@@ -1584,7 +1657,6 @@ namespace Overlay
 					requestCompletedHandler: OnRequestChannelPointRewardAdded
 				);
 			}
-
 		}
 
 		private void RequestChannelPointRewardDelete()
@@ -1616,9 +1688,9 @@ namespace Overlay
 				$"Client-Id: {m_twitchData.ClientId}",
 				$"Content-Type: application/json"
 			};
-			var payload = "{" +
+			var payload = $"{{" +
 				$"\"status\":\"CANCELED\"" +
-			"}";
+			$"}}";
 
 			var pendingRewards = m_twitchChannelPointRewardsManager.GetPendingRewards();
 			foreach (var pendingReward in pendingRewards)
@@ -1712,6 +1784,24 @@ namespace Overlay
                 requestCompletedHandler: OnRequestLatestFollowerCompleted
             );
         }
+
+		private void RequestModerators(
+			string pageId
+		)
+		{
+			var headers = new List<string>()
+            {
+				$"Authorization: Bearer {m_twitchData.AccountAccessToken}",
+				$"Client-Id: {m_twitchData.ClientId}"
+			};
+			m_httpManager.SendHttpRequest(
+                url: $"{c_urlAPI}/moderation/moderators?broadcaster_id={m_twitchData.AccountId}&first=100&after={pageId}",
+                headers: headers,
+                method: Method.Get,
+                json: string.Empty,
+                requestCompletedHandler: OnRequestModeratorsCompleted
+            );
+		}
 
         private void RequestOAuth()
 		{

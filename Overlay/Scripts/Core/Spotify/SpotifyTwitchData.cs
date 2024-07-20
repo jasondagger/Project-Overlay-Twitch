@@ -5,18 +5,19 @@ namespace Overlay
     {
         public string ArtistName { get; set; } = string.Empty;
         public string ErrorMessage { get; set; } = string.Empty;
+        public int QueuePosition { get; set; } = 0;
         public string SearchParameters { get; set; } = string.Empty;
         public SpotifyTwitchDataRequestType SpotifyTwitchDataRequestType { get; set; } = SpotifyTwitchDataRequestType.CurrentTrack;
+        public string TrackId { get; set; } = string.Empty;
         public string TrackName { get; set; } = string.Empty;
         public string TwitchChatMessageId { get; set; } = string.Empty;
+        public string TwitchUserName { get; set; } = string.Empty;
 
         public SpotifyTwitchData(
-            SpotifyTwitchDataRequestType spotifyTwitchDataRequestType,
-            string twitchChatMessageId
+            SpotifyTwitchDataRequestType spotifyTwitchDataRequestType
         )
         {
             this.SpotifyTwitchDataRequestType = spotifyTwitchDataRequestType;
-            this.TwitchChatMessageId = twitchChatMessageId;
         }
     }
 }

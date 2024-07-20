@@ -18,7 +18,6 @@ namespace Overlay
 		public Action<TwitchChatMessage> Generated = null;
 		public Action Destroyed = null;
 
-        #region GODOT_INTRINSTICS
         public override void _Process(
 			double delta
 		)
@@ -44,7 +43,6 @@ namespace Overlay
 					break;
 			}
 		}
-        #endregion
 
         public void Generate(
 			HttpManager httpManager,
@@ -68,8 +66,8 @@ namespace Overlay
                 $"{name}" +
                 $"[/color]" +
                 $"[/font]" +
-                $"  " +
-                $"{c_labelMessageFont}";
+                $"{c_labelMessageFont}" +
+                $"  ";
 
             if (
                 messageColor.Equals(
@@ -84,7 +82,7 @@ namespace Overlay
                 var rainbowifiedMessage = PastelInterpolator.RainbowifyText(
                     text: trimmedMessage    
                 );
-                m_text += rainbowifiedMessage;
+                m_text += $"{rainbowifiedMessage}";
             }
             else
             {
@@ -111,7 +109,6 @@ namespace Overlay
 			m_richTextLabel.Visible = true;
 		}
 
-        #region INTERNAL_VARIABLES_&_STRUCTURES
         private enum GeneratedState : uint
 		{
 			Generating = 0u,
@@ -130,6 +127,7 @@ namespace Overlay
 		private const string c_labelNameFont = $"[font=res://Overlay/Fonts/Roboto-Black.ttf]";
 		private const string c_labelMessageFont = $"[font=res://Overlay/Fonts/Roboto-Bold.ttf]";
 		private const string c_labelMessageColor = $"[color=#F2F2F2FF]";
+        private const string c_nameMessageDivisor = "[[[]]]";
 
         private const string c_twitchBadgeDirectory = "user://Badges";
         private const string c_twitchEmoteDirectoryAnimated = "user://Emotes/Animated";
@@ -142,17 +140,115 @@ namespace Overlay
 		private const int c_twitchEmoteWidth = 16;
 		private const int c_twitchEmoteHeight = 16;
 
-		private readonly Dictionary<FadeState, float> c_fadeDelays = new()
+		private static readonly Dictionary<FadeState, float> c_fadeDelays = new()
 		{
 			{ FadeState.Visible, 32f },
 			{ FadeState.Fading,  2f },
 		};
+        private static readonly Dictionary<string, string> c_twitchBaseEmojiIds = new()
+        {
+            { "555555599", "0" },
+            { "555555597", "0" },
+            { "555555595", "0" },
+            { "555555593", "0" },
+            { "555555591", "0" },
+            { "555555589", "0" },
+            { "555555587", "0" },
+            { "555555585", "0" },
+            { "555555584", "0" },
+            { "555555582", "0" },
+            { "555555580", "0" },
+            { "555555577", "0" },
+            { "555555575", "0" },
+            { "555555573", "0" },
+            { "6",         "0" },
+            { "555555571", "0" },
+            { "555555563", "0" },
+            { "555555562", "0" },
+            { "555555560", "0" },
+            { "555555558", "0" },
+            { "1",         "0" },
 
-        private readonly string c_rainbowColorTag = PastelInterpolator.GetRainbowColorTag();
+            { "555555608", "1" },
+            { "555555635", "1" },
+            { "555555633", "1" },
+            { "555555624", "1" },
+            { "555555622", "1" },
+            { "439",       "1" },
+            { "555555604", "1" },
+            { "433",       "1" },
+            { "445",       "1" },
+            { "555555612", "1" },
+            { "436",       "1" },
+            { "441",       "1" },
+            { "555555620", "1" },
+            { "555555618", "1" },
+            { "555555614", "1" },
+            { "555555616", "1" },
+            { "444",       "1" },
+            { "555555601", "1" },
+            { "443",       "1" },
+            { "434",       "1" },
+            { "555555628", "1" },
+            
+            { "484",       "2" },
+            { "555555667", "2" },
+            { "491",       "2" },
+            { "555555663", "2" },
+            { "490",       "2" },
+            { "501",       "2" },
+            { "555555675", "2" },
+            { "493",       "2" },
+            { "483",       "2" },
+            { "555555671", "2" },
+            { "492",       "2" },
+            { "500",       "2" },
+            { "555555695", "2" },
+            { "555555693", "2" },
+            { "497",       "2" },
+            { "555555691", "2" },
+            { "494",       "2" },
+            { "498",       "2" },
+            { "496",       "2" },
+            { "489",       "2" },
+            { "499",       "2" },
+        };
+        private static readonly Dictionary<string, string> c_twitchBaseEmojis = new()
+        {
+            { "R)",  "Twitch0"  },
+            { ";p",  "Twitch1"  },
+            { ";P",  "Twitch1"  },
+            { ":p",  "Twitch2"  },
+            { ":P",  "Twitch2"  },
+            { ";)",  "Twitch3"  },
+            { ":\\", "Twitch4"  },
+            { ":/",  "Twitch4"  },
+            { "<3",  "Twitch5"  },
+            { ":o",  "Twitch6"  },
+            { ":O",  "Twitch6"  },
+            { "B)",  "Twitch7"  },
+            { "o_o", "Twitch8"  },
+            { "o_O", "Twitch8"  },
+            { "O_o", "Twitch8"  },
+            { "O_O", "Twitch8"  },
+            { ":|",  "Twitch9"  },
+            { ">(",  "Twitch10" },
+            { ":D",  "Twitch11" },
+            { ":(",  "Twitch12" },
+            { ":)",  "Twitch13" },
+        };
+        private static readonly HashSet<string> c_twitchBaseEmojiIdsWithFileSyntax = new()
+        {
+            "555555585",
+            "433",
+            "493",
+        };
+        private static readonly string c_rainbowColorTag = PastelInterpolator.GetRainbowColorTag();
 
-        private readonly HashSet<string> m_animatedEmotes = new();
 		private readonly Dictionary<string, int> m_animatedEmoteCurrentFrameCounts = new();
         private readonly Dictionary<string, int> m_animatedEmoteMaxFrameCounts = new();
+        private readonly HashSet<string> m_animatedEmotes = new();
+        private readonly object m_textLock = new();
 
         private PastelInterpolator m_pastelInterpolator = null;
 		private RichTextLabel m_richTextLabel = new();
@@ -166,17 +262,16 @@ namespace Overlay
         private string m_color = string.Empty;
 		private string m_text = string.Empty;
         private uint m_emotesToLoad = 0u;
-        #endregion
 
-        #region INTERNAL_GENERATORS
         private void GeneratePngFromStaticEmote(
 			byte[] body,
-			string emoteName,
+            string lookUpEmoteName,
+			string originalEmoteName,
 			string emoteDirectory
 		)
 		{
 			ApplicationManager.CreateStaticEmoteDirectory(
-                emoteName: emoteName
+                emoteName: lookUpEmoteName
             );
 
 			var image = Godot.Image.Create(
@@ -197,10 +292,9 @@ namespace Overlay
                 resource: imageTexture,
                 path: emotePath
             );
-
-            m_text = m_text.Replace(
-                oldValue: emoteName,
-                newValue: $"[img]{emotePath}[/img]"
+            ReplaceTextMessageWithEmotes(
+                originalEmoteName: originalEmoteName,
+                emotePath: emotePath
             );
 
             m_emotesToLoad--;
@@ -212,12 +306,13 @@ namespace Overlay
 
         private void GeneratePngsFromAnimatedEmote(
 			byte[] body,
-			string emoteName,
+            string lookUpEmoteName,
+            string originalEmoteName,
 			string emoteDirectory
 		)
         {
 			ApplicationManager.CreateAnimatedEmoteDirectory(
-                emoteName: emoteName
+                emoteName: lookUpEmoteName
             );
 
             using var gifMemoryStream = new MemoryStream(
@@ -284,20 +379,20 @@ namespace Overlay
             }
 
 			var emotePath = $"{emoteDirectory}/animated_0.res";
-            m_text = m_text.Replace(
-				oldValue: emoteName,
-				newValue: $"[img]{emotePath}[/img]"
-			);
+            ReplaceTextMessageWithEmotes(
+                originalEmoteName: originalEmoteName,
+                emotePath: emotePath
+            );
 
 			m_animatedEmotes.Add(
-                item: emoteName
+                item: originalEmoteName
             );
             m_animatedEmoteCurrentFrameCounts.Add(
-				key: emoteName,
+				key: originalEmoteName,
 				value: 0
 			);
             m_animatedEmoteMaxFrameCounts.Add(
-                key: emoteName,
+                key: originalEmoteName,
                 value: totalFrames
             );
 			m_hasAnimatedEmotes = true;
@@ -328,9 +423,7 @@ namespace Overlay
 
 			m_generatedState = GeneratedState.Generated;
 		}
-        #endregion
 
-        #region INTERNAL_HANDLERS
         private void HandleTextAnimation(
 			float delta
 		)
@@ -401,13 +494,10 @@ namespace Overlay
 					break;
 
 				default:
-					// something went wrong, shouldn't hit
 					break;
 			}
 		}
-        #endregion
 
-        #region INTERNAL_INSERTIONS
         private void InsertBadges(
             string badges
         )
@@ -437,19 +527,56 @@ namespace Overlay
             string emotes
         )
         {
-            // split each emote from twitch apis
             var emoteValues = emotes.Split(
                 separator: '/'
-            );
+            ).ToList();
+            for (var i = 0; i < emoteValues.Count; i++)
+            {
+                var emoteData = emoteValues[i].Split(
+                    separator: ':'
+                );
+                var emoteLink = emoteData[0u];
+                if (
+                    c_twitchBaseEmojiIdsWithFileSyntax.Contains(
+                        value: emoteLink
+                    )
+                )
+                {
+                    var emoteRanges = emoteData[1u].Split(
+                        separator: ','
+                    );
+                    var emoteIndices = emoteRanges[0u].Split(
+                        separator: '-'
+                    );
+                    var startIndex = emoteIndices[0u].ToInt();
+                    var endIndex = emoteIndices[1u].ToInt();
+                    var originalEmoteName = message.Substring(
+                        startIndex: startIndex,
+                        length: endIndex - startIndex + 1
+                    );
+
+                    var baseEmoteName = c_twitchBaseEmojis[key: originalEmoteName];
+                    var baseEmoteId = c_twitchBaseEmojiIds[key: emoteLink];
+                    var lookUpEmoteName = $"{baseEmoteName}_{baseEmoteId}";
+
+                    var emotePath = $"{c_twitchEmoteDirectoryStatic}/{lookUpEmoteName}/static_0.res";
+                    ReplaceTextMessageWithEmotes(
+                        originalEmoteName: originalEmoteName,
+                        emotePath: emotePath
+                    );
+                    emoteValues.RemoveAt(
+                        index: i
+                    );
+                }
+            }
+
             foreach (var emoteValue in emoteValues)
             {
-                // split emote link & name ranges
                 var emoteData = emoteValue.Split(
                     separator: ':'
                 );
 
                 var emoteLink = emoteData[0u];
-                // retrieve emote name within message string
                 var emoteRanges = emoteData[1u].Split(
                     separator: ','
                 );
@@ -458,13 +585,26 @@ namespace Overlay
                 );
                 var startIndex = emoteIndices[0u].ToInt();
                 var endIndex = emoteIndices[1u].ToInt();
-                var emoteName = message.Substring(
+                var originalEmoteName = message.Substring(
                     startIndex: startIndex,
                     length: endIndex - startIndex + 1
                 );
 
+                var lookUpEmoteName = originalEmoteName;
+                if (
+                    c_twitchBaseEmojis.ContainsKey(
+                        key: originalEmoteName
+                    ) is true
+                )
+                {
+                    var baseEmoteName = c_twitchBaseEmojis[key: originalEmoteName];
+                    var baseEmoteId = c_twitchBaseEmojiIds[key: emoteLink];
+
+                    lookUpEmoteName = $"{baseEmoteName}_{baseEmoteId}";
+                }
+
                 var emotePathStatic = ApplicationManager.GetStaticEmoteDirectory(
-                    emoteName: emoteName
+                    emoteName: lookUpEmoteName
                 );
                 if (
                     Directory.Exists(
@@ -472,16 +612,16 @@ namespace Overlay
                     ) is true
                 )
                 {
-                    var filePath = $"{c_twitchEmoteDirectoryStatic}/{emoteName}/static_0.res";
-                    m_text = m_text.Replace(
-                        oldValue: emoteName,
-                        newValue: $"[img]{filePath}[/img]"
+                    var emotePath = $"{c_twitchEmoteDirectoryStatic}/{lookUpEmoteName}/static_0.res";
+                    ReplaceTextMessageWithEmotes(
+                        originalEmoteName: originalEmoteName,
+                        emotePath: emotePath
                     );
                     continue;
                 }
 
                 var emotePathAnimated = ApplicationManager.GetAnimatedEmoteDirectory(
-                    emoteName: emoteName
+                    emoteName: lookUpEmoteName
                 );
                 if (
                     Directory.Exists(
@@ -489,17 +629,17 @@ namespace Overlay
                     ) is true
                 )
                 {
-                    var filePath = $"{c_twitchEmoteDirectoryAnimated}/{emoteName}/animated_0.res";
-                    m_text = m_text.Replace(
-                        oldValue: emoteName,
-                        newValue: $"[img]{filePath}[/img]"
+                    var emotePath = $"{c_twitchEmoteDirectoryAnimated}/{lookUpEmoteName}/animated_0.res";
+                    ReplaceTextMessageWithEmotes(
+                        originalEmoteName: originalEmoteName,
+                        emotePath: emotePath
                     );
 
                     m_animatedEmotes.Add(
-                        item: emoteName
+                        item: originalEmoteName
                     );
                     m_animatedEmoteCurrentFrameCounts.Add(
-                        key: emoteName,
+                        key: originalEmoteName,
                         value: 0
                     );
 
@@ -508,7 +648,7 @@ namespace Overlay
                     );
                     var frameCount = files.Length - 1;
                     m_animatedEmoteMaxFrameCounts.Add(
-                        key: emoteName,
+                        key: originalEmoteName,
                         value: frameCount
                     );
 
@@ -533,7 +673,6 @@ namespace Overlay
                         byte[] body
                     ) =>
                     {
-                        // failed web request
                         if (responseCode >= 300u)
                         {
                             QueueFree();
@@ -549,7 +688,8 @@ namespace Overlay
                         {
                             GeneratePngFromStaticEmote(
                                 body: body,
-                                emoteName: emoteName,
+                                lookUpEmoteName: lookUpEmoteName,
+                                originalEmoteName: originalEmoteName,
                                 emoteDirectory: emotePathStatic
                             );
                         }
@@ -557,7 +697,8 @@ namespace Overlay
                         {
                             GeneratePngsFromAnimatedEmote(
                                 body: body,
-                                emoteName: emoteName,
+                                lookUpEmoteName: lookUpEmoteName,
+                                originalEmoteName: originalEmoteName,
                                 emoteDirectory: emotePathAnimated
                             );
                         }
@@ -600,6 +741,38 @@ namespace Overlay
                 GenerateRichTextLabel();
             }
         }
-        #endregion
+
+        private void ReplaceTextMessageWithEmotes(
+            string originalEmoteName,
+            string emotePath
+        )
+        {
+            lock (m_textLock)
+            {
+                var splitText = m_text.Split(
+                    divisor: "  "
+                );
+                m_text = splitText[0];
+                var i = 1;
+                for (; i < splitText.Length; i++)
+                {
+                    m_text += $"  {splitText[i]}";
+                    if (
+                        splitText[i].EndsWith(
+                            value: $"{c_labelMessageFont}"
+                        ) is true
+                    )
+                    {
+                        break;
+                    }
+                }
+
+                i++;
+                for (; i < splitText.Length; i++)
+                {
+                    m_text += $"  {splitText[i].Replace(oldValue: originalEmoteName, newValue: $"[img]{emotePath}[/img]")}";
+                }
+            }
+        }
     }
 }
