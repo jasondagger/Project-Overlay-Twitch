@@ -7,5 +7,6 @@ namespace Overlay
         TrackQueueBySearchTerms,
         TrackQueueByTrackId,
         TrackSkip,
+        UserTrackQueue,
     }
 }

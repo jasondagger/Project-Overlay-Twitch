@@ -4,6 +4,7 @@ namespace Overlay
 	using Godot;
 	using System;
 	using System.Collections.Generic;
+    using System.Linq;
     using System.Net.WebSockets;
     using System.Runtime.Versioning;
     using System.Text;
@@ -107,11 +108,13 @@ namespace Overlay
             Discord,
             FollowAge,
             Lurk,
+			Queue,
             Rules,
             SetColor,
             SetColour,
 			Skip,
             Song,
+			SongQueue,
             SongRequest,
 			SongSkip,
             Specs,
@@ -180,8 +183,9 @@ namespace Overlay
 		private const string c_twitchBotDisplayName = "SmoothGPT";
 		private const string c_twitchBotUsername = "smoothgpt";
 		private const string c_twitchBotBadges = "moderator/1";
-        private const int c_webSocketMessageDelimiterLength = 2;
+		private const int c_maxSpotifyQueueCount = 3;
         private const int c_twitchMessageDelimiterLength = 2;
+        private const int c_webSocketMessageDelimiterLength = 2;
         private const uint c_maxPacketSize = 8192u;
 		private const uint c_minimumMessageCount = 5u;
 		private const ulong c_minimumMessageTimerInMilliseconds = 900000u;
@@ -256,11 +260,13 @@ namespace Overlay
             { CommandType.Discord,       "!discord"		  },
             { CommandType.FollowAge,     "!followage"	  },
             { CommandType.Lurk,			 "!lurk"		  },
+            { CommandType.Queue,		 "!queue"		  },
             { CommandType.Rules,         "!rules"		  },
             { CommandType.SetColor,      "!setcolor"	  },
             { CommandType.SetColour,     "!setcolour"	  },
             { CommandType.Skip,			 "!skip"		  },
             { CommandType.Song,		     "!song"		  },
+            { CommandType.SongQueue,	 "!songqueue"	  },
             { CommandType.SongRequest,   "!songrequest"	  },
             { CommandType.SongSkip,		 "!songskip"	  },
             { CommandType.Specs,		 "!specs"		  },
@@ -554,11 +560,13 @@ namespace Overlay
 				CommandType.Commands or
 				CommandType.FollowAge or
 				CommandType.Lurk or
-				CommandType.Rules or
+                CommandType.Queue or
+                CommandType.Rules or
 				CommandType.SetColor or
 				CommandType.SetColour or
 				CommandType.Skip or
                 CommandType.Song or
+                CommandType.SongQueue or
                 CommandType.SongRequest or
                 CommandType.SongSkip or
                 CommandType.Specs or
@@ -679,6 +687,13 @@ namespace Overlay
                         webSocketMessage: webSocketMessage
                     );
                     break;
+
+				case CommandType.Queue:
+				case CommandType.SongQueue:
+				    HandleWebSocketMessagePrivMsgSongQueue(
+                        webSocketMessage: webSocketMessage
+                    );
+					break;
 
                 case CommandType.Rules:
                     HandleWebSocketMessagePrivMsgRules(
@@ -1475,6 +1490,18 @@ namespace Overlay
 			}
 		}
 
+		private void HandleWebSocketMessagePrivMsgSongQueue(
+			WebSocketMessage webSocketMessage
+		)
+		{
+			var twitchChatMessageId = webSocketMessage.Tags[key: "id"];
+			var twitchUserName = webSocketMessage.Tags[key: "display-name"];
+            m_spotifyManager.QueueRequestUserTrackQueue(
+				twitchUserName: twitchUserName,
+                twitchChatMessageId: twitchChatMessageId
+            );
+        }
+
 		private void HandleWebSocketMessagePrivMsgSongCurrent(
 			WebSocketMessage webSocketMessage
 		)
@@ -1582,7 +1609,7 @@ namespace Overlay
 
 			var twitchChatMessageId = webSocketMessage.Tags[key: "id"];
 			var twitchUserName = webSocketMessage.Tags[key: "display-name"];
-            m_spotifyManager.QueueSkipTrack(
+            m_spotifyManager.QueueRequestSkipTrack(
 				twitchUserName: twitchUserName,
                 twitchChatMessageId: twitchChatMessageId
             );
@@ -1820,9 +1847,11 @@ namespace Overlay
 				CommandType.Commands or
 				CommandType.FollowAge or
 				CommandType.Lurk or
-				CommandType.Rules or
+                CommandType.Queue or
+                CommandType.Rules or
 				CommandType.Skip or
 				CommandType.Song or
+                CommandType.SongQueue or
                 CommandType.SongSkip or
 				CommandType.Specs or
 				CommandType.Steam or
@@ -1948,11 +1977,13 @@ namespace Overlay
                 CommandType.Discord or
                 CommandType.FollowAge or
 				CommandType.Lurk or
+                CommandType.Queue or
                 CommandType.Rules or
                 CommandType.SetColor or
                 CommandType.SetColour or
                 CommandType.Skip or
                 CommandType.Song or
+                CommandType.SongQueue or
                 CommandType.SongRequest or
                 CommandType.SongSkip or
                 CommandType.Specs or
@@ -2284,13 +2315,16 @@ namespace Overlay
 			var colorCodeRed = PastelInterpolator.GetColorAsHexByColorType(
 				colorType: ColorType.Red
 			);
+			var colorCodeCyan = PastelInterpolator.GetColorAsHexByColorType(
+                colorType: ColorType.Cyan
+            );
 
-            var message = spotifyTwitchData.ErrorMessage;
+            var message = spotifyTwitchData.Message;
             await SendWebSocketMessage(
                 message: $"{(string.IsNullOrEmpty(value: spotifyTwitchData.TwitchChatMessageId) is false ? $"@reply-parent-msg-id={spotifyTwitchData.TwitchChatMessageId} " : "")}PRIVMSG #{m_twitchData.TwitchChannel} :{spotifyTwitchData.TwitchUserName}, {message}"
             );
             AddBotChatMessage(
-                message: $"[color={colorCodeRed}]{message}"
+                message: $"[colo={colorCodeCyan}]{spotifyTwitchData.TwitchUserName}[/color], [color={colorCodeRed}]{message}"
 			);
         }
 
@@ -2301,14 +2335,14 @@ namespace Overlay
 			var colorCodeGreen = PastelInterpolator.GetColorAsHexByColorType(
 				colorType: ColorType.Green
 			);
-			var colorCodeWhite = PastelInterpolator.GetColorAsHexByColorType(
-				colorType: ColorType.White
-			);
+			var colorCodeCyan = PastelInterpolator.GetColorAsHexByColorType(
+                colorType: ColorType.Cyan
+            );
 
             var message = $"{spotifyTwitchData.TwitchUserName}, {spotifyTwitchData.TrackName} by {spotifyTwitchData.ArtistName} was added to the queue at position {spotifyTwitchData.QueuePosition}.";
-            var onScreenMessage = $"{spotifyTwitchData.TwitchUserName}, [color={colorCodeGreen}]{spotifyTwitchData.TrackName} [color={colorCodeWhite}]by[/color] {spotifyTwitchData.ArtistName}[/color] was added to the queue at [color={colorCodeGreen}]position {spotifyTwitchData.QueuePosition}[/color].";
+            var onScreenMessage = $"[color={colorCodeCyan}]{spotifyTwitchData.TwitchUserName}[/color], [color={colorCodeGreen}]{spotifyTwitchData.TrackName}[/color] by [color={colorCodeGreen}]{spotifyTwitchData.ArtistName}[/color] was added to the queue at [color={colorCodeGreen}]position {spotifyTwitchData.QueuePosition}[/color].";
             await SendWebSocketMessage(
-                message: $"{(string.IsNullOrEmpty(value: spotifyTwitchData.TwitchChatMessageId) is false ? $"@reply-parent-msg-id={spotifyTwitchData.TwitchChatMessageId} " : "")}PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
+                message: $"{(string.IsNullOrEmpty(value: spotifyTwitchData.TwitchChatMessageId) is false ? $"@reply-parent-msg-id={spotifyTwitchData.TwitchChatMessageId} " : string.Empty)}PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
             );
             AddBotChatMessage(
                 message: onScreenMessage
@@ -2322,11 +2356,67 @@ namespace Overlay
             var colorCodeGreen = PastelInterpolator.GetColorAsHexByColorType(
                 colorType: ColorType.Green
             );
+			var colorCodeCyan = PastelInterpolator.GetColorAsHexByColorType(
+                colorType: ColorType.Cyan
+            );
 
             var message = $"{spotifyTwitchData.TwitchUserName}, track was successfully skipped.";
-            var onScreenMessage = $"{spotifyTwitchData.TwitchUserName}, [color={colorCodeGreen}]track was successfully skipped.";
+            var onScreenMessage = $"[color={colorCodeCyan}]{spotifyTwitchData.TwitchUserName}[/color], [color={colorCodeGreen}]track was successfully skipped.";
             await SendWebSocketMessage(
-                message: $"{(string.IsNullOrEmpty(value: spotifyTwitchData.TwitchChatMessageId) is false ? $"@reply-parent-msg-id={spotifyTwitchData.TwitchChatMessageId} " : "")}PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
+                message: $"{(string.IsNullOrEmpty(value: spotifyTwitchData.TwitchChatMessageId) is false ? $"@reply-parent-msg-id={spotifyTwitchData.TwitchChatMessageId} " : string.Empty)}PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
+            );
+            AddBotChatMessage(
+                message: onScreenMessage
+            );
+        }
+
+        private async void OnSpotifyUserTrackQueueRetrieveCompleted(
+		    SpotifyTwitchData spotifyTwitchData
+		)
+        {
+            var colorCodeGreen = PastelInterpolator.GetColorAsHexByColorType(
+                colorType: ColorType.Green
+            );
+			var colorCodeCyan = PastelInterpolator.GetColorAsHexByColorType(
+                colorType: ColorType.Cyan
+            );
+
+			var trackList = spotifyTwitchData.SpotifyQueuedUserTracks.ToList();
+
+            var message = $"{spotifyTwitchData.TwitchUserName}, {trackList.Count} track{(trackList.Count > 1 ? "s" : string.Empty)} {(trackList.Count > 1 ? "are" : "is")} in queue. Upcoming Tracks:";
+            var onScreenMessage = $"[color={colorCodeCyan}]{spotifyTwitchData.TwitchUserName}[/color], [color={colorCodeGreen}]{trackList.Count} track{(trackList.Count > 1 ? "s" : string.Empty)} {(trackList.Count > 1 ? "are" : "is")} in queue.[/color]";
+
+			var trackCount = trackList.Count > c_maxSpotifyQueueCount ? c_maxSpotifyQueueCount : trackList.Count;
+            for (var i = 0; i < trackCount; i++)
+			{
+				var trackQueuePosition = i + 1;
+                message += $" #{trackQueuePosition} {trackList[i].TrackName} by {trackList[i].ArtistName} requested by {trackList[i].TwitchUserName}.";
+				onScreenMessage += $" #{trackQueuePosition} [color={colorCodeGreen}]{trackList[i].TrackName}[/color] by [color={colorCodeGreen}]{trackList[i].ArtistName}[/color] requested by [color={colorCodeCyan}]{trackList[i].TwitchUserName}[/color].";
+            }
+
+            await SendWebSocketMessage(
+                message: $"{(string.IsNullOrEmpty(value: spotifyTwitchData.TwitchChatMessageId) is false ? $"@reply-parent-msg-id={spotifyTwitchData.TwitchChatMessageId} " : string.Empty)}PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
+            );
+            AddBotChatMessage(
+                message: onScreenMessage
+            );
+        }
+
+        private async void OnSpotifyUserTrackQueueRetrieveFailed(
+		    SpotifyTwitchData spotifyTwitchData
+		)
+        {
+            var colorCodeRed = PastelInterpolator.GetColorAsHexByColorType(
+                colorType: ColorType.Red
+            );
+			var colorCodeCyan = PastelInterpolator.GetColorAsHexByColorType(
+                colorType: ColorType.Cyan
+            );
+
+            var message = $"{spotifyTwitchData.TwitchUserName}, {spotifyTwitchData.Message}";
+            var onScreenMessage = $"[color={colorCodeCyan}]{spotifyTwitchData.TwitchUserName}[/color], [color={colorCodeRed}]{spotifyTwitchData.Message}";
+            await SendWebSocketMessage(
+                message: $"{(string.IsNullOrEmpty(value: spotifyTwitchData.TwitchChatMessageId) is false ? $"@reply-parent-msg-id={spotifyTwitchData.TwitchChatMessageId} " : string.Empty)}PRIVMSG #{m_twitchData.TwitchChannel} :{message}"
             );
             AddBotChatMessage(
                 message: onScreenMessage
@@ -2689,6 +2779,8 @@ namespace Overlay
             m_spotifyManager.Errored += OnSpotifyErrored;
             m_spotifyManager.TrackQueuedCompleted += OnSpotifyTrackQueuedCompleted;
 			m_spotifyManager.TrackSkipped += OnSpotifyTrackSkipCompleted;
+            m_spotifyManager.UserTrackQueueRetrieveCompleted += OnSpotifyUserTrackQueueRetrieveCompleted;
+			m_spotifyManager.UserTrackQueueRetrieveFailed += OnSpotifyUserTrackQueueRetrieveFailed;
         }
 
         private void SubscribeToTwitchManagerEvents()
