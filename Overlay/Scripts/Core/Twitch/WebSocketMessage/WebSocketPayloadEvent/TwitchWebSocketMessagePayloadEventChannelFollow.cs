@@ -26,6 +26,6 @@ namespace Overlay
         public string UserLogin { get; set; } = string.Empty;
 
         [JsonPropertyName("user_name")]
-        public string Username { get; set; } = string.Empty;
+        public string UserName { get; set; } = string.Empty;
 	}
 }

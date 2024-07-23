@@ -22,7 +22,7 @@ namespace Overlay
 		)
 		{
 			m_pendingNames.Enqueue(
-				payload.FromBroadcasterUsername
+				payload.FromBroadcasterUserName
 			);
 		}
 	}

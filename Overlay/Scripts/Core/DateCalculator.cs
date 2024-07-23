@@ -23,10 +23,10 @@ namespace Overlay
         )
         {
             var startLength = RetrieveDateLengthFromTime(
-                timeStart
+                time: timeStart
             );
             var endLength = RetrieveDateLengthFromTime(
-                timeEnd
+                time: timeEnd
             );
 
             var totalLength = new DateLength()
@@ -53,22 +53,30 @@ namespace Overlay
             }
 
             // calculate number of months
-            totalLength.Month = endLength.Month < startLength.Month ? c_numberOfMonths - startLength.Month + endLength.Month : endLength.Month - startLength.Month;
+            totalLength.Month = 
+                endLength.Month < startLength.Month ? 
+                    c_numberOfMonths - startLength.Month + endLength.Month : 
+                    endLength.Month - startLength.Month;
 
             // calculate number of days
             var monthStart = (Month)startLength.Month;
             var monthEnd = (Month)endLength.Month;
 
             var daysInMonthStart = IsLeapYear(
-                startLength.Year
-            ) && monthStart is Month.February ? c_leapYearDays : c_monthLengths[monthStart];
+                year: startLength.Year
+            ) && monthStart is Month.February ? 
+                c_leapYearDays : 
+                c_monthLengths[key: monthStart];
+
             var daysInMonthEnd = IsLeapYear(
-                endLength.Year
-            ) && monthStart is Month.February ? c_leapYearDays : c_monthLengths[monthEnd];
+                year: endLength.Year
+            ) && monthStart is Month.February ? 
+                c_leapYearDays : 
+                c_monthLengths[key: monthEnd];
 
             var totalDaysInBothMonths = daysInMonthStart + daysInMonthEnd;
             var averageDaysInBothMonths = Mathf.CeilToInt(
-                totalDaysInBothMonths / 2f
+                s: totalDaysInBothMonths / 2f
             );
 
             var daysRemainingInLengthStart = daysInMonthStart - startLength.Day;
@@ -191,29 +199,29 @@ namespace Overlay
             return new DateLength()
             {
                 Year = time.Substr(
-                    c_utcIndexYear,
-                    c_utcLengthYear
+                    from: c_utcIndexYear,
+                    len: c_utcLengthYear
                 ).ToInt(),
                 Month = time.Substr(
-                    c_utcIndexMonth,
-                    c_utcLengthMonth
+                    from: c_utcIndexMonth,
+                    len: c_utcLengthMonth
                 ).ToInt(),
                 Day = time.Substr(
-                    c_utcIndexDay,
-                    c_utcLengthDay
+                   from: c_utcIndexDay,
+                    len: c_utcLengthDay
                 ).ToInt(),
 
                 Hour = time.Substr(
-                    c_utcIndexHour,
-                    c_utcLengthHour
+                    from: c_utcIndexHour,
+                    len: c_utcLengthHour
                 ).ToInt(),
                 Minute = time.Substr(
-                    c_utcIndexMinute,
-                    c_utcLengthMinute
+                    from: c_utcIndexMinute,
+                    len: c_utcLengthMinute
                 ).ToInt(),
                 Second = time.Substr(
-                    c_utcIndexSecond,
-                    c_utcLengthSecond
+                    from: c_utcIndexSecond,
+                    len: c_utcLengthSecond
                 ).ToInt()
             };
         }

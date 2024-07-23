@@ -9,6 +9,7 @@ namespace Overlay
 	using System.IO;
     using System.Linq;
 	using System.Runtime.Versioning;
+    using System.Text;
     using static Godot.HttpClient;
     using RainbowColorIndexType = PastelInterpolator.RainbowColorIndexType;
 
@@ -135,12 +136,14 @@ namespace Overlay
         private const string c_twitchEmoteUrlPrefix = "https://static-cdn.jtvnw.net/emoticons/v2";
         private const string c_twitchEmoteUrlSuffix = "default/light/1.0";
 
-		private const float c_emoteFramesPerSecondInMilliseconds = 0.04167f;
-        private const uint c_labelWidth = 678u;
 		private const int c_twitchEmoteWidth = 16;
 		private const int c_twitchEmoteHeight = 16;
+        private const int c_gifFrameRateIndex0 = 804;
+        private const int c_gifFrameRateIndex1 = 805;
+        private const uint c_labelWidth = 678u;
+        private const float c_defaultEmoteFramesPerSecondInMilliseconds = 0.04167f;
 
-		private static readonly Dictionary<FadeState, float> c_fadeDelays = new()
+        private static readonly Dictionary<FadeState, float> c_fadeDelays = new()
 		{
 			{ FadeState.Visible, 32f },
 			{ FadeState.Fading,  2f },
@@ -247,6 +250,8 @@ namespace Overlay
 
 		private readonly Dictionary<string, int> m_animatedEmoteCurrentFrameCounts = new();
         private readonly Dictionary<string, int> m_animatedEmoteMaxFrameCounts = new();
+        private readonly Dictionary<string, float> m_animatedEmoteCurrentFrameRates = new();
+        private readonly Dictionary<string, float> m_animatedEmoteMaxFrameRates = new();
         private readonly HashSet<string> m_animatedEmotes = new();
         private readonly object m_textLock = new();
 
@@ -256,9 +261,8 @@ namespace Overlay
 		private FadeState m_fadeState = FadeState.Visible;
 		private float m_fadeElapsed = 0f;
 
-		private bool m_hasAnimatedEmotes = false;
+        private bool m_hasAnimatedEmotes = false;
         private bool m_isSubscriber = false;
-		private float m_elapsedFrameTime = 0f;
         private string m_color = string.Empty;
 		private string m_text = string.Empty;
         private uint m_emotesToLoad = 0u;
@@ -313,6 +317,30 @@ namespace Overlay
         {
 			ApplicationManager.CreateAnimatedEmoteDirectory(
                 emoteName: lookUpEmoteName
+            );
+
+            var frameDelay = BitConverter.ToInt16(
+                value: new byte[]
+                {
+                    body[c_gifFrameRateIndex0],
+                    body[c_gifFrameRateIndex1],
+                },
+                startIndex: 0
+            );
+
+            var normalizedFrameDelay = 
+                frameDelay > 0.1f ||
+                frameDelay < .001f ?
+                    c_defaultEmoteFramesPerSecondInMilliseconds :
+                    frameDelay / 100f;
+            var frameDelayText = $"{normalizedFrameDelay}";
+            var targetFrameDelayDirectory = ApplicationManager.GetAnimatedEmoteDirectory(
+                emoteName: lookUpEmoteName
+            );
+            var frameDelayFile = $"{targetFrameDelayDirectory}\\frame_rate.txt";
+            File.WriteAllText(
+                path: frameDelayFile,
+                contents: frameDelayText
             );
 
             using var gifMemoryStream = new MemoryStream(
@@ -395,7 +423,15 @@ namespace Overlay
                 key: originalEmoteName,
                 value: totalFrames
             );
-			m_hasAnimatedEmotes = true;
+            m_animatedEmoteCurrentFrameRates.Add(
+                key: originalEmoteName,
+                value: 0f
+            );
+            m_animatedEmoteMaxFrameRates.Add(
+                key: originalEmoteName,
+                value: frameDelayText.ToFloat()
+            );
+            m_hasAnimatedEmotes = true;
 
             m_emotesToLoad--;
             if (m_emotesToLoad is 0u)
@@ -430,10 +466,11 @@ namespace Overlay
 		{
             if (m_hasAnimatedEmotes)
             {
-                m_elapsedFrameTime += delta;
-                if (m_elapsedFrameTime >= c_emoteFramesPerSecondInMilliseconds)
+                foreach (var animatedEmote in m_animatedEmotes)
                 {
-                    foreach (var animatedEmote in m_animatedEmotes)
+                    m_animatedEmoteCurrentFrameRates[animatedEmote] += delta;
+
+                    if (m_animatedEmoteCurrentFrameRates[animatedEmote] >= m_animatedEmoteMaxFrameRates[animatedEmote])
                     {
                         var previousFrame = m_animatedEmoteCurrentFrameCounts[animatedEmote];
                         var currentFrame = previousFrame + 1;
@@ -448,8 +485,8 @@ namespace Overlay
                         );
 
                         m_animatedEmoteCurrentFrameCounts[animatedEmote] = currentFrame;
+                        m_animatedEmoteCurrentFrameRates[animatedEmote] = 0f;
                     }
-                    m_elapsedFrameTime = 0f;
                 }
             }
 
@@ -642,14 +679,27 @@ namespace Overlay
                         key: originalEmoteName,
                         value: 0
                     );
+                    m_animatedEmoteCurrentFrameRates.Add(
+                        key: originalEmoteName,
+                        value: 0f
+                    );
 
                     var files = Directory.GetFiles(
                         path: emotePathAnimated
                     );
-                    var frameCount = files.Length - 1;
+                    var frameCount = files.Length - 2;
                     m_animatedEmoteMaxFrameCounts.Add(
                         key: originalEmoteName,
                         value: frameCount
+                    );
+
+                    var file = files.Last();
+                    var text = File.ReadAllText(
+                        path: file
+                    );
+                    m_animatedEmoteMaxFrameRates.Add(
+                        key: originalEmoteName,
+                        value: text.ToFloat()
                     );
 
                     m_hasAnimatedEmotes = true;
@@ -754,20 +804,28 @@ namespace Overlay
                 );
                 m_text = splitText[0];
                 var i = 1;
-                for (; i < splitText.Length; i++)
+
+                if (
+                    m_text.EndsWith(
+                        value: c_labelMessageFont
+                    ) is false
+                )
                 {
-                    m_text += $"  {splitText[i]}";
-                    if (
-                        splitText[i].EndsWith(
-                            value: $"{c_labelMessageFont}"
-                        ) is true
-                    )
+                    for (; i < splitText.Length; i++)
                     {
-                        break;
+                        m_text += $"  {splitText[i]}";
+                        if (
+                            splitText[i].EndsWith(
+                                value: c_labelMessageFont
+                            ) is true
+                        )
+                        {
+                            break;
+                        }
                     }
+                    i++;
                 }
 
-                i++;
                 for (; i < splitText.Length; i++)
                 {
                     m_text += $"  {splitText[i].Replace(oldValue: originalEmoteName, newValue: $"[img]{emotePath}[/img]")}";

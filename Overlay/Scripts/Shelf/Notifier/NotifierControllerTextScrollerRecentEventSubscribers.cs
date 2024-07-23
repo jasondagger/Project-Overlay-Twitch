@@ -58,7 +58,7 @@ namespace Overlay
 			TwitchWebSocketMessagePayloadEventChannelSubscribe payload
 		)
 		{
-            var username = payload.Username;
+            var username = payload.UserName;
             _ = m_recentSubscriberNames.Dequeue();
             m_recentSubscriberNames.Enqueue(
                 item: username

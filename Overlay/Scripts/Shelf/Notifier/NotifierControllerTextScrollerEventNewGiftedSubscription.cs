@@ -23,7 +23,7 @@ namespace Overlay
 		{
 			var isChatterAnonymous = payload.IsAnonymous ?? false;
 			m_pendingNames.Enqueue(
-				item: isChatterAnonymous ? "Anonymous" : payload.Username
+				item: isChatterAnonymous ? "Anonymous" : payload.UserName
 			);
 			m_pendingNames.Enqueue(
 				item: $"{payload.Total}x Tier {payload.Tier[0]} Gifted Subscription{(payload.Total > 1u ? "s" : "")}!"

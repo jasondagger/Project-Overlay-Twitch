@@ -39,7 +39,7 @@ namespace Overlay
         public string ChatterUserLogin { get; set; } = string.Empty;
 
         [JsonPropertyName("chatter_user_name")]
-        public string ChatterUsername { get; set; } = string.Empty;
+        public string ChatterUserName { get; set; } = string.Empty;
 
         [JsonPropertyName("community_sub_gift")]
         public TwitchWebSocketMessagePayloadEventChannelChatNotificationCommunitySubGift CommunitySubGift { get; set; } = new();

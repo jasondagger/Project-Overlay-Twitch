@@ -609,13 +609,13 @@ namespace Overlay
 				case "Command: Request Song":
                     CommandRequestSongClaimed?.Invoke(
 						@event.UserInput,
-                        @event.Username
+                        @event.UserName
 					);
 					break;
 
                 case "Command: Skip Song":
                     CommandSkipSongClaimed?.Invoke(
-                        @event.Username
+                        @event.UserName
                     );
                     break;
 

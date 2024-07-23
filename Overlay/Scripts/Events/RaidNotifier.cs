@@ -38,7 +38,7 @@ namespace Overlay
             TwitchWebSocketMessagePayloadEventChannelRaid message
         )
         {
-            var username = message.FromBroadcasterUsername;
+            var username = message.FromBroadcasterUserName;
             var lowercaseUsername = username.ToLower();
             var viewerCount = message.Viewers;
 

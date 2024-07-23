@@ -26,7 +26,7 @@ namespace Overlay
 		)
 		{
 			m_pendingNames.Enqueue(
-				item: payload.Username
+				item: payload.UserName
 			);
 		}
 

@@ -17,7 +17,7 @@ namespace Overlay
         public string UserLogin = string.Empty;
 
         [JsonPropertyName("user_name")]
-        public string Username = string.Empty;
+        public string UserName = string.Empty;
 
         [JsonPropertyName("viewer_count")]
         public int? ViewerCount = 0;

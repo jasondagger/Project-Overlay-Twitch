@@ -14,7 +14,7 @@ namespace Overlay
         public string FromBroadcasterUserLogin { get; set; } = string.Empty;
 
         [JsonPropertyName("from_broadcaster_user_name")]
-        public string FromBroadcasterUsername { get; set; } = string.Empty;
+        public string FromBroadcasterUserName { get; set; } = string.Empty;
 
         [JsonPropertyName("to_broadcaster_user_id")]
         public string ToBroadcasterUserId { get; set; } = string.Empty;

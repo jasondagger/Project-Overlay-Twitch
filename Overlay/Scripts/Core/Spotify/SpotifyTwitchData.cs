@@ -7,6 +7,7 @@ namespace Overlay
     {
         public string ArtistName { get; set; } = string.Empty;
         public string Message { get; set; } = string.Empty;
+        public string OnScreenMessage { get; set; } = string.Empty;
         public int QueuePosition { get; set; } = 0;
         public string SearchParameters { get; set; } = string.Empty;
         public SpotifyTwitchDataRequestType SpotifyTwitchDataRequestType { get; set; } = SpotifyTwitchDataRequestType.CurrentTrack;

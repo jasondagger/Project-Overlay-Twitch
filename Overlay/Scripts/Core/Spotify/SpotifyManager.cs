@@ -235,9 +235,7 @@ namespace Overlay
         private bool IsAccessTokenExpired()
         {
             return DateTime.Compare(
-                t1: DateTime.Parse(
-                    s: $"{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}"
-                ),
+                t1: DateTime.UtcNow,
                 t2: DateTime.Parse(
                     s: m_spotifyAccessToken.ExpireTime
                 )
@@ -485,7 +483,12 @@ namespace Overlay
 #endif
             }
 
-            m_spotifyTwitchData.Message = $"Could not retrieve current playing song.";
+            m_spotifyTwitchData.Message =
+                $"could not retrieve current playing song.";
+            m_spotifyTwitchData.OnScreenMessage =
+                $"could not retrieve current playing song" +
+                $"{TwitchChatColorCodes.ConvertToNormalMessage(message: ".")}";
+
             Errored?.Invoke(
                 obj: m_spotifyTwitchData
             );
@@ -562,7 +565,12 @@ namespace Overlay
                 );
 #endif
 
-                m_spotifyTwitchData.Message = $"Failed to skip current track.";
+                m_spotifyTwitchData.Message = 
+                    $"current track failed to skip.";
+                m_spotifyTwitchData.OnScreenMessage = 
+                    $"current track failed to skip" +
+                    $"{TwitchChatColorCodes.ConvertToNormalMessage(message: ".")}";
+
                 Errored?.Invoke(
                     obj: m_spotifyTwitchData
                 );
@@ -599,8 +607,21 @@ namespace Overlay
                     what: $"{nameof(SpotifyManager)}.{nameof(OnRequestTrackQueueCompleted)}() - Web request POST failed with code {responseCode}."
                 );
 #endif
+                m_spotifyTwitchData.Message =
+                    $"failed to queue track " +
+                    $"\"" +
+                    $"{m_spotifyTwitchData.TrackName} " +
+                    $"by " +
+                    $"{m_spotifyTwitchData.ArtistName}" +
+                    $".\"";
+                m_spotifyTwitchData.OnScreenMessage =
+                    $"failed to queue the track " +
+                    $"{TwitchChatColorCodes.ConvertToNormalMessage(message: "\"")}" +
+                    $"{TwitchChatColorCodes.ConvertToSubErrorMessage(message: m_spotifyTwitchData.TrackName)} " +
+                    $"{TwitchChatColorCodes.ConvertToNormalMessage(message: "\" by \"")}" +
+                    $"{TwitchChatColorCodes.ConvertToSubErrorMessage(message: m_spotifyTwitchData.ArtistName)}" +
+                    $"{TwitchChatColorCodes.ConvertToNormalMessage(message: ".\"")}";
 
-                m_spotifyTwitchData.Message = $"Failed to queue the track \"{m_spotifyTwitchData.TrackName} - {m_spotifyTwitchData.ArtistName}.\"";
                 Errored?.Invoke(
                     obj: m_spotifyTwitchData
                 );
@@ -663,7 +684,17 @@ namespace Overlay
 #endif
             }
 
-            m_spotifyTwitchData.Message = $"Failed to find a track using \"{m_spotifyTwitchData.SearchParameters}.\"";
+            m_spotifyTwitchData.Message =
+                $"could not find a track using " +
+                $"\"" +
+                $"{m_spotifyTwitchData.SearchParameters}" +
+                $".\"";
+            m_spotifyTwitchData.OnScreenMessage =
+                $"could not find a track using " +
+                $"{TwitchChatColorCodes.ConvertToNormalMessage(message: "\"")}" +
+                $"{TwitchChatColorCodes.ConvertToSuccessMessage(message: m_spotifyTwitchData.SearchParameters)}" +
+                $"{TwitchChatColorCodes.ConvertToNormalMessage(message: ".\"")}";
+
             Errored?.Invoke(
                 obj: m_spotifyTwitchData
             );
@@ -780,7 +811,12 @@ namespace Overlay
 #endif
             }
 
-            m_spotifyTwitchData.Message = $"Failed to retrieve queue after queuing track.";
+            m_spotifyTwitchData.Message = 
+                $"queue failed to retrieve after queuing track.";
+            m_spotifyTwitchData.OnScreenMessage = 
+                $"queue failed to retrieve after queuing track" +
+                $"{TwitchChatColorCodes.ConvertToNormalMessage(message: ".")}";
+
             Errored?.Invoke(
                 obj: m_spotifyTwitchData
             );
@@ -825,7 +861,12 @@ namespace Overlay
                 );
 #endif
 
-                m_spotifyTwitchData.Message = $"Failed to retrieve queue after queuing track.";
+                m_spotifyTwitchData.Message = 
+                    $"queue failed to retrieve after queuing track.";
+                m_spotifyTwitchData.OnScreenMessage = 
+                    $"queue failed to retrieve after queuing track" +
+                    $"{TwitchChatColorCodes.ConvertToNormalMessage(message: ".")}";
+
                 Errored?.Invoke(
                     obj: m_spotifyTwitchData
                 );
@@ -871,7 +912,12 @@ namespace Overlay
                 );
 #endif
 
-                m_spotifyTwitchData.Message = $"Failed to retrieve queue after queuing track.";
+                m_spotifyTwitchData.Message = 
+                    $"queue failed to retrieve after queuing track.";
+                m_spotifyTwitchData.OnScreenMessage = 
+                    $"queue failed to retrieve after queuing track" +
+                    $"{TwitchChatColorCodes.ConvertToNormalMessage(message: ".")}";
+
                 Errored?.Invoke(
                     obj: m_spotifyTwitchData
                 );
@@ -932,7 +978,11 @@ namespace Overlay
                     _ = m_currentSpotifyQueuedUserTrackDatas.Dequeue();
                     if (m_currentSpotifyQueuedUserTrackDatas.Count is 0)
                     {
-                        m_spotifyTwitchData.Message = $"there are no song requests currently queued for viewers.";
+                        m_spotifyTwitchData.Message = 
+                            $"there are no song requests currently queued for viewers.";
+                        m_spotifyTwitchData.OnScreenMessage = 
+                            $"there are no song requests currently queued for viewers" +
+                            $"{TwitchChatColorCodes.ConvertToNormalMessage(message: ".")}";
                         UserTrackQueueRetrieveFailed?.Invoke(
                             obj: m_spotifyTwitchData    
                         );
@@ -952,10 +1002,16 @@ namespace Overlay
 #endif
             }
 
-            m_spotifyTwitchData.Message = $"Failed to retrieve user queue.";
+            m_spotifyTwitchData.Message = 
+                $"user queue failed to retrieve.";
+            m_spotifyTwitchData.OnScreenMessage = 
+                $"user queue failed to retrieve" +
+                $"{TwitchChatColorCodes.ConvertToNormalMessage(message: ".")}";
+
             Errored?.Invoke(
                 obj: m_spotifyTwitchData
             );
+          
             ResetSpotifyTwitchData();
         }
 
@@ -1265,10 +1321,16 @@ namespace Overlay
         {
             if (m_currentSpotifyQueuedUserTrackDatas.Count is 0)
             {
-                m_spotifyTwitchData.Message = $"there are no song requests currently queued for viewers.";
+                m_spotifyTwitchData.Message = 
+                    $"there are no song requests currently queued for viewers.";
+                m_spotifyTwitchData.OnScreenMessage = $"" +
+                    $"there are no song requests currently queued for viewers" +
+                    $"{TwitchChatColorCodes.ConvertToNormalMessage(message: ".")}";
+
                 UserTrackQueueRetrieveFailed?.Invoke(
                     obj: m_spotifyTwitchData
                 );
+
                 ResetSpotifyTwitchData();
                 return;
             }
@@ -1319,9 +1381,6 @@ namespace Overlay
                 path: NodeDirectory.NodePaths[NodeType.HttpManager]
             );
 
-            //RequestUserAuthorization();
-            //RequestAccessToken();
-
             if (
                 IsAccessTokenExpired() is true
             )
@@ -1349,7 +1408,9 @@ namespace Overlay
             m_spotifyTwitchData.ArtistName =
                 names.Length is 1
                 ? names[0]
-                : $"{string.Join(separator: ", ", values: names.Take(count: names.Length - 1))}, & {names.Last()}";
+                : $"{string.Join(separator: ", ", values: names.Take(count: names.Length - 1))}" +
+                  $"{(names.Length is 2 ? string.Empty : ",")} " +
+                  $"& {names.Last()}";
             m_spotifyTwitchData.TrackName = track.Name;
         }
 

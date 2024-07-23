@@ -23,7 +23,7 @@ namespace Overlay
         public string GifterUserLogin = string.Empty;
 
         [JsonPropertyName("gifter_user_name")]
-        public string GifterUsername = string.Empty;
+        public string GifterUserName = string.Empty;
 
         [JsonPropertyName("is_gift")]
         public bool? IsGift = false;

@@ -23,7 +23,7 @@ namespace Overlay
         public string RecipientUserLogin = string.Empty;
 
         [JsonPropertyName("recipient_user_name")]
-        public string RecipientUsername = string.Empty;
+        public string RecipientUserName = string.Empty;
 
         [JsonPropertyName("sub_tier")]
         public string SubTier = string.Empty;

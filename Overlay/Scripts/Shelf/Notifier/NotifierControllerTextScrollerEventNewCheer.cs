@@ -22,7 +22,7 @@ namespace Overlay
 		)
 		{
 			m_pendingNames.Enqueue(
-				item: payload.IsAnonymous ? "Anonymous" : payload.Username
+				item: payload.IsAnonymous ? "Anonymous" : payload.UserName
 			);
 			m_pendingNames.Enqueue(
 				item: $"{payload.Bits}x Bitt{(payload.Bits > 1u ? "ies" : "y")}!"

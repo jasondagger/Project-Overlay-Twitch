@@ -14,7 +14,7 @@ namespace Overlay
         public string AccountId { get; set; } = string.Empty;
 
         [JsonPropertyName("AccountUsername")]
-        public string AccountUsername { get; set; } = string.Empty;
+        public string AccountUserName { get; set; } = string.Empty;
 
         [JsonPropertyName("BotAccessToken")]
         public string BotAccessToken { get; set; } = string.Empty;

@@ -145,7 +145,7 @@ namespace Overlay
 			ConnectWebSocket();
 
 			RequestUser(
-				userLogin: m_twitchData.AccountUsername
+				userLogin: m_twitchData.AccountUserName
 			);
 
 			RequestChannelBadges();
@@ -208,24 +208,24 @@ namespace Overlay
 		}
 
 		public void SetCustomSubscriberData(
-			string username,
+			string userName,
 			TwitchCustomSubscriberData data
 		)
 		{
 			if (
 				m_customSubscriberDatas.ContainsKey(
-					key: username
+					key: userName
 				) is false
 			)
 			{
 				m_customSubscriberDatas.Add(
-					key: username,
+					key: userName,
 					value: data
 				);
 			}
 			else
 			{
-				m_customSubscriberDatas[username] = data;
+				m_customSubscriberDatas[userName] = data;
 			}
 
 			ApplicationManager.WriteRequiredFile(
@@ -321,7 +321,7 @@ namespace Overlay
 					FollowedAt = @event.FollowedAt,
 					UserId = @event.UserId,
 					UserLogin = @event.UserLogin,
-					Username = @event.Username,
+					Username = @event.UserName,
                 }
 			);
 			RequestUser(
@@ -345,7 +345,7 @@ namespace Overlay
                     Tier = @event.Tier,
 					UserId = @event.UserId,
 					UserLogin = @event.UserLogin,
-					Username = @event.Username,
+					Username = @event.UserName,
 				}
 			);
 		}
@@ -366,7 +366,7 @@ namespace Overlay
 					Tier = @event.Tier,
 					UserId = @event.UserId,
 					UserLogin = @event.UserLogin,
-					Username = @event.Username,
+					Username = @event.UserName,
 				}
 			);
 		}
