@@ -7,10 +7,10 @@ namespace Overlay
     [Serializable]
     public sealed class TwitchResponseUsersModerators
     {
-        [JsonPropertyName("data")]
+        [JsonPropertyName(name: "data")]
         public TwitchResponseUsersModeratorsData[] Data { get; set; } = null;
 
-        [JsonPropertyName("pagination")]
+        [JsonPropertyName(name: "pagination")]
         public TwitchResponseUsersModeratorsPagination Pagination { get; set; } = null;
     }
 }

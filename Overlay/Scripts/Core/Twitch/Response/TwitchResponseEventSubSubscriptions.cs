@@ -7,19 +7,19 @@ namespace Overlay
     [Serializable]
     public sealed class TwitchResponseEventSubSubscriptions
     {
-        [JsonPropertyName("data")]
+        [JsonPropertyName(name: "data")]
         public TwitchResponseEventSubSubscriptionsData[] Data { get; set; } = null;
 
-        [JsonPropertyName("total")]
+        [JsonPropertyName(name: "total")]
         public int Total { get; set; } = 0;
 
-        [JsonPropertyName("total_cost")]
+        [JsonPropertyName(name: "total_cost")]
         public int TotalCost { get; set; } = 0;
 
-        [JsonPropertyName("max_total_cost")]
+        [JsonPropertyName(name: "max_total_cost")]
         public int MaxTotalCost { get; set; } = 0;
 
-        [JsonPropertyName("pagination")]
+        [JsonPropertyName(name: "pagination")]
         public TwitchResponseEventSubSubscriptionsPagination Pagination { get; set; } = null;
     }
 }

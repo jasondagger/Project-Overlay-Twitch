@@ -7,7 +7,7 @@ namespace Overlay
     [Serializable]
     public sealed class TwitchResponseBadges
     {
-        [JsonPropertyName("data")]
+        [JsonPropertyName(name: "data")]
         public TwitchResponseBadgeData[] Data { get; set; } = null;
     }
 }

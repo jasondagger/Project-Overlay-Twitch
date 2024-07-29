@@ -7,10 +7,10 @@ namespace Overlay
     [Serializable]
     public sealed class SpotifyResponseCopyrights
     {
-        [JsonPropertyName("text")]
+        [JsonPropertyName(name: "text")]
         public string Text { get; set; } = string.Empty;
 
-        [JsonPropertyName("type")]
+        [JsonPropertyName(name: "type")]
         public string Type { get; set; } = string.Empty;
     }
 }

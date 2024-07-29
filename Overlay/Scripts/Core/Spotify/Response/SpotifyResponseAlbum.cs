@@ -7,46 +7,46 @@ namespace Overlay
     [Serializable]
     public sealed class SpotifyResponseAlbum
     {
-        [JsonPropertyName("album_type")]
+        [JsonPropertyName(name: "album_type")]
         public string AlbumnType { get; set; } = string.Empty;
 
-        [JsonPropertyName("total_tracks")]
+        [JsonPropertyName(name: "total_tracks")]
         public int TotalTracks { get; set; } = 0;
 
-        [JsonPropertyName("available_markets")]
+        [JsonPropertyName(name: "available_markets")]
         public string[] AvailableMarkets { get; set; } = null;
 
-        [JsonPropertyName("external_urls")]
+        [JsonPropertyName(name: "external_urls")]
         public SpotifyResponseExternalUrls ExternalUrls { get; set; } = null;
 
-        [JsonPropertyName("href")]
+        [JsonPropertyName(name: "href")]
         public string HRef { get; set; } = string.Empty;
 
-        [JsonPropertyName("id")]
+        [JsonPropertyName(name: "id")]
         public string Id { get; set; } = string.Empty;
 
-        [JsonPropertyName("images")]
+        [JsonPropertyName(name: "images")]
         public SpotifyResponseImage[] Images { get; set; } = null;
 
-        [JsonPropertyName("name")]
+        [JsonPropertyName(name: "name")]
         public string Name { get; set; } = string.Empty;
 
-        [JsonPropertyName("release_date")]
+        [JsonPropertyName(name: "release_date")]
         public string ReleaseDate { get; set; } = string.Empty;
 
-        [JsonPropertyName("release_date_precision")]
+        [JsonPropertyName(name: "release_date_precision")]
         public string ReleaseDatePrecision { get; set; } = string.Empty;
 
-        [JsonPropertyName("restrictions")]
+        [JsonPropertyName(name: "restrictions")]
         public SpotifyResponseRestrictions Restrictions { get; set; } = null;
 
-        [JsonPropertyName("type")]
+        [JsonPropertyName(name: "type")]
         public string Type { get; set; } = string.Empty;
 
-        [JsonPropertyName("uri")]
+        [JsonPropertyName(name: "uri")]
         public string Uri { get; set; } = string.Empty;
 
-        [JsonPropertyName("artists")]
+        [JsonPropertyName(name: "artists")]
         public SpotifyResponseSimplifiedArtist[] Artists { get; set; } = null;
     }
 }

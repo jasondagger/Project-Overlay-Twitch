@@ -7,7 +7,7 @@ namespace Overlay
     [Serializable]
     public sealed class TwitchConditionEventSubChannelCheer
     {
-        [JsonPropertyName("broadcaster_user_id")]
+        [JsonPropertyName(name: "broadcaster_user_id")]
         public string BroadcasterUserId { get; set; } = string.Empty;
 
         public TwitchConditionEventSubChannelCheer(

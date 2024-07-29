@@ -7,7 +7,7 @@ namespace Overlay
     [Serializable]
     public sealed class TwitchResponseUsers
     {
-        [JsonPropertyName("data")]
+        [JsonPropertyName(name: "data")]
         public TwitchResponseUser[] Data { get; set; } = null;
     }
 }

@@ -7,7 +7,7 @@ namespace Overlay
     [Serializable]
     public sealed class TwitchResponseUsersSubscribersPagination
     {
-        [JsonPropertyName("cursor")]
+        [JsonPropertyName(name: "cursor")]
         public string Cursor { get; set; } = string.Empty;
     }
 }

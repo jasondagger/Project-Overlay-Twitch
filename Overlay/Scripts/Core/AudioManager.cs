@@ -278,10 +278,9 @@ namespace Overlay
 			);
 #endif
 
-			const string nodeNameSoundAlerts = "SoundAlerts";
 			var soundAlertsNode = GetNode(
-				path: nodeNameSoundAlerts
-			);
+				path: "SoundAlerts"
+            );
 
 			var soundAlertTypes = Enum.GetValues<SoundAlertType>();
 			foreach (var soundAlertType in soundAlertTypes)

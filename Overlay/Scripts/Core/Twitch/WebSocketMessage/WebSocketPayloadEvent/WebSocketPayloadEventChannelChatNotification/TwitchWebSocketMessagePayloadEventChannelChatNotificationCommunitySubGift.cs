@@ -7,16 +7,16 @@ namespace Overlay
     [Serializable]
 	public sealed class TwitchWebSocketMessagePayloadEventChannelChatNotificationCommunitySubGift
 	{
-        [JsonPropertyName("cumulative_total")]
-        public int? CumulativeTotal = 0;
+        [JsonPropertyName(name: "cumulative_total")]
+        public int? CumulativeTotal { get; set; } = 0;
 
-        [JsonPropertyName("id")]
-        public string Id = string.Empty;
+        [JsonPropertyName(name: "id")]
+        public string Id { get; set; } = string.Empty;
 
-        [JsonPropertyName("sub_tier")]
-        public string SubTier = string.Empty;
+        [JsonPropertyName(name: "sub_tier")]
+        public string SubTier { get; set; } = string.Empty;
 
-        [JsonPropertyName("total")]
-        public int? Total = 0;
+        [JsonPropertyName(name: "total")]
+        public int? Total { get; set; } = 0;
 	}
 }

@@ -177,62 +177,62 @@ namespace Overlay
 			return m_channelSubscribers;
 		}
 
-		public TwitchCustomSubscriberData GetCustomSubscriberData(
-			string username	
+		public TwitchCustomUserData GetCustomUserData(
+			string userName	
 		)
 		{
 			if (
-				m_customSubscriberDatas.ContainsKey(
-					key: username
+				m_customUserDatas.ContainsKey(
+					key: userName
 				) is true
 			)
 			{
-				return m_customSubscriberDatas[username];
+				return m_customUserDatas[key: userName];
 			}
 			return null;
 		}
 
 		public TwitchResponseUser GetUser(
-			string username
+			string userName
 		)
 		{
 			if (
 				m_users.ContainsKey(
-					key: username
+					key: userName
 				) is true
 			)
 			{
-				return m_users[username];
+				return m_users[key: userName];
 			}
 			return null;
 		}
 
-		public void SetCustomSubscriberData(
+		public void SetCustomUserData(
 			string userName,
-			TwitchCustomSubscriberData data
+			TwitchCustomUserData userData
 		)
 		{
 			if (
-				m_customSubscriberDatas.ContainsKey(
+				m_customUserDatas.ContainsKey(
 					key: userName
 				) is false
 			)
 			{
-				m_customSubscriberDatas.Add(
+				m_customUserDatas.Add(
 					key: userName,
-					value: data
+					value: userData
 				);
 			}
 			else
 			{
-				m_customSubscriberDatas[userName] = data;
+				m_customUserDatas[key: userName] = userData;
 			}
 
 			ApplicationManager.WriteRequiredFile(
                 requiredFileType: RequiredFileType.SubscriberData,
                 bytes: Encoding.UTF8.GetBytes(
                     s: JsonSerializer.Serialize(
-                        value: m_customSubscriberDatas
+                        value: m_customUserDatas
                     )
                 )
             );
@@ -278,31 +278,31 @@ namespace Overlay
 
         private const string c_twitchSubscriberData = "user://SubscriberData.txt";
 
-		private struct SubscriptionGift
-		{
-			public string UserId { get; set; } = string.Empty;
-			public int Total { get; set; } = 0;
+        public struct TwitchChannelSubscriptionGift
+        {
+            public string UserId { get; set; } = string.Empty;
+            public int Total { get; set; } = 0;
 
-			public SubscriptionGift(
-				string userId,
-				int total
-			)
-			{
-				this.UserId = userId;
-				this.Total = total;
-			}
-		}
+            public TwitchChannelSubscriptionGift(
+                string userId,
+                int total
+            )
+            {
+                this.UserId = userId;
+                this.Total = total;
+            }
+        }
 
         private readonly Dictionary<string, TwitchResponseChannelFollowersData> m_channelFollowers = new();
         private readonly Dictionary<string, TwitchResponseUsersModeratorsData> m_channelModerators = new();
         private readonly Dictionary<string, TwitchResponseUsersSubscribersData> m_channelSubscribers = new();
-		private readonly List<TwitchResponseUsersSubscribersData> m_giftedSubscribers = new();
 		private readonly Dictionary<string, TwitchResponseUser> m_users = new();
-		private readonly Queue<TwitchMessage> m_messageQueue = new();
-        private readonly Queue<SubscriptionGift> m_pendingSubscriptionGifts = new();
+		private readonly List<TwitchResponseUsersSubscribersData> m_giftedSubscribers = new();
+        private readonly Queue<TwitchMessage> m_messageQueue = new();
+        private readonly Queue<TwitchChannelSubscriptionGift> m_pendingSubscriptionGifts = new();
         private readonly ClientWebSocket m_webSocket = new();
 
-		private Dictionary<string, TwitchCustomSubscriberData> m_customSubscriberDatas = new();
+		private Dictionary<string, TwitchCustomUserData> m_customUserDatas = null;
         private AudioManager m_audioManager = null;
 		private HttpManager m_httpManager = null;
 		private TwitchChannelPointRewardsManager m_twitchChannelPointRewardsManager = null;
@@ -641,7 +641,7 @@ namespace Overlay
 			var body = ApplicationManager.ReadRequiredFile(
 				requiredFileType: RequiredFileType.SubscriberData	
 			);
-            m_customSubscriberDatas = JsonSerializer.Deserialize<Dictionary<string, TwitchCustomSubscriberData>>(
+            m_customUserDatas = JsonSerializer.Deserialize<Dictionary<string, TwitchCustomUserData>>(
                 json: Encoding.UTF8.GetString(
                     bytes: body,
                     index: 0,
@@ -1246,9 +1246,9 @@ namespace Overlay
 					);
 #endif
 
-					if (m_customSubscriberDatas is not null)
+					if (m_customUserDatas is not null)
 					{
-                        var subscriberDatas = m_customSubscriberDatas;
+                        var subscriberDatas = m_customUserDatas;
                         foreach (var subscriberData in subscriberDatas)
                         {
 							var subscriberUsername = subscriberData.Key;
@@ -1258,7 +1258,7 @@ namespace Overlay
                                 ) is false
 							)
 							{
-								m_customSubscriberDatas.Remove(
+								m_customUserDatas.Remove(
                                     key: subscriberUsername
                                 );
 							}
@@ -1906,13 +1906,13 @@ namespace Overlay
             );
 
             m_audioManager = GetNode<AudioManager>(
-                path: NodeDirectory.NodePaths[NodeType.AudioManager]
+                path: NodeDirectory.NodePaths[key: NodeType.AudioManager]
             );
             m_httpManager = GetNode<HttpManager>(
-                path: NodeDirectory.NodePaths[NodeType.HttpManager]
+                path: NodeDirectory.NodePaths[key: NodeType.HttpManager]
             );
             m_twitchChannelPointRewardsManager = GetNode<TwitchChannelPointRewardsManager>(
-                path: NodeDirectory.NodePaths[NodeType.TwitchChannelPointRewardsManager]
+                path: NodeDirectory.NodePaths[key: NodeType.TwitchChannelPointRewardsManager]
             );
 
 			LoadCustomSubscriberDatas();
@@ -1927,10 +1927,10 @@ namespace Overlay
             {
                 var setId = data.SetId;
 				if (
-					isGlobal && 
+					isGlobal is true && 
 					c_twitchChannelBadges.Contains(
 						item: setId
-					)
+					) is true
 				)
 				{
 					continue;

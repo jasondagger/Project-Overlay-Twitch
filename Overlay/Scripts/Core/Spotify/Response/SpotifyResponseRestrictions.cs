@@ -7,7 +7,7 @@ namespace Overlay
     [Serializable]
     public sealed class SpotifyResponseRestrictions
     {
-        [JsonPropertyName("reason")]
+        [JsonPropertyName(name: "reason")]
         public string Reason { get; set; } = string.Empty;
     }
 }

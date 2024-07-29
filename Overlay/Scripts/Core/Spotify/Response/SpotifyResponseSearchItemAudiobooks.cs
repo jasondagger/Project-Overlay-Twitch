@@ -7,7 +7,7 @@ namespace Overlay
     [Serializable]
     public sealed class SpotifyResponseSearchItemAudiobooks
     {
-        [JsonPropertyName("access_token")]
+        [JsonPropertyName(name: "access_token")]
         public string AccessToken { get; set; } = string.Empty;
     }
 }

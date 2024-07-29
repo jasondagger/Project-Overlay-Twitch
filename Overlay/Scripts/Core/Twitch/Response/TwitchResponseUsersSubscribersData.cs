@@ -7,37 +7,37 @@ namespace Overlay
     [Serializable]
     public sealed class TwitchResponseUsersSubscribersData
     {
-        [JsonPropertyName("broadcaster_id")]
+        [JsonPropertyName(name: "broadcaster_id")]
         public string BroadcasterId { get; set; } = string.Empty;
 
-        [JsonPropertyName("broadcaster_login")]
+        [JsonPropertyName(name: "broadcaster_login")]
         public string BroadcasterLogin { get; set; } = string.Empty;
 
-        [JsonPropertyName("broadcaster_name")]
+        [JsonPropertyName(name: "broadcaster_name")]
         public string BroadcasterName { get; set; } = string.Empty;
 
-        [JsonPropertyName("gifter_id")]
+        [JsonPropertyName(name: "gifter_id")]
         public string GifterId { get; set; } = string.Empty;
 
-        [JsonPropertyName("gifter_login")]
+        [JsonPropertyName(name: "gifter_login")]
         public string GifterLogin { get; set; } = string.Empty;
 
-        [JsonPropertyName("is_gift")]
+        [JsonPropertyName(name: "is_gift")]
         public bool IsGift { get; set; } = false;
 
-        [JsonPropertyName("plan_name")]
+        [JsonPropertyName(name: "plan_name")]
         public string PlanName { get; set; } = string.Empty;
 
-        [JsonPropertyName("tier")]
+        [JsonPropertyName(name: "tier")]
         public string Tier { get; set; } = string.Empty;
 
-        [JsonPropertyName("user_id")]
+        [JsonPropertyName(name: "user_id")]
         public string UserId { get; set; } = string.Empty;
 
-        [JsonPropertyName("user_name")]
+        [JsonPropertyName(name: "user_name")]
         public string Username { get; set; } = string.Empty;
 
-        [JsonPropertyName("user_login")]
+        [JsonPropertyName(name: "user_login")]
         public string UserLogin { get; set; } = string.Empty;
     }
 }

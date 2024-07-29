@@ -15,20 +15,20 @@ namespace Overlay
 			Mention,
 		}
 
-        [JsonPropertyName("cheermote")]
-        public TwitchWebSocketMessagePayloadEventChannelChatNotificationMessageFragmentCheermote Cheermote = new();
+        [JsonPropertyName(name: "cheermote")]
+        public TwitchWebSocketMessagePayloadEventChannelChatNotificationMessageFragmentCheermote Cheermote { get; set; } = null;
 
-        [JsonPropertyName("emote")]
-        public TwitchWebSocketMessagePayloadEventChannelChatNotificationMessageFragmentEmote Emote = new();
+        [JsonPropertyName(name: "emote")]
+        public TwitchWebSocketMessagePayloadEventChannelChatNotificationMessageFragmentEmote Emote { get; set; } = null;
 
-        [JsonPropertyName("mention")]
-        public TwitchWebSocketMessagePayloadEventChannelChatNotificationMessageFragmentMention Mention = new();
+        [JsonPropertyName(name: "mention")]
+        public TwitchWebSocketMessagePayloadEventChannelChatNotificationMessageFragmentMention Mention { get; set; } = null;
 
-        [JsonPropertyName("text")]
-        public string Text = string.Empty;
+        [JsonPropertyName(name: "text")]
+        public string Text { get; set; } = string.Empty;
 
-        [JsonPropertyName("type")]
-        public string Type = string.Empty;
+        [JsonPropertyName(name: "type")]
+        public string Type { get; set; } = string.Empty;
 
 		public FragmentType GetFragmentType()
 		{

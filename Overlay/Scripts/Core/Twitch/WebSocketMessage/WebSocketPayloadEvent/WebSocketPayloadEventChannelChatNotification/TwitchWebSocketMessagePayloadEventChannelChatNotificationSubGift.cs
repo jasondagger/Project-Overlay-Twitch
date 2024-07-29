@@ -7,25 +7,25 @@ namespace Overlay
     [Serializable]
 	public sealed class TwitchWebSocketMessagePayloadEventChannelChatNotificationSubGift
 	{
-        [JsonPropertyName("community_gift_id")]
-        public string CommunityGiftId = string.Empty;
+        [JsonPropertyName(name: "community_gift_id")]
+        public string CommunityGiftId { get; set; } = string.Empty;
 
-        [JsonPropertyName("cumulative_total")]
-        public int? CumulativeTotal = 0;
+        [JsonPropertyName(name: "cumulative_total")]
+        public int? CumulativeTotal { get; set; } = 0;
 
-        [JsonPropertyName("duration_months")]
-        public int? DurationMonths = 0;
+        [JsonPropertyName(name: "duration_months")]
+        public int? DurationMonths { get; set; } = 0;
 
-        [JsonPropertyName("recipient_user_id")]
-        public string RecipientUserId = string.Empty;
+        [JsonPropertyName(name: "recipient_user_id")]
+        public string RecipientUserId { get; set; } = string.Empty;
 
-        [JsonPropertyName("recipient_user_login")]
-        public string RecipientUserLogin = string.Empty;
+        [JsonPropertyName(name: "recipient_user_login")]
+        public string RecipientUserLogin { get; set; } = string.Empty;
 
-        [JsonPropertyName("recipient_user_name")]
-        public string RecipientUserName = string.Empty;
+        [JsonPropertyName(name: "recipient_user_name")]
+        public string RecipientUserName { get; set; } = string.Empty;
 
-        [JsonPropertyName("sub_tier")]
-        public string SubTier = string.Empty;
+        [JsonPropertyName(name: "sub_tier")]
+        public string SubTier { get; set; } = string.Empty;
 	}
 }

@@ -7,13 +7,13 @@ namespace Overlay
     [Serializable]
     public sealed class TwitchResponseChannelFollowers
     {
-        [JsonPropertyName("total")]
+        [JsonPropertyName(name: "total")]
         public int Total { get; set; } = 0;
 
-        [JsonPropertyName("data")]
+        [JsonPropertyName(name: "data")]
         public TwitchResponseChannelFollowersData[] Data { get; set; } = null;
 
-        [JsonPropertyName("pagination")]
+        [JsonPropertyName(name: "pagination")]
         public TwitchResponseChannelFollowersPagination Pagination { get; set; } = null;
     }
 }

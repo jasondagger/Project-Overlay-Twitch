@@ -7,25 +7,25 @@ namespace Overlay
     [Serializable]
     public sealed class SpotifyResponseSearchItemTracks
     {
-        [JsonPropertyName("href")]
+        [JsonPropertyName(name: "href")]
         public string HRef { get; set; } = string.Empty;
 
-        [JsonPropertyName("items")]
+        [JsonPropertyName(name: "items")]
         public SpotifyResponseTrack[] Items { get; set; } = null;
 
-        [JsonPropertyName("limit")]
+        [JsonPropertyName(name: "limit")]
         public int Limit { get; set; } = 0;
 
-        [JsonPropertyName("next")]
+        [JsonPropertyName(name: "next")]
         public string Next { get; set; } = string.Empty;
 
-        [JsonPropertyName("offset")]
+        [JsonPropertyName(name: "offset")]
         public int Offset { get; set; } = 0;
 
-        [JsonPropertyName("previous")]
+        [JsonPropertyName(name: "previous")]
         public string Previous { get; set; } = string.Empty;
 
-        [JsonPropertyName("total")]
+        [JsonPropertyName(name: "total")]
         public int Total { get; set; } = 0;
     }
 }

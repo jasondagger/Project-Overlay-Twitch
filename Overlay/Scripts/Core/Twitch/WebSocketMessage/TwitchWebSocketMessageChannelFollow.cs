@@ -7,7 +7,7 @@ namespace Overlay
     [Serializable]
 	public sealed class TwitchWebSocketMessageChannelFollow : TwitchWebSocketMessage
 	{
-        [JsonPropertyName("payload")]
+        [JsonPropertyName(name: "payload")]
         public new TwitchWebSocketMessagePayloadChannelFollow Payload { get; set; } = new();
 	}
 }

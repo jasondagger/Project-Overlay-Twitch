@@ -64,7 +64,7 @@ namespace Overlay
             ColorType colorType
         )
         {
-            return c_colorHexes[colorType];
+            return c_colorHexes[key: colorType];
         }
 
         public static string GetRainbowColorTag()
@@ -81,7 +81,7 @@ namespace Overlay
             string hexCode    
         )
         {
-            return c_colorHexes[ColorType.Rainbow].Contains(
+            return c_colorHexes[key: ColorType.Rainbow].Contains(
                 value: hexCode    
             );
         }
@@ -91,12 +91,52 @@ namespace Overlay
         )
         {
             var rainbowifiedText = string.Empty;
-
             var colorIterator = 0;
-            foreach (var character in text)
+            for (var i = 0; i < text.Length; i++)
             {
-                rainbowifiedText += $"{(character.Equals(obj: ' ') ? character : $"[color={c_colorHexes[key: c_rainbowColorTypes[index: colorIterator++]]}]{character}")}";
-                if (colorIterator == c_rainbowColorTypes.Count)
+                var character = text[i];
+                rainbowifiedText +=
+                    $"{(character.Equals(obj: ' ') ? character : $"[color={c_colorHexes[key: c_rainbowColorTypes[index: colorIterator++]]}]{character}")}";
+                if (
+                    colorIterator.Equals(
+                        obj: c_rainbowColorTypes.Count
+                    ) is true
+                )
+                {
+                    colorIterator = 0;
+                }
+            }
+
+            return rainbowifiedText;
+        }
+
+        public static string RainbowifyTextWithEmotes(
+            string text,
+            HashSet<int> emoteIndices
+        )
+        {
+            var rainbowifiedText = string.Empty;
+            var colorIterator = 0;
+            for (var i = 0; i < text.Length; i++)
+            {
+                var character = text[i];
+                if (
+                    emoteIndices.Contains(
+                        item: i
+                    ) is true
+                )
+                {
+                    rainbowifiedText += character;
+                    continue;
+                }
+
+                rainbowifiedText += 
+                    $"{(character.Equals(obj: ' ') ? character : $"[color={c_colorHexes[key: c_rainbowColorTypes[index: colorIterator++]]}]{character}")}";
+                if (
+                    colorIterator.Equals(
+                        obj: c_rainbowColorTypes.Count
+                    ) is true
+                )
                 {
                     colorIterator = 0;
                 }
@@ -117,8 +157,8 @@ namespace Overlay
 
         private sealed class RainbowColorIndexData
         {
-            public Color Current { get; set; } = c_colorCodes[ColorType.Rainbow];
-            public Color Previous { get; set; } = c_colorCodes[ColorType.Rainbow];
+            public Color Current { get; set; } = c_colorCodes[key: ColorType.Rainbow];
+            public Color Previous { get; set; } = c_colorCodes[key: ColorType.Rainbow];
             public float Interpolation { get; set; } = 0f;
             public ColorInterpolationType InterpolationType { get; set; } = ColorInterpolationType.RedToYellow;
 
@@ -138,37 +178,37 @@ namespace Overlay
 
         private static readonly Dictionary<ColorType, Color> c_colorCodes = new()
         {
-            { ColorType.Red,       new(0xF898A4FF) },
-            { ColorType.Orange,    new(0xFBCCADFF) },
-            { ColorType.Yellow,    new(0xFDFFB6FF) },
-            { ColorType.Lime,      new(0xE4FFBBFF) },
-            { ColorType.Green,     new(0xCAFFBFFF) },
-            { ColorType.Turquoise, new(0xB3FBDEFF) },
-            { ColorType.Cyan,      new(0x9BF6FFFF) },
-            { ColorType.Teal,      new(0x9EDCFFFF) },
-            { ColorType.Blue,      new(0xA0C4FFFF) },
-            { ColorType.Purple,    new(0xD0C5FFFF) },
-            { ColorType.Magenta,   new(0xFFC6FFFF) },
-            { ColorType.Pink,      new(0xFCAFDCFF) },
-            { ColorType.White,     new(0xF2F2F2FF) },
-            { ColorType.Rainbow,   new(0x000000FF) },
+            { ColorType.Red,       new(rgba: 0xF898A4FF) },
+            { ColorType.Orange,    new(rgba: 0xFBCCADFF) },
+            { ColorType.Yellow,    new(rgba: 0xFDFFB6FF) },
+            { ColorType.Lime,      new(rgba: 0xE4FFBBFF) },
+            { ColorType.Green,     new(rgba: 0xCAFFBFFF) },
+            { ColorType.Turquoise, new(rgba: 0xB3FBDEFF) },
+            { ColorType.Cyan,      new(rgba: 0x9BF6FFFF) },
+            { ColorType.Teal,      new(rgba: 0x9EDCFFFF) },
+            { ColorType.Blue,      new(rgba: 0xA0C4FFFF) },
+            { ColorType.Purple,    new(rgba: 0xD0C5FFFF) },
+            { ColorType.Magenta,   new(rgba: 0xFFC6FFFF) },
+            { ColorType.Pink,      new(rgba: 0xFCAFDCFF) },
+            { ColorType.White,     new(rgba: 0xF2F2F2FF) },
+            { ColorType.Rainbow,   new(rgba: 0x000000FF) },
         };
         private static readonly Dictionary<ColorType, string> c_colorHexes = new()
         {
-            { ColorType.Red,       c_colorCodes[ ColorType.Red       ].ToHtml() },
-            { ColorType.Orange,    c_colorCodes[ ColorType.Orange    ].ToHtml() },
-            { ColorType.Yellow,    c_colorCodes[ ColorType.Yellow    ].ToHtml() },
-            { ColorType.Lime,      c_colorCodes[ ColorType.Lime      ].ToHtml() },
-            { ColorType.Green,     c_colorCodes[ ColorType.Green     ].ToHtml() },
-            { ColorType.Turquoise, c_colorCodes[ ColorType.Turquoise ].ToHtml() },
-            { ColorType.Cyan,      c_colorCodes[ ColorType.Cyan      ].ToHtml() },
-            { ColorType.Teal,      c_colorCodes[ ColorType.Teal      ].ToHtml() },
-            { ColorType.Blue,      c_colorCodes[ ColorType.Blue      ].ToHtml() },
-            { ColorType.Purple,    c_colorCodes[ ColorType.Purple    ].ToHtml() },
-            { ColorType.Magenta,   c_colorCodes[ ColorType.Magenta   ].ToHtml() },
-            { ColorType.Pink,      c_colorCodes[ ColorType.Pink      ].ToHtml() },
-            { ColorType.White,     c_colorCodes[ ColorType.White     ].ToHtml() },
-            { ColorType.Rainbow,   c_colorCodes[ ColorType.Rainbow   ].ToHtml() },
+            { ColorType.Red,       c_colorCodes[key: ColorType.Red       ].ToHtml() },
+            { ColorType.Orange,    c_colorCodes[key: ColorType.Orange    ].ToHtml() },
+            { ColorType.Yellow,    c_colorCodes[key: ColorType.Yellow    ].ToHtml() },
+            { ColorType.Lime,      c_colorCodes[key: ColorType.Lime      ].ToHtml() },
+            { ColorType.Green,     c_colorCodes[key: ColorType.Green     ].ToHtml() },
+            { ColorType.Turquoise, c_colorCodes[key: ColorType.Turquoise ].ToHtml() },
+            { ColorType.Cyan,      c_colorCodes[key: ColorType.Cyan      ].ToHtml() },
+            { ColorType.Teal,      c_colorCodes[key: ColorType.Teal      ].ToHtml() },
+            { ColorType.Blue,      c_colorCodes[key: ColorType.Blue      ].ToHtml() },
+            { ColorType.Purple,    c_colorCodes[key: ColorType.Purple    ].ToHtml() },
+            { ColorType.Magenta,   c_colorCodes[key: ColorType.Magenta   ].ToHtml() },
+            { ColorType.Pink,      c_colorCodes[key: ColorType.Pink      ].ToHtml() },
+            { ColorType.White,     c_colorCodes[key: ColorType.White     ].ToHtml() },
+            { ColorType.Rainbow,   c_colorCodes[key: ColorType.Rainbow   ].ToHtml() },
         };
         private static readonly List<ColorType> c_rainbowColorTypes = new()
         {
@@ -184,14 +224,15 @@ namespace Overlay
         private const float c_colorInterpolationRate = 0.25f;
         private const string c_rainbowColorTag = "[RAINBOW]";
         private const string c_spectrumColorTag = "[SPECTRUM]";
+        private string c_unicodeEmojiRegexPattern = string.Empty;
 
         private readonly Dictionary<RainbowColorIndexType, RainbowColorIndexData> m_rainbowColorDatas = new()
         {
             {
                 RainbowColorIndexType.Color0,
                 new(
-                    current: c_colorCodes[ColorType.Red],
-                    previous: c_colorCodes[ColorType.Red],
+                    current: c_colorCodes[key: ColorType.Red],
+                    previous: c_colorCodes[key: ColorType.Red],
                     interpolation: 0f,
                     interpolationType: ColorInterpolationType.RedToYellow
                 )
@@ -199,8 +240,8 @@ namespace Overlay
             {
                 RainbowColorIndexType.Color1,
                 new(
-                    current: c_colorCodes[ColorType.Yellow],
-                    previous: c_colorCodes[ColorType.Yellow],
+                    current: c_colorCodes[key: ColorType.Yellow],
+                    previous: c_colorCodes[key: ColorType.Yellow],
                     interpolation: 0f,
                     interpolationType: ColorInterpolationType.YellowToGreen
                 )
@@ -208,8 +249,8 @@ namespace Overlay
             {
                 RainbowColorIndexType.Color2,
                 new(
-                    current: c_colorCodes[ColorType.Green],
-                    previous: c_colorCodes[ColorType.Green],
+                    current: c_colorCodes[key: ColorType.Green],
+                    previous: c_colorCodes[key: ColorType.Green],
                     interpolation: 0f,
                     interpolationType: ColorInterpolationType.GreenToCyan
                 )
@@ -217,8 +258,8 @@ namespace Overlay
             {
                 RainbowColorIndexType.Color3,
                 new(
-                    current: c_colorCodes[ColorType.Cyan],
-                    previous: c_colorCodes[ColorType.Cyan],
+                    current: c_colorCodes[key: ColorType.Cyan],
+                    previous: c_colorCodes[key: ColorType.Cyan],
                     interpolation: 0f,
                     interpolationType: ColorInterpolationType.CyanToBlue
                 )
@@ -226,8 +267,8 @@ namespace Overlay
             {
                 RainbowColorIndexType.Color4,
                 new(
-                    current: c_colorCodes[ColorType.Blue],
-                    previous: c_colorCodes[ColorType.Blue],
+                    current: c_colorCodes[key: ColorType.Blue],
+                    previous: c_colorCodes[key: ColorType.Blue],
                     interpolation: 0f,
                     interpolationType: ColorInterpolationType.BlueToMagenta
                 )
@@ -235,8 +276,8 @@ namespace Overlay
             {
                 RainbowColorIndexType.Color5,
                 new(
-                    current: c_colorCodes[ColorType.Magenta],
-                    previous: c_colorCodes[ColorType.Magenta],
+                    current: c_colorCodes[key: ColorType.Magenta],
+                    previous: c_colorCodes[key: ColorType.Magenta],
                     interpolation: 0f,
                     interpolationType: ColorInterpolationType.MagentaToRed
                 )
@@ -250,7 +291,7 @@ namespace Overlay
             var rainbowColorIndexTypes = Enum.GetValues<RainbowColorIndexType>();
             foreach (var rainbowColorIndexType in rainbowColorIndexTypes)
             {
-                var rainbowColorIndexData = m_rainbowColorDatas[rainbowColorIndexType];
+                var rainbowColorIndexData = m_rainbowColorDatas[key: rainbowColorIndexType];
 
                 var currentColor = rainbowColorIndexData.Current;
                 var previousColor = rainbowColorIndexData.Previous;
@@ -262,90 +303,90 @@ namespace Overlay
                 {
                     case ColorInterpolationType.RedToYellow:
                         currentColor = previousColor.Lerp(
-                            to: c_colorCodes[ColorType.Yellow],
+                            to: c_colorCodes[key: ColorType.Yellow],
                             weight: colorInterpolation
                         );
 
                         if (colorInterpolation >= 1f)
                         {
                             colorInterpolation = 0f;
-                            currentColor = c_colorCodes[ColorType.Yellow];
-                            previousColor = c_colorCodes[ColorType.Yellow];
+                            currentColor = c_colorCodes[key: ColorType.Yellow];
+                            previousColor = c_colorCodes[key: ColorType.Yellow];
                             colorInterpolationType = ColorInterpolationType.YellowToGreen;
                         }
                         break;
 
                     case ColorInterpolationType.YellowToGreen:
                         currentColor = previousColor.Lerp(
-                            to: c_colorCodes[ColorType.Green],
+                            to: c_colorCodes[key: ColorType.Green],
                             weight: colorInterpolation
                         );
 
                         if (colorInterpolation >= 1f)
                         {
                             colorInterpolation = 0f;
-                            currentColor = c_colorCodes[ColorType.Green];
-                            previousColor = c_colorCodes[ColorType.Green];
+                            currentColor = c_colorCodes[key: ColorType.Green];
+                            previousColor = c_colorCodes[key: ColorType.Green];
                             colorInterpolationType = ColorInterpolationType.GreenToCyan;
                         }
                         break;
 
                     case ColorInterpolationType.GreenToCyan:
                         currentColor = previousColor.Lerp(
-                            to: c_colorCodes[ColorType.Cyan],
+                            to: c_colorCodes[key: ColorType.Cyan],
                             weight: colorInterpolation
                         );
 
                         if (colorInterpolation >= 1f)
                         {
                             colorInterpolation = 0f;
-                            currentColor = c_colorCodes[ColorType.Cyan];
-                            previousColor = c_colorCodes[ColorType.Cyan];
+                            currentColor = c_colorCodes[key: ColorType.Cyan];
+                            previousColor = c_colorCodes[key: ColorType.Cyan];
                             colorInterpolationType = ColorInterpolationType.CyanToBlue;
                         }
                         break;
 
                     case ColorInterpolationType.CyanToBlue:
                         currentColor = previousColor.Lerp(
-                            to: c_colorCodes[ColorType.Blue],
+                            to: c_colorCodes[key: ColorType.Blue],
                             weight: colorInterpolation
                         );
 
                         if (colorInterpolation >= 1f)
                         {
                             colorInterpolation = 0f;
-                            currentColor = c_colorCodes[ColorType.Blue];
-                            previousColor = c_colorCodes[ColorType.Blue];
+                            currentColor = c_colorCodes[key: ColorType.Blue];
+                            previousColor = c_colorCodes[key: ColorType.Blue];
                             colorInterpolationType = ColorInterpolationType.BlueToMagenta;
                         }
                         break;
 
                     case ColorInterpolationType.BlueToMagenta:
                         currentColor = previousColor.Lerp(
-                            to: c_colorCodes[ColorType.Magenta],
+                            to: c_colorCodes[key: ColorType.Magenta],
                             weight: colorInterpolation
                         );
 
                         if (colorInterpolation >= 1f)
                         {
                             colorInterpolation = 0f;
-                            currentColor = c_colorCodes[ColorType.Magenta];
-                            previousColor = c_colorCodes[ColorType.Magenta];
+                            currentColor = c_colorCodes[key: ColorType.Magenta];
+                            previousColor = c_colorCodes[key: ColorType.Magenta];
                             colorInterpolationType = ColorInterpolationType.MagentaToRed;
                         }
                         break;
 
                     case ColorInterpolationType.MagentaToRed:
                         currentColor = previousColor.Lerp(
-                            to: c_colorCodes[ColorType.Red],
+                            to: c_colorCodes[key: ColorType.Red],
                             weight: colorInterpolation
                         );
 
                         if (colorInterpolation >= 1f)
                         {
                             colorInterpolation = 0f;
-                            currentColor = c_colorCodes[ColorType.Red];
-                            previousColor = c_colorCodes[ColorType.Red];
+                            currentColor = c_colorCodes[key: ColorType.Red];
+                            previousColor = c_colorCodes[key: ColorType.Red];
                             colorInterpolationType = ColorInterpolationType.RedToYellow;
                         }
                         break;

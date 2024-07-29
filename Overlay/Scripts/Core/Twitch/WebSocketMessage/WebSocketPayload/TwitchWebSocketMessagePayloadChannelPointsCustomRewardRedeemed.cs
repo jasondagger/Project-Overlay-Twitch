@@ -7,7 +7,7 @@ namespace Overlay
     [Serializable]
 	public sealed class TwitchWebSocketMessagePayloadChannelPointsCustomRewardRedeemed : TwitchWebSocketMessagePayload
 	{
-        [JsonPropertyName("event")]
+        [JsonPropertyName(name: "event")]
         public TwitchWebSocketMessagePayloadEventChannelPointsCustomRewardRedeemed Event { get; set; } = null;
 	}
 }

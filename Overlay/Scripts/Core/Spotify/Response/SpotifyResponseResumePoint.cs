@@ -7,10 +7,10 @@ namespace Overlay
     [Serializable]
     public sealed class SpotifyResponseResumePoint
     {
-        [JsonPropertyName("fully_played")]
+        [JsonPropertyName(name: "fully_played")]
         public bool FullyPlayed { get; set; } = false;
 
-        [JsonPropertyName("resume_position_ms")]
+        [JsonPropertyName(name: "resume_position_ms")]
         public string ResumePositionMS { get; set; } = string.Empty;
     }
 }

@@ -7,13 +7,13 @@ namespace Overlay
     [Serializable]
 	public sealed class TwitchWebSocketMessagePayloadEventChannelChatNotificationMessageFragmentMention
 	{
-        [JsonPropertyName("user_id")]
-        public string UserId = string.Empty;
+        [JsonPropertyName(name: "user_id")]
+        public string UserId { get; set; } = string.Empty;
 
-        [JsonPropertyName("user_login")]
-        public string UserLogin = string.Empty;
+        [JsonPropertyName(name: "user_login")]
+        public string UserLogin { get; set; } = string.Empty;
 
-        [JsonPropertyName("user_name")]
-        public string Username = string.Empty;
+        [JsonPropertyName(name: "user_name")]
+        public string UserName { get; set; } = string.Empty;
 	}
 }

@@ -7,28 +7,28 @@ namespace Overlay
     [Serializable]
     public sealed class TwitchData
     {
-        [JsonPropertyName("AccountAccessToken")]
+        [JsonPropertyName(name: "AccountAccessToken")]
         public string AccountAccessToken { get; set; } = string.Empty;
 
-        [JsonPropertyName("AccountId")]
+        [JsonPropertyName(name: "AccountId")]
         public string AccountId { get; set; } = string.Empty;
 
-        [JsonPropertyName("AccountUsername")]
+        [JsonPropertyName(name: "AccountUsername")]
         public string AccountUserName { get; set; } = string.Empty;
 
-        [JsonPropertyName("BotAccessToken")]
+        [JsonPropertyName(name: "BotAccessToken")]
         public string BotAccessToken { get; set; } = string.Empty;
 
-        [JsonPropertyName("BotUsername")]
+        [JsonPropertyName(name: "BotUsername")]
         public string BotUsername { get; set; } = string.Empty;
 
-        [JsonPropertyName("ClientId")]
+        [JsonPropertyName(name: "ClientId")]
         public string ClientId { get; set; } = string.Empty;
 
-        [JsonPropertyName("ClientSecret")]
+        [JsonPropertyName(name: "ClientSecret")]
         public string ClientSecret { get; set; } = string.Empty;
 
-        [JsonPropertyName("TwitchChannel")]
+        [JsonPropertyName(name: "TwitchChannel")]
         public string TwitchChannel { get; set; } = string.Empty;
     }
 }

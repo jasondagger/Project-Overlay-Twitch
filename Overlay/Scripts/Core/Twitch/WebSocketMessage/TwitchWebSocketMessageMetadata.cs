@@ -7,19 +7,19 @@ namespace Overlay
     [Serializable]
     public sealed class TwitchWebSocketMessageMetadata
     {
-        [JsonPropertyName("message_id")]
+        [JsonPropertyName(name: "message_id")]
         public string MessageId { get; set; } = string.Empty;
 
-        [JsonPropertyName("message_type")]
+        [JsonPropertyName(name: "message_type")]
         public string MessageType { get; set; } = string.Empty;
 
-        [JsonPropertyName("message_timestamp")]
+        [JsonPropertyName(name: "message_timestamp")]
         public string MessageTimestamp { get; set; } = string.Empty;
 
-        [JsonPropertyName("subscription_type")]
+        [JsonPropertyName(name: "subscription_type")]
         public string SubscriptionType { get; set; } = string.Empty;
 
-        [JsonPropertyName("subscription_version")]
+        [JsonPropertyName(name: "subscription_version")]
         public string SubscriptionVersion { get; set; } = string.Empty;
     }
 }

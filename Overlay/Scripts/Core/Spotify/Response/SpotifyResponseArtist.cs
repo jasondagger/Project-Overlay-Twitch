@@ -7,34 +7,34 @@ namespace Overlay
     [Serializable]
     public sealed class SpotifyResponseArtist
     {
-        [JsonPropertyName("external_urls")]
+        [JsonPropertyName(name: "external_urls")]
         public SpotifyResponseExternalUrls ExternalUrls { get; set; } = null;
 
-        [JsonPropertyName("followers")]
+        [JsonPropertyName(name: "followers")]
         public SpotifyResponseFollowers Followers { get; set; } = null;
 
-        [JsonPropertyName("genres")]
+        [JsonPropertyName(name: "genres")]
         public string[] Genres { get; set; } = null;
 
-        [JsonPropertyName("href")]
+        [JsonPropertyName(name: "href")]
         public string HRef { get; set; } = string.Empty;
 
-        [JsonPropertyName("id")]
+        [JsonPropertyName(name: "id")]
         public string Id { get; set; } = string.Empty;
 
-        [JsonPropertyName("images")]
+        [JsonPropertyName(name: "images")]
         public SpotifyResponseImage[] Images { get; set; } = null;
 
-        [JsonPropertyName("name")]
+        [JsonPropertyName(name: "name")]
         public string Name { get; set; } = string.Empty;
 
-        [JsonPropertyName("popularity")]
+        [JsonPropertyName(name: "popularity")]
         public int Popularity { get; set; } = 0;
 
-        [JsonPropertyName("type")]
+        [JsonPropertyName(name: "type")]
         public string Type { get; set; } = string.Empty;
 
-        [JsonPropertyName("uri")]
+        [JsonPropertyName(name: "uri")]
         public string Uri { get; set; } = string.Empty;
     }
 }

@@ -7,7 +7,7 @@ namespace Overlay
     [Serializable]
     public sealed class TwitchResponseCustomRewardCreate
     {
-        [JsonPropertyName("data")]
+        [JsonPropertyName(name: "data")]
         public TwitchResponseCustomRewardCreateData[] Data { get; set; } = null;
     }
 }

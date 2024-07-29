@@ -7,10 +7,10 @@ namespace Overlay
     [Serializable]
     public class TwitchWebSocketMessagePayload
     {
-        [JsonPropertyName("session")]
+        [JsonPropertyName(name: "session")]
         public TwitchWebSocketMessagePayloadSession Session { get; set; } = new();
 
-        [JsonPropertyName("subscription")]
+        [JsonPropertyName(name: "subscription")]
         public TwitchWebSocketMessagePayloadSubscription Subscription { get; set; } = new();
     }
 }

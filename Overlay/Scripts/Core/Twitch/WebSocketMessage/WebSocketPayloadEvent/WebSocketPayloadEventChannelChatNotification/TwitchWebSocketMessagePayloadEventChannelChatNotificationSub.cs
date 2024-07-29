@@ -7,13 +7,13 @@ namespace Overlay
     [Serializable]
 	public sealed class TwitchWebSocketMessagePayloadEventChannelChatNotificationSub
 	{
-        [JsonPropertyName("duration_months")]
-        public int? DurationMonths = 0;
+        [JsonPropertyName(name: "duration_months")]
+        public int? DurationMonths { get; set; } = 0;
 
-        [JsonPropertyName("is_prime")]
-        public bool? IsPrime = false;
+        [JsonPropertyName(name: "is_prime")]
+        public bool? IsPrime { get; set; } = false;
 
-        [JsonPropertyName("sub_tier")]
-        public string SubTier = string.Empty;
+        [JsonPropertyName(name: "sub_tier")]
+        public string SubTier { get; set; } = string.Empty;
 	}
 }

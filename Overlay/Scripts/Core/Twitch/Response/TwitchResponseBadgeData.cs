@@ -7,10 +7,10 @@ namespace Overlay
     [Serializable]
     public sealed class TwitchResponseBadgeData
     {
-        [JsonPropertyName("set_id")]
+        [JsonPropertyName(name: "set_id")]
         public string SetId { get; set; } = string.Empty;
 
-        [JsonPropertyName("versions")]
+        [JsonPropertyName(name: "versions")]
         public TwitchResponseBadgeDataVersions[] Versions { get; set; } = null;
     }
 }

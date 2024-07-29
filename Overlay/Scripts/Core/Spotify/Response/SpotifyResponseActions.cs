@@ -7,34 +7,34 @@ namespace Overlay
     [Serializable]
     public sealed class SpotifyResponseActions
     {
-        [JsonPropertyName("interrupting_playback")]
+        [JsonPropertyName(name: "interrupting_playback")]
         public bool InterruptingPlayback { get; set; } = false;
 
-        [JsonPropertyName("pausing")]
+        [JsonPropertyName(name: "pausing")]
         public bool Pausing { get; set; } = false;
 
-        [JsonPropertyName("resuming")]
+        [JsonPropertyName(name: "resuming")]
         public bool Resuming { get; set; } = false;
 
-        [JsonPropertyName("seeking")]
+        [JsonPropertyName(name: "seeking")]
         public bool Seeking { get; set; } = false;
 
-        [JsonPropertyName("skipping_next")]
+        [JsonPropertyName(name: "skipping_next")]
         public bool SkippingNext { get; set; } = false;
 
-        [JsonPropertyName("skipping_prev")]
+        [JsonPropertyName(name: "skipping_prev")]
         public bool SkippingPrevious { get; set; } = false;
 
-        [JsonPropertyName("toggling_repeat_context")]
+        [JsonPropertyName(name: "toggling_repeat_context")]
         public bool TogglingRepeatContext { get; set; } = false;
 
-        [JsonPropertyName("toggling_shuffle")]
+        [JsonPropertyName(name: "toggling_shuffle")]
         public bool TogglingShuffle { get; set; } = false;
 
-        [JsonPropertyName("toggling_repeat_track")]
+        [JsonPropertyName(name: "toggling_repeat_track")]
         public bool TogglingRepeatTrack { get; set; } = false;
 
-        [JsonPropertyName("transferring_playback")]
+        [JsonPropertyName(name: "transferring_playback")]
         public bool TransferringPlayback { get; set; } = false;
     }
 }

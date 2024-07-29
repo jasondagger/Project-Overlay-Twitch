@@ -7,19 +7,19 @@ namespace Overlay
     [Serializable]
     public sealed class TwitchWebSocketMessagePayloadSession
     {
-        [JsonPropertyName("id")]
+        [JsonPropertyName(name: "id")]
         public string Id { get; set; } = string.Empty;
 
-        [JsonPropertyName("status")]
+        [JsonPropertyName(name: "status")]
         public string Status { get; set; } = string.Empty;
 
-        [JsonPropertyName("keepalive_timeout_seconds")]
+        [JsonPropertyName(name: "keepalive_timeout_seconds")]
         public int KeepaliveTimeoutSeconds { get; set; } = 0;
 
-        [JsonPropertyName("reconnect_url")]
+        [JsonPropertyName(name: "reconnect_url")]
         public string ReconnectUrl { get; set; } = string.Empty;
 
-        [JsonPropertyName("connected_at")]
+        [JsonPropertyName(name: "connected_at")]
         public string ConnectedAt { get; set; } = string.Empty;
     }
 }

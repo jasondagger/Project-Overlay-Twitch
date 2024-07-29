@@ -7,7 +7,7 @@ namespace Overlay
     [Serializable]
 	public sealed class TwitchWebSocketMessagePayloadEventChannelChatNotificationPrimePaidUpgrade
 	{
-        [JsonPropertyName("sub_tier")]
-        public string SubTier = string.Empty;
+        [JsonPropertyName(name: "sub_tier")]
+        public string SubTier { get; set; } = string.Empty;
 	}
 }

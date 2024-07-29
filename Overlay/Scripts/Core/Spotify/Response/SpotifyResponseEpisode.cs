@@ -7,67 +7,67 @@ namespace Overlay
     [Serializable]
     public sealed class SpotifyResponseEpisode
     {
-        [JsonPropertyName("audio_preview_url")]
+        [JsonPropertyName(name: "audio_preview_url")]
         public string AudioPreviewUrl { get; set; } = string.Empty;
 
-        [JsonPropertyName("description")]
+        [JsonPropertyName(name: "description")]
         public string Description { get; set; } = string.Empty;
 
-        [JsonPropertyName("duration_ms")]
+        [JsonPropertyName(name: "duration_ms")]
         public int DurationMS { get; set; } = 0;
 
-        [JsonPropertyName("explicit")]
+        [JsonPropertyName(name: "explicit")]
         public bool Explicit { get; set; } = false;
 
-        [JsonPropertyName("external_urls")]
+        [JsonPropertyName(name: "external_urls")]
         public SpotifyResponseExternalUrls ExternalUrls { get; set; } = null;
 
-        [JsonPropertyName("href")]
+        [JsonPropertyName(name: "href")]
         public string HRef { get; set; } = string.Empty;
 
-        [JsonPropertyName("html_description")]
+        [JsonPropertyName(name: "html_description")]
         public string HtmlDescription { get; set; } = string.Empty;
 
-        [JsonPropertyName("id")]
+        [JsonPropertyName(name: "id")]
         public string Id { get; set; } = string.Empty;
 
-        [JsonPropertyName("images")]
+        [JsonPropertyName(name: "images")]
         public SpotifyResponseImage[] Images { get; set; } = null;
 
-        [JsonPropertyName("is_externally_hosted")]
+        [JsonPropertyName(name: "is_externally_hosted")]
         public bool IsExternallyHosted { get; set; } = false;
 
-        [JsonPropertyName("is_playable")]
+        [JsonPropertyName(name: "is_playable")]
         public bool IsPlayable { get; set; } = false;
 
-        [JsonPropertyName("language")]
+        [JsonPropertyName(name: "language")]
         public string Language { get; set; } = string.Empty;
 
-        [JsonPropertyName("languages")]
+        [JsonPropertyName(name: "languages")]
         public string[] Languages { get; set; } = null;
 
-        [JsonPropertyName("name")]
+        [JsonPropertyName(name: "name")]
         public string Name { get; set; } = string.Empty;
 
-        [JsonPropertyName("release_date")]
+        [JsonPropertyName(name: "release_date")]
         public string ReleaseDate { get; set; } = string.Empty;
 
-        [JsonPropertyName("release_date_precision")]
+        [JsonPropertyName(name: "release_date_precision")]
         public string ReleaseDatePrecision { get; set; } = string.Empty;
 
-        [JsonPropertyName("restrictions")]
+        [JsonPropertyName(name: "restrictions")]
         public SpotifyResponseRestrictions Restrictions { get; set; } = null;
 
-        [JsonPropertyName("resume_point")]
+        [JsonPropertyName(name: "resume_point")]
         public SpotifyResponseResumePoint ResumePoint { get; set; } = null;
 
-        [JsonPropertyName("show")]
+        [JsonPropertyName(name: "show")]
         public SpotifyResponseShow Show { get; set; } = null;
 
-        [JsonPropertyName("type")]
+        [JsonPropertyName(name: "type")]
         public string Type { get; set; } = string.Empty;
 
-        [JsonPropertyName("uri")]
+        [JsonPropertyName(name: "uri")]
         public string Uri { get; set; } = string.Empty;
     }
 }

@@ -7,19 +7,19 @@ namespace Overlay
     [Serializable]
     public sealed class SpotifyResponseAccessToken
     {
-        [JsonPropertyName("access_token")]
+        [JsonPropertyName(name: "access_token")]
         public string AccessToken { get; set; } = string.Empty;
 
-        [JsonPropertyName("expires_in")]
+        [JsonPropertyName(name: "expires_in")]
         public int ExpiresIn { get; set; } = 0;
 
-        [JsonPropertyName("refresh_token")]
+        [JsonPropertyName(name: "refresh_token")]
         public string RefreshToken { get; set; } = string.Empty;
 
-        [JsonPropertyName("scope")]
+        [JsonPropertyName(name: "scope")]
         public string Scope { get; set; } = string.Empty;
 
-        [JsonPropertyName("token_type")]
+        [JsonPropertyName(name: "token_type")]
         public string TokenType { get; set; } = string.Empty;
     }
 }

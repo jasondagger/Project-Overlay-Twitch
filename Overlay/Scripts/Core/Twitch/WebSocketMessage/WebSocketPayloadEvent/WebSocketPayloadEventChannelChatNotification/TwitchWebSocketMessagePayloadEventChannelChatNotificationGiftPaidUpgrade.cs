@@ -7,16 +7,16 @@ namespace Overlay
     [Serializable]
 	public sealed class TwitchWebSocketMessagePayloadEventChannelChatNotificationGiftPaidUpgrade
 	{
-        [JsonPropertyName("gifter_is_anonymous")]
-        public bool? GifterIsAnonymous = false;
+        [JsonPropertyName(name: "gifter_is_anonymous")]
+        public bool? GifterIsAnonymous { get; set; } = false;
 
-        [JsonPropertyName("gifter_user_id")]
-        public string GifterUserId = string.Empty;
+        [JsonPropertyName(name: "gifter_user_id")]
+        public string GifterUserId { get; set; } = string.Empty;
 
-        [JsonPropertyName("gifter_user_login")]
-        public string GifterUserLogin = string.Empty;
+        [JsonPropertyName(name: "gifter_user_login")]
+        public string GifterUserLogin { get; set; } = string.Empty;
 
-        [JsonPropertyName("gifter_user_name")]
-        public string GifterUsername = string.Empty;
+        [JsonPropertyName(name: "gifter_user_name")]
+        public string GifterUsername { get; set; } = string.Empty;
 	}
 }

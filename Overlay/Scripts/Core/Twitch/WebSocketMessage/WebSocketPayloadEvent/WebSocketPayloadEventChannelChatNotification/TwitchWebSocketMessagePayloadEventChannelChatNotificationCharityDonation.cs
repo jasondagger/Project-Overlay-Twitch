@@ -7,10 +7,10 @@ namespace Overlay
     [Serializable]
 	public sealed class TwitchWebSocketMessagePayloadEventChannelChatNotificationCharityDonation
 	{
-        [JsonPropertyName("amount")]
-        public TwitchWebSocketMessagePayloadEventChannelChatNotificationCharityDonationCharityAmount Amount = new();
+        [JsonPropertyName(name: "amount")]
+        public TwitchWebSocketMessagePayloadEventChannelChatNotificationCharityDonationCharityAmount Amount { get; set; } = null;
        
-        [JsonPropertyName("charity_name")]
-        public string CharityName = string.Empty;
+        [JsonPropertyName(name: "charity_name")]
+        public string CharityName { get; set; } = string.Empty;
 	}
 }

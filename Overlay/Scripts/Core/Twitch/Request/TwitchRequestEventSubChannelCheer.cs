@@ -8,16 +8,16 @@ namespace Overlay
     [Serializable]
     public sealed partial class TwitchRequestEventSubChannelCheer
     {
-        [JsonPropertyName("type")]
+        [JsonPropertyName(name: "type")]
         public string Type { get; set; } = $"channel.cheer";
 
-        [JsonPropertyName("version")]
+        [JsonPropertyName(name: "version")]
         public string Version { get; set; } = $"1";
 
-        [JsonPropertyName("condition")]
+        [JsonPropertyName(name: "condition")]
         public TwitchConditionEventSubChannelCheer Condition { get; set; } = null;
 
-        [JsonPropertyName("transport")]
+        [JsonPropertyName(name: "transport")]
         public TwitchEventSubTransportWebSocket Transport { get; set; } = null;
 
         public TwitchRequestEventSubChannelCheer(

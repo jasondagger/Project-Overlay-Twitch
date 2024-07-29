@@ -33,39 +33,18 @@ namespace Overlay
             RetrieveResources();
         }
 
-        public static bool StartsWithValidSpotifyUrl(
-            string url    
+        public static string ParseSpotifyUriForTrackId(
+            string uri
         )
         {
-            if (
-                url.StartsWith(
-                    value: c_urlHttpPrefixInsecure
-                )
-            )
-            {
-                url = url.Replace(
-                    what: c_urlHttpPrefixInsecure,
-                    forwhat: c_urlHttpPrefixSecure
-                );
-            }
+            var count = uri.StartsWith(
+                value: c_uriHttpPrefixInsecure
+            ) ? c_uriSpotifyTrackInsecureLength : c_uriSpotifyTrackSecureLength;
 
-            return url.StartsWith(
-                value: c_urlSpotifyTrackSecure    
-            ) is true;
-        }
-
-        public static string ParseSpotifyUrlForTrackId(
-            string url    
-        )
-        {
-            var count = url.StartsWith(
-                value: c_urlHttpPrefixInsecure
-            ) ? c_urlSpotifyTrackInsecureLength : c_urlSpotifyTrackSecureLength;
-
-            var urlSplit = url.Split(
+            var uriSplit = uri.Split(
                 separator: '?'
             );
-            var trackId = urlSplit[0].Remove(
+            var trackId = uriSplit[0].Remove(
                 startIndex: 0,
                 count: count
             );
@@ -176,20 +155,41 @@ namespace Overlay
             }
         }
 
+        public static bool StartsWithValidSpotifyUri(
+            string uri    
+        )
+        {
+            if (
+                uri.StartsWith(
+                    value: c_uriHttpPrefixInsecure
+                )
+            )
+            {
+                uri = uri.Replace(
+                    what: c_uriHttpPrefixInsecure,
+                    forwhat: c_uriHttpPrefixSecure
+                );
+            }
+
+            return uri.StartsWith(
+                value: c_uriSpotifyTrackSecure    
+            ) is true;
+        }
+
         private const int c_accessTokenRefreshTimeInMilliseconds = 3600000;
         private const string c_authorizationCode = "AQCsZ-HvlDJyhOOJ52TZsvnNZQAibiQXupDEjdTrK497FW8oTXj1q8P3vLGm89yP8JIfZkIR_jO3s7Rn63RPRW6xC9ocRWPPal4xqEaBLiglYZBIS3TL0XJ84rI-2axiODaFH27kLnLGyd38hBBzE9aieNBdCi0_B5B1i-iizw4eswPVp84qWyarLLea9u6N4fj3QZUs_9TJ6od-zflrYl34oy4Q0iEpvdy9YbJwd2vsNxf8shpcE2fsHD5zA4wGw60znkZRkGAtqzkg5ZFbaOVCIXco";
 
         private const string c_redirectUri = "http://localhost:8888/callback";
-        private const string c_urlAPI = "https://api.spotify.com/v1";
-        private const string c_urlHttpPrefixSecure = "https://";
-        private const string c_urlHttpPrefixInsecure = "http://";
-        private const string c_urlAccessToken = "https://accounts.spotify.com/api/token";
-        private const string c_urlSpotifyTrackSecure = "https://open.spotify.com/track/";
-        private const string c_urlSpotifyTrackInsecure = "http://open.spotify.com/track/";
+        private const string c_uriAPI = "https://api.spotify.com/v1";
+        private const string c_uriHttpPrefixSecure = "https://";
+        private const string c_uriHttpPrefixInsecure = "http://";
+        private const string c_uriAccessToken = "https://accounts.spotify.com/api/token";
+        private const string c_uriSpotifyTrackSecure = "https://open.spotify.com/track/";
+        private const string c_uriSpotifyTrackInsecure = "http://open.spotify.com/track/";
         private const string c_userAccessScopes = "user-modify-playback-state user-read-currently-playing user-read-playback-state";
 
-        private static readonly int c_urlSpotifyTrackSecureLength = c_urlSpotifyTrackSecure.Length;
-        private static readonly int c_urlSpotifyTrackInsecureLength = c_urlSpotifyTrackInsecure.Length;
+        private static readonly int c_uriSpotifyTrackSecureLength = c_uriSpotifyTrackSecure.Length;
+        private static readonly int c_uriSpotifyTrackInsecureLength = c_uriSpotifyTrackInsecure.Length;
 
         private readonly Queue<SpotifyTwitchData> m_currentSpotifyTwitchDatas = new();
         private readonly Queue<SpotifyUserTrackData> m_currentSpotifyQueuedUserTrackDatas = new();
@@ -211,24 +211,24 @@ namespace Overlay
             twitchChannelPointRewardsManager.CommandSkipSongClaimed += OnChannelPointRewardsRedeemedSkipSong;
         }
 
-        private static bool ContainsAValidSpotifyUrl(
-            string url
+        private static bool ContainsAValidSpotifyUri(
+            string uri
         )
         {
             if (
-                url.Contains(
-                    value: c_urlHttpPrefixInsecure
+                uri.Contains(
+                    value: c_uriHttpPrefixInsecure
                 )
             )
             {
-                url = url.Replace(
-                    what: c_urlHttpPrefixInsecure,
-                    forwhat: c_urlHttpPrefixSecure
+                uri = uri.Replace(
+                    what: c_uriHttpPrefixInsecure,
+                    forwhat: c_uriHttpPrefixSecure
                 );
             }
 
-            return url.Contains(
-                value: c_urlSpotifyTrackSecure    
+            return uri.Contains(
+                value: c_uriSpotifyTrackSecure    
             ) is true;
         }
 
@@ -244,13 +244,13 @@ namespace Overlay
 
         private void OnChannelPointRewardsRedeemedRequestSong(
             string searchText,
-            string userName
+            string twitchUserName
         )
         {
             SpotifyTwitchData spotifyTwitchData;
             if (
-                ContainsAValidSpotifyUrl(
-					url: searchText
+                ContainsAValidSpotifyUri(
+					uri: searchText
                 ) is true
 			)
 			{
@@ -261,7 +261,7 @@ namespace Overlay
                     spotifyTwitchDataRequestType: SpotifyTwitchDataRequestType.TrackQueueByTrackId
                 )
                 {
-                    TwitchUserName = userName,
+                    TwitchUserName = twitchUserName,
                     TrackId = trackId,
                 };
 			}
@@ -271,7 +271,7 @@ namespace Overlay
                     spotifyTwitchDataRequestType: SpotifyTwitchDataRequestType.TrackQueueBySearchTerms
                 )
                 {
-                    TwitchUserName = userName,
+                    TwitchUserName = twitchUserName,
                     SearchParameters = searchText,
                 };
             }
@@ -285,14 +285,14 @@ namespace Overlay
         }
 
         private void OnChannelPointRewardsRedeemedSkipSong(
-            string userName    
+            string twitchUserName    
         )
         {
             var spotifyTwitchData = new SpotifyTwitchData(
                 spotifyTwitchDataRequestType: SpotifyTwitchDataRequestType.TrackSkip
             )
             {
-                TwitchUserName = userName,
+                TwitchUserName = twitchUserName,
             };
             lock (m_currentSpotifyTwitchDatasLock)
             {
@@ -331,7 +331,7 @@ namespace Overlay
                     ),
                     wasRefreshed: false
                 );
-                QueueAccessTokenRefresh();
+                QueueRequestAccessTokenWithRefreshToken();
             }
             else
             {
@@ -373,17 +373,7 @@ namespace Overlay
                     wasRefreshed: true
                 );
 
-                _ = Task.Run(
-                    function: 
-                    async () =>
-                    {
-                        await Task.Delay(
-                            millisecondsDelay: c_accessTokenRefreshTimeInMilliseconds
-                        );
-
-                        RequestAccessToken();
-                    }
-                );
+                QueueRequestAccessTokenWithRefreshToken();
             }
             else
             {
@@ -1027,23 +1017,23 @@ namespace Overlay
             {
                 if (
                     subSearchText.Contains(
-                        value: c_urlSpotifyTrackSecure
+                        value: c_uriSpotifyTrackSecure
                     ) is true
                 )
                 {
                     var subSearchTextSplit = subSearchText.Split(
-                        divisor: c_urlSpotifyTrackSecure
+                        divisor: c_uriSpotifyTrackSecure
                     );
                     return subSearchTextSplit.Last();
                 }
                 else if (
                     subSearchText.Contains(
-                        value: c_urlSpotifyTrackInsecure
+                        value: c_uriSpotifyTrackInsecure
                     ) is true
                 )
                 {
                     var subSearchTextSplit = subSearchText.Split(
-                        divisor: c_urlSpotifyTrackInsecure
+                        divisor: c_uriSpotifyTrackInsecure
                     );
                     return subSearchTextSplit.Last();
                 }
@@ -1097,7 +1087,7 @@ namespace Overlay
             }
         }
 
-        private void QueueAccessTokenRefresh()
+        private void QueueRequestAccessTokenWithRefreshToken()
         {
             _ = Task.Run(
                 function:
@@ -1109,7 +1099,7 @@ namespace Overlay
                     var remainingTime = expireTime - DateTime.UtcNow;
 
                     await Task.Delay(
-                        millisecondsDelay: (int)remainingTime.TotalMilliseconds - 20000
+                        millisecondsDelay: (int)remainingTime.TotalMilliseconds
                     );
 
                     RequestAccessTokenWithRefreshToken();
@@ -1125,7 +1115,7 @@ namespace Overlay
                 $"Authorization: Basic {Convert.ToBase64String(inArray: Encoding.UTF8.GetBytes(s: $"{m_spotifyData.ClientId}:{m_spotifyData.ClientSecret}"))}",
             };
             m_httpManager.SendHttpRequest(
-                url: $"{c_urlAccessToken}",
+                url: $"{c_uriAccessToken}",
                 headers: headers,
                 method: Method.Post,
                 json:
@@ -1144,28 +1134,13 @@ namespace Overlay
                 $"Authorization: Basic {Convert.ToBase64String(inArray: Encoding.UTF8.GetBytes(s: $"{m_spotifyData.ClientId}:{m_spotifyData.ClientSecret}"))}",
             };
             m_httpManager.SendHttpRequest(
-                url: $"{c_urlAccessToken}",
+                url: $"{c_uriAccessToken}",
                 headers: headers,
                 method: Method.Post,
                 json:
                     $"grant_type=refresh_token&" +
                     $"refresh_token={m_spotifyAccessToken.RefreshToken}",
                 requestCompletedHandler: OnRequestAccessTokenWithRefreshTokenCompleted
-            );
-        }
-
-        private void RequestAvailableDevices()
-        {
-            var headers = new List<string>()
-            {
-                $"Authorization: Bearer {m_spotifyAccessToken.AccessToken}",
-            };
-            m_httpManager.SendHttpRequest(
-                url: $"{c_urlAPI}/me/player/devices",
-                headers: headers,
-                method: Method.Get,
-                json: string.Empty,
-                requestCompletedHandler: OnRequestAvailableDevicesCompleted
             );
         }
 
@@ -1176,56 +1151,11 @@ namespace Overlay
                 $"Authorization: Bearer {m_spotifyAccessToken.AccessToken}",
             };
             m_httpManager.SendHttpRequest(
-                url: $"{c_urlAPI}/me/player/currently-playing",
+                url: $"{c_uriAPI}/me/player/currently-playing",
                 headers: headers,
                 method: Method.Get,
                 json: string.Empty,
                 requestCompletedHandler: OnRequestCurrentTrackCompleted
-            );
-        }
-
-        private void RequestTrackQueueBySearchTerms()
-        {
-            var headers = new List<string>()
-            {
-                $"Authorization: Bearer {m_spotifyAccessToken.AccessToken}",
-            };
-            m_httpManager.SendHttpRequest(
-                url: $"{c_urlAPI}/search?q={Uri.EscapeDataString(stringToEscape: m_spotifyTwitchData.SearchParameters)}&type=track&limit=1",
-                headers: headers,
-                method: Method.Get,
-                json: string.Empty,
-                requestCompletedHandler: OnRequestTrackSearchCompleted
-            );
-        }
-
-        private void RequestTrackQueueByTrackId()
-        {
-            var headers = new List<string>()
-            {
-                $"Authorization: Bearer {m_spotifyAccessToken.AccessToken}",
-            };
-            m_httpManager.SendHttpRequest(
-                url: $"{c_urlAPI}/me/player/queue?uri={Uri.EscapeDataString(stringToEscape: $"spotify:track:{m_spotifyTwitchData.TrackId}")}",
-                headers: headers,
-                method: Method.Post,
-                json: string.Empty,
-                requestCompletedHandler: OnRequestTrackQueueCompleted
-            );
-        }
-
-        private void RequestPlaybackState()
-        {
-            var headers = new List<string>()
-            {
-                $"Authorization: Bearer {m_spotifyAccessToken.AccessToken}",
-            };
-            m_httpManager.SendHttpRequest(
-                url: $"{c_urlAPI}/me/player",
-                headers: headers,
-                method: Method.Get,
-                json: string.Empty,
-                requestCompletedHandler: OnRequestPlaybackStateCompleted
             );
         }
 
@@ -1236,7 +1166,7 @@ namespace Overlay
                 $"Authorization: Bearer {m_spotifyAccessToken.AccessToken}",
             };
             m_httpManager.SendHttpRequest(
-                url: $"{c_urlAPI}/me/player/next",
+                url: $"{c_uriAPI}/me/player/next",
                 headers: headers,
                 method: Method.Post,
                 json: string.Empty,
@@ -1253,7 +1183,37 @@ namespace Overlay
                 $"Authorization: Bearer {m_spotifyAccessToken.AccessToken}",
             };
             m_httpManager.SendHttpRequest(
-                url: $"{c_urlAPI}/me/player/queue?uri={Uri.EscapeDataString(stringToEscape: trackUri)}",
+                url: $"{c_uriAPI}/me/player/queue?uri={Uri.EscapeDataString(stringToEscape: trackUri)}",
+                headers: headers,
+                method: Method.Post,
+                json: string.Empty,
+                requestCompletedHandler: OnRequestTrackQueueCompleted
+            );
+        }
+
+        private void RequestTrackQueueBySearchTerms()
+        {
+            var headers = new List<string>()
+            {
+                $"Authorization: Bearer {m_spotifyAccessToken.AccessToken}",
+            };
+            m_httpManager.SendHttpRequest(
+                url: $"{c_uriAPI}/search?q={Uri.EscapeDataString(stringToEscape: m_spotifyTwitchData.SearchParameters)}&type=track&limit=1",
+                headers: headers,
+                method: Method.Get,
+                json: string.Empty,
+                requestCompletedHandler: OnRequestTrackSearchCompleted
+            );
+        }
+
+        private void RequestTrackQueueByTrackId()
+        {
+            var headers = new List<string>()
+            {
+                $"Authorization: Bearer {m_spotifyAccessToken.AccessToken}",
+            };
+            m_httpManager.SendHttpRequest(
+                url: $"{c_uriAPI}/me/player/queue?uri={Uri.EscapeDataString(stringToEscape: $"spotify:track:{m_spotifyTwitchData.TrackId}")}",
                 headers: headers,
                 method: Method.Post,
                 json: string.Empty,
@@ -1272,6 +1232,21 @@ namespace Overlay
             );
         }
 
+        private void RequestUserQueueAfterTrackQueued()
+        {
+            var headers = new List<string>()
+            {
+                $"Authorization: Bearer {m_spotifyAccessToken.AccessToken}",
+            };
+            m_httpManager.SendHttpRequest(
+                url: $"{c_uriAPI}/me/player/queue",
+                headers: headers,
+                method: Method.Get,
+                json: string.Empty,
+                requestCompletedHandler: OnRequestUserQueueAfterTrackQueuedCompleted
+            );
+        }
+
         private void RequestUserQueueBeforeTrackQueuedBySearchTerms()
         {
             var headers = new List<string>()
@@ -1279,7 +1254,7 @@ namespace Overlay
                 $"Authorization: Bearer {m_spotifyAccessToken.AccessToken}",
             };
             m_httpManager.SendHttpRequest(
-                url: $"{c_urlAPI}/me/player/queue",
+                url: $"{c_uriAPI}/me/player/queue",
                 headers: headers,
                 method: Method.Get,
                 json: string.Empty,
@@ -1294,26 +1269,11 @@ namespace Overlay
                 $"Authorization: Bearer {m_spotifyAccessToken.AccessToken}",
             };
             m_httpManager.SendHttpRequest(
-                url: $"{c_urlAPI}/me/player/queue",
+                url: $"{c_uriAPI}/me/player/queue",
                 headers: headers,
                 method: Method.Get,
                 json: string.Empty,
                 requestCompletedHandler: OnRequestUserQueueBeforeTrackQueuedByTrackIdCompleted
-            );
-        }
-
-        private void RequestUserQueueAfterTrackQueued()
-        {
-            var headers = new List<string>()
-            {
-                $"Authorization: Bearer {m_spotifyAccessToken.AccessToken}",
-            };
-            m_httpManager.SendHttpRequest(
-                url: $"{c_urlAPI}/me/player/queue",
-                headers: headers,
-                method: Method.Get,
-                json: string.Empty,
-                requestCompletedHandler: OnRequestUserQueueAfterTrackQueuedCompleted
             );
         }
 
@@ -1340,7 +1300,7 @@ namespace Overlay
                 $"Authorization: Bearer {m_spotifyAccessToken.AccessToken}",
             };
             m_httpManager.SendHttpRequest(
-                url: $"{c_urlAPI}/me/player/queue",
+                url: $"{c_uriAPI}/me/player/queue",
                 headers: headers,
                 method: Method.Get,
                 json: string.Empty,
@@ -1389,7 +1349,7 @@ namespace Overlay
             }
             else
             {
-                QueueAccessTokenRefresh();
+                QueueRequestAccessTokenWithRefreshToken();
             }
 
             BindTwitchChannelPointRewards();

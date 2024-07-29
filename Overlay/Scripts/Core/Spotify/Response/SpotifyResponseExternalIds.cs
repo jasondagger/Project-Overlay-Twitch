@@ -7,13 +7,13 @@ namespace Overlay
     [Serializable]
     public sealed class SpotifyResponseExternalIds
     {
-        [JsonPropertyName("isrc")]
+        [JsonPropertyName(name: "isrc")]
         public string ISRC { get; set; } = string.Empty;
 
-        [JsonPropertyName("ean")]
+        [JsonPropertyName(name: "ean")]
         public string EAN { get; set; } = string.Empty;
 
-        [JsonPropertyName("upc")]
+        [JsonPropertyName(name: "upc")]
         public string UPC { get; set; } = string.Empty;
     }
 }

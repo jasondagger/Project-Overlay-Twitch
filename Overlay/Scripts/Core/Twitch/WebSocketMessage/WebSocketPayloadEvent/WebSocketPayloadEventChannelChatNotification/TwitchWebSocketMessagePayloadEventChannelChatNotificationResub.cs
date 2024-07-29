@@ -7,34 +7,34 @@ namespace Overlay
     [Serializable]
 	public sealed class TwitchWebSocketMessagePayloadEventChannelChatNotificationResub
 	{
-        [JsonPropertyName("cumulative_months")]
-        public int? CumulativeMonths = 0;
+        [JsonPropertyName(name: "cumulative_months")]
+        public int? CumulativeMonths { get; set; } = 0;
 
-        [JsonPropertyName("duration_months")]
-        public int? DurationMonths = 0;
+        [JsonPropertyName(name: "duration_months")]
+        public int? DurationMonths { get; set; } = 0;
 
-        [JsonPropertyName("gifter_is_anonymous")]
-        public bool? GifterIsAnonymous = false;
+        [JsonPropertyName(name: "gifter_is_anonymous")]
+        public bool? GifterIsAnonymous { get; set; } = false;
 
-        [JsonPropertyName("gifter_user_id")]
-        public string GifterUserId = string.Empty;
+        [JsonPropertyName(name: "gifter_user_id")]
+        public string GifterUserId { get; set; } = string.Empty;
 
-        [JsonPropertyName("gifter_user_login")]
-        public string GifterUserLogin = string.Empty;
+        [JsonPropertyName(name: "gifter_user_login")]
+        public string GifterUserLogin { get; set; } = string.Empty;
 
-        [JsonPropertyName("gifter_user_name")]
-        public string GifterUserName = string.Empty;
+        [JsonPropertyName(name: "gifter_user_name")]
+        public string GifterUserName { get; set; } = string.Empty;
 
-        [JsonPropertyName("is_gift")]
-        public bool? IsGift = false;
+        [JsonPropertyName(name: "is_gift")]
+        public bool? IsGift { get; set; } = false;
 
-        [JsonPropertyName("is_prime")]
-        public bool? IsPrime = false;
+        [JsonPropertyName(name: "is_prime")]
+        public bool? IsPrime { get; set; } = false;
 
-        [JsonPropertyName("streak_months")]
-        public int? StreakMonths = 0;
+        [JsonPropertyName(name: "streak_months")]
+        public int? StreakMonths { get; set; } = 0;
 
-        [JsonPropertyName("sub_tier")]
-        public string SubTier = string.Empty;
+        [JsonPropertyName(name: "sub_tier")]
+        public string SubTier { get; set; } = string.Empty;
 	}
 }

@@ -7,16 +7,16 @@ namespace Overlay
     [Serializable]
     public sealed class TwitchEventSubReward
     {
-        [JsonPropertyName("cost")]
+        [JsonPropertyName(name: "cost")]
         public int? Cost { get; set; } = 0;
 
-        [JsonPropertyName("id")]
+        [JsonPropertyName(name: "id")]
         public string Id { get; set; } = string.Empty;
 
-        [JsonPropertyName("prompt")]
+        [JsonPropertyName(name: "prompt")]
         public string Prompt { get; set; } = string.Empty;
 
-        [JsonPropertyName("title")]
+        [JsonPropertyName(name: "title")]
         public string Title { get; set; } = string.Empty;
     }
 }

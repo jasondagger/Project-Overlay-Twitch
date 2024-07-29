@@ -7,16 +7,16 @@ namespace Overlay
     [Serializable]
     public sealed class TwitchRequestEventSubChannelRaid
     {
-        [JsonPropertyName("type")]
+        [JsonPropertyName(name: "type")]
         public string Type { get; set; } = $"channel.raid";
 
-        [JsonPropertyName("version")]
+        [JsonPropertyName(name: "version")]
         public string Version { get; set; } = $"1";
 
-        [JsonPropertyName("condition")]
+        [JsonPropertyName(name: "condition")]
         public TwitchConditionEventSubChannelRaid Condition { get; set; } = null;
 
-        [JsonPropertyName("transport")]
+        [JsonPropertyName(name: "transport")]
         public TwitchEventSubTransportWebSocket Transport { get; set; } = null;
 
         public TwitchRequestEventSubChannelRaid(

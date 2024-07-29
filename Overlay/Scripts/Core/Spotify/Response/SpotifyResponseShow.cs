@@ -7,55 +7,55 @@ namespace Overlay
     [Serializable]
     public sealed class SpotifyResponseShow
     {
-        [JsonPropertyName("available_markets")]
+        [JsonPropertyName(name: "available_markets")]
         public string[] AvailableMarkets { get; set; } = null;
 
-        [JsonPropertyName("copyrights")]
+        [JsonPropertyName(name: "copyrights")]
         public SpotifyResponseCopyrights Copyrights { get; set; } = null;
 
-        [JsonPropertyName("description")]
+        [JsonPropertyName(name: "description")]
         public string Description { get; set; } = string.Empty;
 
-        [JsonPropertyName("explicit")]
+        [JsonPropertyName(name: "explicit")]
         public bool Explicit { get; set; } = false;
 
-        [JsonPropertyName("external_urls")]
+        [JsonPropertyName(name: "external_urls")]
         public SpotifyResponseExternalUrls ExternalUrls { get; set; } = null;
 
-        [JsonPropertyName("href")]
+        [JsonPropertyName(name: "href")]
         public string HRef { get; set; } = string.Empty;
 
-        [JsonPropertyName("html_description")]
+        [JsonPropertyName(name: "html_description")]
         public string HtmlDescription { get; set; } = string.Empty;
 
-        [JsonPropertyName("id")]
+        [JsonPropertyName(name: "id")]
         public string Id { get; set; } = string.Empty;
 
-        [JsonPropertyName("images")]
+        [JsonPropertyName(name: "images")]
         public SpotifyResponseImage[] Images { get; set; } = null;
 
-        [JsonPropertyName("is_externally_hosted")]
+        [JsonPropertyName(name: "is_externally_hosted")]
         public bool IsExternallyHosted { get; set; } = false;
 
-        [JsonPropertyName("language")]
+        [JsonPropertyName(name: "language")]
         public string[] Languages { get; set; } = null;
 
-        [JsonPropertyName("media_type")]
+        [JsonPropertyName(name: "media_type")]
         public string MediaType { get; set; } = string.Empty;
 
-        [JsonPropertyName("name")]
+        [JsonPropertyName(name: "name")]
         public string Name { get; set; } = string.Empty;
 
-        [JsonPropertyName("publisher")]
+        [JsonPropertyName(name: "publisher")]
         public string Publisher { get; set; } = string.Empty;
 
-        [JsonPropertyName("type")]
+        [JsonPropertyName(name: "type")]
         public string Type { get; set; } = string.Empty;
 
-        [JsonPropertyName("uri")]
+        [JsonPropertyName(name: "uri")]
         public string Uri { get; set; } = string.Empty;
 
-        [JsonPropertyName("total_episodes")]
+        [JsonPropertyName(name: "total_episodes")]
         public int TotalEpisodes { get; set; } = 0;
     }
 }

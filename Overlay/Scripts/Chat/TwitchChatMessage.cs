@@ -70,6 +70,12 @@ namespace Overlay
                 $"{c_labelMessageFont}" +
                 $"  ";
 
+            var parsedEmotes = string.IsNullOrEmpty(
+                value: emotes
+            ) is false ? emotes.Split(
+                separator: '/'
+            ).ToList() : null;
+
             if (
                 messageColor.Equals(
                     value: c_rainbowColorTag
@@ -77,13 +83,28 @@ namespace Overlay
             )
             {
                 var trimmedMessage = message.Remove(
-                    startIndex: message.Length - 2, 
+                    startIndex: message.Length - 2,
                     count: 2
                 );
-                var rainbowifiedMessage = PastelInterpolator.RainbowifyText(
-                    text: trimmedMessage    
-                );
-                m_text += $"{rainbowifiedMessage}";
+                var containsEmotes = parsedEmotes is not null;
+                if (containsEmotes is true)
+                {
+                    var emoteIndices = RetrieveEmoteIndices(
+                        emotes: parsedEmotes    
+                    );
+                    var rainbowifiedMessage = PastelInterpolator.RainbowifyTextWithEmotes(
+                        text: trimmedMessage,
+                        emoteIndices: emoteIndices
+                    );
+                    m_text += $"{rainbowifiedMessage}";
+                }
+                else
+                {
+                    var rainbowifiedMessage = PastelInterpolator.RainbowifyText(
+                        text: trimmedMessage
+                    );
+                    m_text += $"{rainbowifiedMessage}";
+                }
             }
             else
             {
@@ -95,7 +116,7 @@ namespace Overlay
 			InsertImages(
 				httpManager: httpManager,
 				message: message,
-				emotes: emotes,
+				emotes: parsedEmotes,
 				badges: badges
 			);
 		}
@@ -442,7 +463,30 @@ namespace Overlay
 
         private void GenerateRichTextLabel()
 		{
-			m_richTextLabel.SetSize(
+            /*
+             * [img]user://Badges\broadcaster\1.res[/img]  
+             * [img]user://Badges\subscriber\3066.res[/img]  
+             * [img]user://Badges\twitch-recap-2023\1.res[/img]  
+             * [font_size=22]
+             * [font=res://Overlay/Fonts/Roboto-Black.ttf]
+             * [color=#00000000]
+             * SmoothDagger
+             * [/color]
+             * [/font]
+             * [font=res://Overlay/Fonts/Roboto-Bold.ttf]  
+             * [img]user://Emotes/Animated/smooth210Backstab/animated_0.res[/img] 
+             * [img]user://Emotes/Animated/smooth210Brain/animated_0.res[/img] 
+             * [img]user://Emotes/Animated/smooth210Cannons/animated_0.res[/img] 
+             * [img]user://Emotes/Animated/smooth210Brain/animated_0.res[/img] 
+             * [img]user://Emotes/Animated/smooth210Backstab/animated_0.res[/img] 
+             * [img]user://Emotes/Static/LUL/static_0.res[/img] 
+             * [img]user://Emotes/Animated/PopNemo/animated_0.res[/img] 
+             * [img]user://Emotes/Static/Twitch11_2/static_0.res[/img] 
+             * [img]user://Emotes/Static/Twitch8_2/static_0.res[/img] 
+             * [img]E:\Programs\AppData\Roaming\Godot\app_userdata\Overlay/Emotes/Static/Twitch7_2\static_0.res[/img]
+             * 
+             */
+            m_richTextLabel.SetSize(
 				size: new(
 					x: c_labelWidth,
 					y: 0f
@@ -460,6 +504,42 @@ namespace Overlay
 			m_generatedState = GeneratedState.Generated;
 		}
 
+        private HashSet<int> RetrieveEmoteIndices(
+            List<string> emotes    
+        )
+        {
+            var parsedEmoteIndices = new HashSet<int>();
+
+            foreach (var emoteValue in emotes)
+            {
+                var emoteData = emoteValue.Split(
+                    separator: ':'
+                );
+
+                var emoteLink = emoteData[0u];
+                var emoteRanges = emoteData[1u].Split(
+                    separator: ','
+                );
+                foreach (var emoteRange in emoteRanges)
+                {
+                    var emoteIndices = emoteRange.Split(
+                        separator: '-'
+                    );
+                    var startIndex = emoteIndices[0u].ToInt();
+                    var endIndex = emoteIndices[1u].ToInt();
+
+                    for (var i = startIndex; i <= endIndex; i++)
+                    {
+                        _ = parsedEmoteIndices.Add(
+                            item: i    
+                        );
+                    }
+                }
+            }
+
+            return parsedEmoteIndices;
+        }
+
         private void HandleTextAnimation(
 			float delta
 		)
@@ -468,13 +548,13 @@ namespace Overlay
             {
                 foreach (var animatedEmote in m_animatedEmotes)
                 {
-                    m_animatedEmoteCurrentFrameRates[animatedEmote] += delta;
+                    m_animatedEmoteCurrentFrameRates[key: animatedEmote] += delta;
 
-                    if (m_animatedEmoteCurrentFrameRates[animatedEmote] >= m_animatedEmoteMaxFrameRates[animatedEmote])
+                    if (m_animatedEmoteCurrentFrameRates[key: animatedEmote] >= m_animatedEmoteMaxFrameRates[key: animatedEmote])
                     {
-                        var previousFrame = m_animatedEmoteCurrentFrameCounts[animatedEmote];
+                        var previousFrame = m_animatedEmoteCurrentFrameCounts[key: animatedEmote];
                         var currentFrame = previousFrame + 1;
-                        if (currentFrame > m_animatedEmoteMaxFrameCounts[animatedEmote])
+                        if (currentFrame > m_animatedEmoteMaxFrameCounts[key: animatedEmote])
                         {
                             currentFrame = 0;
                         }
@@ -484,8 +564,8 @@ namespace Overlay
                             newValue: $"{animatedEmote}/animated_{currentFrame}.res"
                         );
 
-                        m_animatedEmoteCurrentFrameCounts[animatedEmote] = currentFrame;
-                        m_animatedEmoteCurrentFrameRates[animatedEmote] = 0f;
+                        m_animatedEmoteCurrentFrameCounts[key: animatedEmote] = currentFrame;
+                        m_animatedEmoteCurrentFrameRates[key: animatedEmote] = 0f;
                     }
                 }
             }
@@ -514,7 +594,7 @@ namespace Overlay
 			switch (m_fadeState)
 			{
 				case FadeState.Visible:
-					if (m_fadeElapsed >= c_fadeDelays[FadeState.Visible])
+					if (m_fadeElapsed >= c_fadeDelays[key: FadeState.Visible])
 					{
 						m_fadeState = FadeState.Fading;
 						m_fadeElapsed = 0f;
@@ -523,7 +603,7 @@ namespace Overlay
 				case FadeState.Fading:
                     // todo: transparency
                     var height = m_richTextLabel.GetContentHeight();
-					if (m_fadeElapsed >= c_fadeDelays[FadeState.Fading])
+					if (m_fadeElapsed >= c_fadeDelays[key: FadeState.Fading])
 					{
 						Destroyed?.Invoke();
 						QueueFree();
@@ -561,15 +641,12 @@ namespace Overlay
         private void InsertEmotes(
             HttpManager httpManager,
             string message,
-            string emotes
+            List<string> emotes
         )
         {
-            var emoteValues = emotes.Split(
-                separator: '/'
-            ).ToList();
-            for (var i = 0; i < emoteValues.Count; i++)
+            for (var i = 0; i < emotes.Count; i++)
             {
-                var emoteData = emoteValues[i].Split(
+                var emoteData = emotes[index: i].Split(
                     separator: ':'
                 );
                 var emoteLink = emoteData[0u];
@@ -601,13 +678,13 @@ namespace Overlay
                         originalEmoteName: originalEmoteName,
                         emotePath: emotePath
                     );
-                    emoteValues.RemoveAt(
+                    emotes.RemoveAt(
                         index: i
                     );
                 }
             }
 
-            foreach (var emoteValue in emoteValues)
+            foreach (var emoteValue in emotes)
             {
                 var emoteData = emoteValue.Split(
                     separator: ':'
@@ -760,23 +837,21 @@ namespace Overlay
         private void InsertImages(
 			HttpManager httpManager,
             string message,
-            string emotes,
+            List<string> emotes,
             string badges
         )
 		{
             var hasBadges = string.IsNullOrEmpty(
 				value: badges
 			) is false;
-			if (hasBadges)
+			if (hasBadges is true)
 			{
                 InsertBadges(
 				    badges: badges
 				);
             }
 
-			var hasEmotes = string.IsNullOrEmpty(
-				value: emotes
-			) is false;
+			var hasEmotes = emotes is not null;
 			if (hasEmotes is true)
 			{
                 InsertEmotes(

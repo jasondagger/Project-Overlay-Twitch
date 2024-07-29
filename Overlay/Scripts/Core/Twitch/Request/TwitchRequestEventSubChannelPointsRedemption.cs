@@ -8,16 +8,16 @@ namespace Overlay
     [Serializable]
     public sealed partial class TwitchRequestEventSubChannelPointsRedemption
     {
-        [JsonPropertyName("type")]
+        [JsonPropertyName(name: "type")]
         public string Type { get; set; } = $"channel.channel_points_custom_reward_redemption.add";
 
-        [JsonPropertyName("version")]
+        [JsonPropertyName(name: "version")]
         public string Version { get; set; } = $"1";
 
-        [JsonPropertyName("condition")]
+        [JsonPropertyName(name: "condition")]
         public TwitchConditionEventSubChannelCheer Condition { get; set; } = null;
 
-        [JsonPropertyName("transport")]
+        [JsonPropertyName(name: "transport")]
         public TwitchEventSubTransportWebSocket Transport { get; set; } = null;
 
         public TwitchRequestEventSubChannelPointsRedemption(

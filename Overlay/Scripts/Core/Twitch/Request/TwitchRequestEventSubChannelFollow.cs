@@ -8,16 +8,16 @@ namespace Overlay
     [Serializable]
     public sealed class TwitchRequestEventSubChannelFollow
     {
-        [JsonPropertyName("type")]
+        [JsonPropertyName(name: "type")]
         public string Type { get; set; } = $"channel.follow";
 
-        [JsonPropertyName("version")]
+        [JsonPropertyName(name: "version")]
         public string Version { get; set; } = $"2";
 
-        [JsonPropertyName("condition")]
+        [JsonPropertyName(name: "condition")]
         public TwitchConditionEventSubChannelFollow Condition { get; set; } = null;
 
-        [JsonPropertyName("transport")]
+        [JsonPropertyName(name: "transport")]
         public TwitchEventSubTransportWebSocket Transport { get; set; } = null;
 
         public TwitchRequestEventSubChannelFollow(

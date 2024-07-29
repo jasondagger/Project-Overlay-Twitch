@@ -7,17 +7,17 @@ namespace Overlay
     [Serializable]
 	public sealed class TwitchWebSocketMessagePayloadEventChannelChatNotificationMessageFragmentEmote
 	{
-        [JsonPropertyName("emote_set_id")]
-        public string EmoteSetId = string.Empty;
+        [JsonPropertyName(name: "emote_set_id")]
+        public string EmoteSetId { get; set; } = string.Empty;
 
-        [JsonPropertyName("format")]
-        public string[] Format = null;
+        [JsonPropertyName(name: "format")]
+        public string[] Format { get; set; } = null;
 
-        [JsonPropertyName("id")]
-        public string Id = string.Empty;
+        [JsonPropertyName(name: "id")]
+        public string Id { get; set; } = string.Empty;
 
-        [JsonPropertyName("owner_id")]
-        public string OwnerId = string.Empty;
+        [JsonPropertyName(name: "owner_id")]
+        public string OwnerId { get; set; } = string.Empty;
 
 		public bool HasAnimation()
 		{

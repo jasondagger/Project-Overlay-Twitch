@@ -7,16 +7,16 @@ namespace Overlay
     [Serializable]
     public sealed class TwitchResponseUsersSubscribers
     {
-        [JsonPropertyName("data")]
+        [JsonPropertyName(name: "data")]
         public TwitchResponseUsersSubscribersData[] Data { get; set; } = null;
 
-        [JsonPropertyName("pagination")]
+        [JsonPropertyName(name: "pagination")]
         public TwitchResponseUsersSubscribersPagination Pagination { get; set; } = null;
 
-        [JsonPropertyName("total")]
+        [JsonPropertyName(name: "total")]
         public int Total { get; set; } = 0;
 
-        [JsonPropertyName("points")]
+        [JsonPropertyName(name: "points")]
         public int Points { get; set; } = 0;
     }
 }

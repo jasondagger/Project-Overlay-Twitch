@@ -7,13 +7,13 @@ namespace Overlay
     [Serializable]
 	public sealed partial class TwitchWebSocketMessagePayloadEventChannelChatNotificationMessageFragmentCheermote
 	{
-        [JsonPropertyName("bits")]
-        public int? Bits = 0;
+        [JsonPropertyName(name: "bits")]
+        public int? Bits { get; set; } = 0;
 
-        [JsonPropertyName("prefix")]
-        public string Prefix = string.Empty;
+        [JsonPropertyName(name: "prefix")]
+        public string Prefix { get; set; } = string.Empty;
 
-        [JsonPropertyName("tier")]
-        public int? Tier = 0;
+        [JsonPropertyName(name: "tier")]
+        public int? Tier { get; set; } = 0;
 	}
 }

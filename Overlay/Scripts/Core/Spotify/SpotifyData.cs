@@ -7,10 +7,10 @@ namespace Overlay
     [Serializable]
     public sealed class SpotifyData
     {
-        [JsonPropertyName("ClientSecret")]
+        [JsonPropertyName(name: "ClientSecret")]
         public string ClientSecret { get; set; } = string.Empty;
 
-        [JsonPropertyName("ClientId")]
+        [JsonPropertyName(name: "ClientId")]
         public string ClientId { get; set; } = string.Empty;
     }
 }

@@ -7,7 +7,7 @@ namespace Overlay
     [Serializable]
     public sealed class SpotifyResponseExternalUrls
     {
-        [JsonPropertyName("spotify")]
+        [JsonPropertyName(name: "spotify")]
         public string Spotify { get; set; } = string.Empty;
     }
 }

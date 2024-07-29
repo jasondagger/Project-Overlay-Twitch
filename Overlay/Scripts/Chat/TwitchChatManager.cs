@@ -24,7 +24,7 @@ namespace Overlay
 		}
 
         public void AddTwitchChatMessage(
-			string username,
+			string userName,
 			string name,
 			string nameColor,
 			string message,
@@ -50,12 +50,12 @@ namespace Overlay
             ) is true;
             if (isSubscriber is true)
             {
-                var customSubscriberData = m_twitchManager.GetCustomSubscriberData(
-                    username: username
+                var customUserData = m_twitchManager.GetCustomUserData(
+                    userName: userName
                 );
-                if (customSubscriberData is not null)
+                if (customUserData is not null)
                 {
-					var customTextColor = customSubscriberData.CustomTextColor;
+					var customTextColor = customUserData.CustomTextColor;
 					if (
 						PastelInterpolator.IsColorHexTheRainbowColorType(
 							hexCode: customTextColor
@@ -342,13 +342,13 @@ namespace Overlay
 				path: "ChatPivot"
 			);
 			m_httpManager = GetNode<HttpManager>(
-				path: NodeDirectory.NodePaths[NodeType.HttpManager]
+				path: NodeDirectory.NodePaths[key: NodeType.HttpManager]
 			);
 			m_pastelInterpolator = GetNode<PastelInterpolator>(
-				path: NodeDirectory.NodePaths[NodeType.PastelInterpolator]
+				path: NodeDirectory.NodePaths[key: NodeType.PastelInterpolator]
 			);
 			m_twitchManager = GetNode<TwitchManager>(
-                path: NodeDirectory.NodePaths[NodeType.TwitchManager]
+                path: NodeDirectory.NodePaths[key: NodeType.TwitchManager]
 			);
 		}
     }

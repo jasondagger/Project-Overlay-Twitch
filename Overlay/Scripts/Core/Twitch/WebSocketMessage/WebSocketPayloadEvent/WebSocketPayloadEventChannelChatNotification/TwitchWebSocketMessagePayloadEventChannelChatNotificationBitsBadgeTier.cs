@@ -7,7 +7,7 @@ namespace Overlay
     [Serializable]
 	public sealed class TwitchWebSocketMessagePayloadEventChannelChatNotificationBitsBadgeTier
 	{
-        [JsonPropertyName("tier")]
-        public int? Tier = 0;
+        [JsonPropertyName(name: "tier")]
+        public int? Tier { get; set; } = 0;
 	}
 }

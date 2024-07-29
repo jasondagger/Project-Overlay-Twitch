@@ -7,77 +7,76 @@ namespace Overlay
     [Serializable]
 	public sealed class TwitchWebSocketMessagePayloadEventChannelChatNotification : TwitchWebSocketMessagePayloadEvent
 	{
-        [JsonPropertyName("announcement")]
-        public TwitchWebSocketMessagePayloadEventChannelChatNotificationAnnouncement Announcement { get; set; } = new();
+        [JsonPropertyName(name: "announcement")]
+        public TwitchWebSocketMessagePayloadEventChannelChatNotificationAnnouncement Announcement { get; set; } = null;
 
-        [JsonPropertyName("badges")]
-        public TwitchWebSocketMessagePayloadEventChannelChatNotificationBadge[] Badges { get; set; } =
-			new TwitchWebSocketMessagePayloadEventChannelChatNotificationBadge[4u];
+        [JsonPropertyName(name: "badges")]
+        public TwitchWebSocketMessagePayloadEventChannelChatNotificationBadge[] Badges { get; set; } = null;
 
-        [JsonPropertyName("bits_badge_tier")]
-        public TwitchWebSocketMessagePayloadEventChannelChatNotificationBitsBadgeTier BitsBadgeTier { get; set; } = new();
+        [JsonPropertyName(name: "bits_badge_tier")]
+        public TwitchWebSocketMessagePayloadEventChannelChatNotificationBitsBadgeTier BitsBadgeTier { get; set; } = null;
 
-        [JsonPropertyName("broadcaster_user_id")]
+        [JsonPropertyName(name: "broadcaster_user_id")]
         public string BroadcasterUserId { get; set; } = string.Empty;
 
-        [JsonPropertyName("broadcaster_user_login")]
+        [JsonPropertyName(name: "broadcaster_user_login")]
         public string BroadcasterUserLogin { get; set; } = string.Empty;
 
-        [JsonPropertyName("broadcaster_user_name")]
+        [JsonPropertyName(name: "broadcaster_user_name")]
         public string BroadcasterUsername { get; set; } = string.Empty;
 
-        [JsonPropertyName("charity_donation")]
-        public TwitchWebSocketMessagePayloadEventChannelChatNotificationCharityDonation CharityDonation { get; set; } = new();
+        [JsonPropertyName(name: "charity_donation")]
+        public TwitchWebSocketMessagePayloadEventChannelChatNotificationCharityDonation CharityDonation { get; set; } = null;
 
-        [JsonPropertyName("chatter_is_anonymous")]
+        [JsonPropertyName(name: "chatter_is_anonymous")]
         public bool? ChatterIsAnonymous { get; set; } = false;
 
-        [JsonPropertyName("chatter_user_id")]
+        [JsonPropertyName(name: "chatter_user_id")]
         public string ChatterUserId { get; set; } = string.Empty;
 
-        [JsonPropertyName("chatter_user_login")]
+        [JsonPropertyName(name: "chatter_user_login")]
         public string ChatterUserLogin { get; set; } = string.Empty;
 
-        [JsonPropertyName("chatter_user_name")]
+        [JsonPropertyName(name: "chatter_user_name")]
         public string ChatterUserName { get; set; } = string.Empty;
 
-        [JsonPropertyName("community_sub_gift")]
-        public TwitchWebSocketMessagePayloadEventChannelChatNotificationCommunitySubGift CommunitySubGift { get; set; } = new();
+        [JsonPropertyName(name: "community_sub_gift")]
+        public TwitchWebSocketMessagePayloadEventChannelChatNotificationCommunitySubGift CommunitySubGift { get; set; } = null;
 
-        [JsonPropertyName("gift_paid_upgrade")]
-        public TwitchWebSocketMessagePayloadEventChannelChatNotificationGiftPaidUpgrade GiftPaidUpgrade { get; set; } = new();
+        [JsonPropertyName(name: "gift_paid_upgrade")]
+        public TwitchWebSocketMessagePayloadEventChannelChatNotificationGiftPaidUpgrade GiftPaidUpgrade { get; set; } = null;
 
-        [JsonPropertyName("message")]
-        public TwitchWebSocketMessagePayloadEventChannelChatNotificationMessage Message { get; set; } = new();
+        [JsonPropertyName(name: "message")]
+        public TwitchWebSocketMessagePayloadEventChannelChatNotificationMessage Message { get; set; } = null;
 
-        [JsonPropertyName("message_id")]
+        [JsonPropertyName(name: "message_id")]
         public string MessageId { get; set; } = string.Empty;
 
-        [JsonPropertyName("notice_type")]
+        [JsonPropertyName(name: "notice_type")]
         public string NoticeType { get; set; } = string.Empty;
 
-        [JsonPropertyName("pay_it_forward")]
-        public TwitchWebSocketMessagePayloadEventChannelChatNotificationPayItForward PayItForward { get; set; } = new();
+        [JsonPropertyName(name: "pay_it_forward")]
+        public TwitchWebSocketMessagePayloadEventChannelChatNotificationPayItForward PayItForward { get; set; } = null;
 
-        [JsonPropertyName("prime_paid_upgrade")]
-        public TwitchWebSocketMessagePayloadEventChannelChatNotificationPrimePaidUpgrade PrimePaidUpgrade { get; set; } = new();
+        [JsonPropertyName(name: "prime_paid_upgrade")]
+        public TwitchWebSocketMessagePayloadEventChannelChatNotificationPrimePaidUpgrade PrimePaidUpgrade { get; set; } = null;
 
-        [JsonPropertyName("raid")]
-        public TwitchWebSocketMessagePayloadEventChannelChatNotificationRaid Raid { get; set; } = new();
+        [JsonPropertyName(name: "raid")]
+        public TwitchWebSocketMessagePayloadEventChannelChatNotificationRaid Raid { get; set; } = null;
 
-        [JsonPropertyName("resub")]
-        public TwitchWebSocketMessagePayloadEventChannelChatNotificationResub Resub { get; set; } = new();
+        [JsonPropertyName(name: "resub")]
+        public TwitchWebSocketMessagePayloadEventChannelChatNotificationResub Resub { get; set; } = null;
 
-        [JsonPropertyName("sub")]
-        public TwitchWebSocketMessagePayloadEventChannelChatNotificationSub Sub { get; set; } = new();
+        [JsonPropertyName(name: "sub")]
+        public TwitchWebSocketMessagePayloadEventChannelChatNotificationSub Sub { get; set; } = null;
 
-        [JsonPropertyName("sub_gift")]
-        public TwitchWebSocketMessagePayloadEventChannelChatNotificationSubGift SubGift { get; set; } = new();
+        [JsonPropertyName(name: "sub_gift")]
+        public TwitchWebSocketMessagePayloadEventChannelChatNotificationSubGift SubGift { get; set; } = null;
 
-        [JsonPropertyName("system_message")]
+        [JsonPropertyName(name: "system_message")]
         public string SystemMessage { get; set; } = string.Empty;
 
-        [JsonPropertyName("unraid")]
-        public TwitchWebSocketMessagePayloadEventChannelChatNotificationUnraid Unraid { get; set; } = new();
+        [JsonPropertyName(name: "unraid")]
+        public TwitchWebSocketMessagePayloadEventChannelChatNotificationUnraid Unraid { get; set; } = null;
 	}
 }

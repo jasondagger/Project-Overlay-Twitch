@@ -4,7 +4,7 @@ namespace Overlay
     using System;
 
     [Serializable]
-    public sealed class TwitchCustomSubscriberData
+    public sealed class TwitchCustomUserData
     {
         public static readonly float TimeStampDelay = 0.5f;
 

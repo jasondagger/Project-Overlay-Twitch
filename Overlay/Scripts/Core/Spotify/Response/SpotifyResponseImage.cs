@@ -7,13 +7,13 @@ namespace Overlay
     [Serializable]
     public sealed class SpotifyResponseImage
     {
-        [JsonPropertyName("height")]
+        [JsonPropertyName(name: "height")]
         public int Height { get; set; } = 0;
 
-        [JsonPropertyName("url")]
+        [JsonPropertyName(name: "url")]
         public string Url { get; set; } = string.Empty;
 
-        [JsonPropertyName("width")]
+        [JsonPropertyName(name: "width")]
         public int Width { get; set; } = 0;
     }
 }

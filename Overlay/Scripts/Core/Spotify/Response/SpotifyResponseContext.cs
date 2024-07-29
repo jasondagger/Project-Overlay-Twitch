@@ -7,16 +7,16 @@ namespace Overlay
     [Serializable]
     public sealed class SpotifyResponseContext
     {
-        [JsonPropertyName("external_urls")]
+        [JsonPropertyName(name: "external_urls")]
         public SpotifyResponseExternalUrls ExternalUrls { get; set; } = null;
 
-        [JsonPropertyName("href")]
+        [JsonPropertyName(name: "href")]
         public string HRef { get; set; } = string.Empty;
 
-        [JsonPropertyName("type")]
+        [JsonPropertyName(name: "type")]
         public string Type { get; set; } = string.Empty;
 
-        [JsonPropertyName("uri")]
+        [JsonPropertyName(name: "uri")]
         public string Uri { get; set; } = string.Empty;
     }
 }

@@ -7,10 +7,10 @@ namespace Overlay
     [Serializable]
     public sealed class SpotifyResponseQueue
     {
-        [JsonPropertyName("currently_playing")]
+        [JsonPropertyName(name: "currently_playing")]
         public SpotifyResponseTrack CurrentlyPlaying { get; set; } = null;
 
-        [JsonPropertyName("queue")]
+        [JsonPropertyName(name: "queue")]
         public SpotifyResponseTrack[] Queue { get; set; } = null;
     }
 }

@@ -7,7 +7,7 @@ namespace Overlay
     [Serializable]
     public sealed class SpotifyResponseDevices
     {
-        [JsonPropertyName("devices")]
+        [JsonPropertyName(name: "devices")]
         public SpotifyResponseDevice[] Devices { get; set; } = null;
     }
 }

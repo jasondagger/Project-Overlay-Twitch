@@ -5,7 +5,7 @@ namespace Overlay
 
     public abstract class TwitchMessage
     {
-        [JsonPropertyName("type")]
+        [JsonPropertyName(name: "type")]
         public TwitchEventSubSubscriptionType Type = TwitchEventSubSubscriptionType.Unknown;
 
         public TwitchMessage(

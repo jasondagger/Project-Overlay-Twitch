@@ -7,28 +7,28 @@ namespace Overlay
     [Serializable]
     public sealed class SpotifyResponseDevice
     {
-        [JsonPropertyName("id")]
+        [JsonPropertyName(name: "id")]
         public string Id { get; set; } = string.Empty;
 
-        [JsonPropertyName("is_active")]
+        [JsonPropertyName(name: "is_active")]
         public bool IsActive { get; set; } = false;
 
-        [JsonPropertyName("is_private_session")]
+        [JsonPropertyName(name: "is_private_session")]
         public bool IsPrivateSession { get; set; } = false;
 
-        [JsonPropertyName("is_restricted")]
+        [JsonPropertyName(name: "is_restricted")]
         public bool IsRestricted { get; set; } = false;
 
-        [JsonPropertyName("name")]
+        [JsonPropertyName(name: "name")]
         public string Name { get; set; } = string.Empty;
 
-        [JsonPropertyName("type")]
+        [JsonPropertyName(name: "type")]
         public string Type { get; set; } = string.Empty;
 
-        [JsonPropertyName("volume_percent")]
+        [JsonPropertyName(name: "volume_percent")]
         public int VolumePercent { get; set; } = 0;
 
-        [JsonPropertyName("supports_volume")]
+        [JsonPropertyName(name: "supports_volume")]
         public bool SupportsVolume { get; set; } = false;
     }
 }

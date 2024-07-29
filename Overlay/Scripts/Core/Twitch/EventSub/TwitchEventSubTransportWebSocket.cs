@@ -6,10 +6,10 @@ namespace Overlay
     [Serializable]
     public sealed class TwitchEventSubTransportWebSocket
     {
-        [JsonPropertyName("method")]
+        [JsonPropertyName(name: "method")]
         public string Method { get; set; } = "websocket";
 
-        [JsonPropertyName("session_id")]
+        [JsonPropertyName(name: "session_id")]
         public string SessionId { get; set; } = string.Empty;
 
         public TwitchEventSubTransportWebSocket()

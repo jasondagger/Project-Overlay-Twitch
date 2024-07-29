@@ -7,10 +7,10 @@ namespace Overlay
     [Serializable]
     public class TwitchWebSocketMessage
     {
-        [JsonPropertyName("metadata")]
+        [JsonPropertyName(name: "metadata")]
         public TwitchWebSocketMessageMetadata Metadata { get; set; } = new();
 
-        [JsonPropertyName("payload")]
+        [JsonPropertyName(name: "payload")]
         public TwitchWebSocketMessagePayload Payload { get; set; } = new();
     }
 }

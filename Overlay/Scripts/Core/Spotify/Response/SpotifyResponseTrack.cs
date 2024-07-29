@@ -7,64 +7,64 @@ namespace Overlay
     [Serializable]
     public sealed class SpotifyResponseTrack
     {
-        [JsonPropertyName("album")]
+        [JsonPropertyName(name: "album")]
         public SpotifyResponseAlbum Album { get; set; } = null;
 
-        [JsonPropertyName("artists")]
+        [JsonPropertyName(name: "artists")]
         public SpotifyResponseArtist[] Artists { get; set; } = null;
 
-        [JsonPropertyName("available_markets")]
+        [JsonPropertyName(name: "available_markets")]
         public string[] AvailableMarkets { get; set; } = null;
 
-        [JsonPropertyName("disc_number")]
+        [JsonPropertyName(name: "disc_number")]
         public int DiscNumber { get; set; } = 0;
 
-        [JsonPropertyName("duration_ms")]
+        [JsonPropertyName(name: "duration_ms")]
         public int DurationInMilliseconds { get; set; } = 0;
 
-        [JsonPropertyName("explicit")]
+        [JsonPropertyName(name: "explicit")]
         public bool Explicit { get; set; } = false;
 
-        [JsonPropertyName("external_ids")]
+        [JsonPropertyName(name: "external_ids")]
         public SpotifyResponseExternalIds ExternalIds { get; set; } = null;
 
-        [JsonPropertyName("external_urls")]
+        [JsonPropertyName(name: "external_urls")]
         public SpotifyResponseExternalUrls ExternalUrls { get; set; } = null;
 
-        [JsonPropertyName("href")]
+        [JsonPropertyName(name: "href")]
         public string HRef { get; set; } = string.Empty;
 
-        [JsonPropertyName("id")]
+        [JsonPropertyName(name: "id")]
         public string Id { get; set; } = string.Empty;
 
-        [JsonPropertyName("is_local")]
+        [JsonPropertyName(name: "is_local")]
         public bool IsLocal { get; set; } = false;
 
-        [JsonPropertyName("is_playable")]
+        [JsonPropertyName(name: "is_playable")]
         public bool IsPlayable { get; set; } = false;
 
-        [JsonPropertyName("linked_from")]
+        [JsonPropertyName(name: "linked_from")]
         public SpotifyResponseLinkedFrom LinkedFrom { get; set; } = null;
 
-        [JsonPropertyName("name")]
+        [JsonPropertyName(name: "name")]
         public string Name { get; set; } = string.Empty;
 
-        [JsonPropertyName("popularity")]
+        [JsonPropertyName(name: "popularity")]
         public int Popularity { get; set; } = 0;
 
-        [JsonPropertyName("preview_url")]
+        [JsonPropertyName(name: "preview_url")]
         public string PreviewUrl { get; set; } = string.Empty;
 
-        [JsonPropertyName("restrictions")]
+        [JsonPropertyName(name: "restrictions")]
         public SpotifyResponseRestrictions Restrictions { get; set; } = null;
 
-        [JsonPropertyName("track_number")]
+        [JsonPropertyName(name: "track_number")]
         public int TrackNumber { get; set; } = 0;
 
-        [JsonPropertyName("type")]
+        [JsonPropertyName(name: "type")]
         public string Type { get; set; } = string.Empty;
 
-        [JsonPropertyName("uri")]
+        [JsonPropertyName(name: "uri")]
         public string Uri { get; set; } = string.Empty;
     }
 }

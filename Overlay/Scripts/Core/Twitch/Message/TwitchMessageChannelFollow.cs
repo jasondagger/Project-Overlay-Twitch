@@ -4,7 +4,7 @@ namespace Overlay
 
     public sealed class TwitchMessageChannelFollow : TwitchMessage
 	{
-        [JsonPropertyName("event")]
+        [JsonPropertyName(name: "event")]
         public TwitchWebSocketMessagePayloadEventChannelFollow Event { get; set; } = null;
 
 		public TwitchMessageChannelFollow(

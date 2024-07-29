@@ -7,16 +7,16 @@ namespace Overlay
     [Serializable]
     public sealed class TwitchResponseChannelFollowersData
     {
-        [JsonPropertyName("followed_at")]
+        [JsonPropertyName(name: "followed_at")]
         public string FollowedAt { get; set; } = string.Empty;
 
-        [JsonPropertyName("user_id")]
+        [JsonPropertyName(name: "user_id")]
         public string UserId { get; set; } = string.Empty;
 
-        [JsonPropertyName("user_login")]
+        [JsonPropertyName(name: "user_login")]
         public string UserLogin { get; set; } = string.Empty;
 
-        [JsonPropertyName("user_name")]
+        [JsonPropertyName(name: "user_name")]
         public string Username { get; set; } = string.Empty;
     }
 }

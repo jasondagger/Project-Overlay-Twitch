@@ -7,25 +7,25 @@ namespace Overlay
     [Serializable]
     public sealed class SpotifyResponseSearchItem
     {
-        [JsonPropertyName("albums")]
+        [JsonPropertyName(name: "albums")]
         public SpotifyResponseSearchItemAlbums Albums { get; set; } = null;
 
-        [JsonPropertyName("artists")]
+        [JsonPropertyName(name: "artists")]
         public SpotifyResponseSearchItemArtists Artists { get; set; } = null;
 
-        [JsonPropertyName("audiobooks")]
+        [JsonPropertyName(name: "audiobooks")]
         public SpotifyResponseSearchItemAudiobooks Audiobooks { get; set; } = null;
 
-        [JsonPropertyName("episodes")]
+        [JsonPropertyName(name: "episodes")]
         public SpotifyResponseSearchItemEpisodes Episodes { get; set; } = null;
 
-        [JsonPropertyName("playlists")]
+        [JsonPropertyName(name: "playlists")]
         public SpotifyResponseSearchItemPlaylists Playlists { get; set; } = null;
 
-        [JsonPropertyName("shows")]
+        [JsonPropertyName(name: "shows")]
         public SpotifyResponseSearchItemShows Shows { get; set; } = null;
 
-        [JsonPropertyName("tracks")]
+        [JsonPropertyName(name: "tracks")]
         public SpotifyResponseSearchItemTracks Tracks { get; set; } = null;
     }
 }
