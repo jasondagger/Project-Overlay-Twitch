@@ -13,8 +13,9 @@ namespace Overlay
 	{
 		public override void _Ready()
 		{
+			base._Ready();
+
 			RetrieveResources();
-			RegisterLayoutHandlers();
 			PopulateTwitchChatMessageCache();
         }
 
@@ -96,7 +97,35 @@ namespace Overlay
 			}
 		}
 
-		private struct TwitchChatMessageData
+        protected override void HandleSwapToUILayoutToCode()
+        {
+            m_chatPivot.SetPosition(
+                position: m_uiLayoutChatPivotPositions[key: UILayoutType.Code]
+            );
+        }
+
+        protected override void HandleSwapToUILayoutToDefault()
+        {
+            m_chatPivot.SetPosition(
+                position: m_uiLayoutChatPivotPositions[key: UILayoutType.Default]
+            );
+        }
+
+        protected override void HandleSwapToUILayoutToMTG()
+        {
+            m_chatPivot.SetPosition(
+                position: m_uiLayoutChatPivotPositions[key: UILayoutType.MTG]
+            );
+        }
+
+        protected override void HandleSwapToUILayoutToTF2()
+        {
+            m_chatPivot.SetPosition(
+                position: m_uiLayoutChatPivotPositions[key: UILayoutType.TF2]
+            );
+        }
+
+        private struct TwitchChatMessageData
 		{
 			public string Name = string.Empty;
 			public string NameColor = string.Empty;
@@ -189,7 +218,7 @@ namespace Overlay
 		private readonly Dictionary<UILayoutType, Vector2> m_uiLayoutChatPivotPositions = new()
 		{
 			{ UILayoutType.Code,    new(x: 38, y: 1000) },
-			{ UILayoutType.Default, new(x: 38, y: 1000) },
+			{ UILayoutType.Default, new(x: 38, y: 912)  },
 			{ UILayoutType.MTG,     new(x: 38, y: 1000) },
             { UILayoutType.TF2,	    new(x: 38, y: 912)  },
 		};
@@ -206,36 +235,7 @@ namespace Overlay
 
         private Control m_chatPivot = null;
 		private TwitchManager m_twitchManager = null;
-
 		private int m_currentPixel = 0;
-
-        private void HandleSwapToUILayoutToCode()
-        {
-            m_chatPivot.SetPosition(
-                position: m_uiLayoutChatPivotPositions[key: UILayoutType.Code]
-            );
-        }
-
-        private void HandleSwapToUILayoutToDefault()
-        {
-            m_chatPivot.SetPosition(
-                position: m_uiLayoutChatPivotPositions[key: UILayoutType.Default]
-            );
-        }
-
-        private void HandleSwapToUILayoutToMTG()
-        {
-            m_chatPivot.SetPosition(
-                position: m_uiLayoutChatPivotPositions[key: UILayoutType.MTG]
-            );
-        }
-
-        private void HandleSwapToUILayoutToTF2()
-        {
-            m_chatPivot.SetPosition(
-                position: m_uiLayoutChatPivotPositions[key: UILayoutType.TF2]
-            );
-        }
 
         private static bool IsTwitchChatMessageIllegal(
 			string message
@@ -416,28 +416,8 @@ namespace Overlay
                 m_availableTwitchChatMessages.Enqueue(
                     item: twitchChatMessage
                 );
-			twitchChatMessage.Reset();
             }
-        }
-
-        private void RegisterLayoutHandlers()
-        {
-			RegisterUILayoutHandler(
-				uiLayoutType: UILayoutType.Code,
-				handler: HandleSwapToUILayoutToCode
-			);
-			RegisterUILayoutHandler(
-				uiLayoutType: UILayoutType.Default,
-				handler: HandleSwapToUILayoutToDefault
-            );
-			RegisterUILayoutHandler(
-				uiLayoutType: UILayoutType.MTG,
-				handler: HandleSwapToUILayoutToMTG
-            );
-			RegisterUILayoutHandler(
-				uiLayoutType: UILayoutType.TF2,
-				handler: HandleSwapToUILayoutToTF2
-            );
+			twitchChatMessage.Reset();
         }
 
         private void RetrieveResources()

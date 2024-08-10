@@ -489,6 +489,65 @@ namespace Overlay
             ResetSpotifyTwitchData();
         }
 
+        private void OnRequestCurrentTrackBeforeSkipCompleted(
+            long result,
+            long responseCode,
+            string[] headers,
+            byte[] body
+        )
+        {
+            if (
+                HttpManager.IsResponseCodeSuccessful(
+                    responseCode: responseCode
+                ) is true
+            )
+            {
+#if DEBUG
+                GD.Print(
+                    what: $"{nameof(SpotifyManager)}.{nameof(OnRequestAvailableDevicesCompleted)}() - Web request {responseCode} POST successful."
+                );
+#endif
+
+                var spotifyResponse = JsonSerializer.Deserialize<SpotifyResponseCurrentTrack>(
+                    json: Encoding.UTF8.GetString(
+                        bytes: body,
+                        index: 0,
+                        count: body.Length
+                    )
+                );
+
+                var track = spotifyResponse.Track;
+                if (track is not null)
+                {
+                    SaveArtistAndTrackInTwitchData(
+                        track: track
+                    );
+                    RequestSkipToNext();
+                    return;
+                }
+            }
+            else
+            {
+#if DEBUG
+                GD.PrintErr(
+                    what: $"{nameof(SpotifyManager)}.{nameof(OnRequestAvailableDevicesCompleted)}() - Web request POST failed with code {responseCode}."
+                );
+#endif
+            }
+
+            m_spotifyTwitchData.Message =
+                $"could not retrieve current playing song. Failed to skip song.";
+            m_spotifyTwitchData.OnScreenMessage =
+                $"could not retrieve current playing song" +
+                $"{TwitchChatColorCodes.ConvertToNormalMessage(message: ".")}";
+
+            Errored?.Invoke(
+                obj: m_spotifyTwitchData
+            );
+
+            ResetSpotifyTwitchData();
+        }
+
         private void OnRequestPlaybackStateCompleted(
             long result,
             long responseCode,
@@ -1077,7 +1136,7 @@ namespace Overlay
                         break;
 
                     case SpotifyTwitchDataRequestType.TrackSkip:
-                        RequestSkipToNext();
+                        RequestCurrentTrackAndSkip();
                         break;
 
                     case SpotifyTwitchDataRequestType.UserTrackQueue:
@@ -1160,6 +1219,21 @@ namespace Overlay
                 json: string.Empty,
                 requestCompletedHandler: OnRequestCurrentTrackCompleted
             );
+        }
+
+        private void RequestCurrentTrackAndSkip()
+        {
+            var headers = new List<string>()
+            {
+                $"Authorization: Bearer {m_spotifyAccessToken.AccessToken}",
+            };
+            m_httpManager.SendHttpRequest(
+                url: $"{c_uriAPI}/me/player/currently-playing",
+                headers: headers,
+                method: Method.Get,
+                json: string.Empty,
+                requestCompletedHandler: OnRequestCurrentTrackBeforeSkipCompleted
+            );    
         }
 
         private void RequestSkipToNext()

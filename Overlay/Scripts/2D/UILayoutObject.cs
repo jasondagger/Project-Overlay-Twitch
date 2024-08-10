@@ -10,6 +10,11 @@ namespace Overlay
 	[SupportedOSPlatform(platformName: "windows")]
     public abstract partial class UILayoutObject : Node
     {
+        public override void _Ready()
+        {
+            RegisterUILayoutHandlers();
+        }
+
         public override void _Process(
 			double elapsed
 		)
@@ -24,13 +29,13 @@ namespace Overlay
             m_newUILayoutType = uiLayoutType;
         }
 
-        protected void RegisterUILayoutHandler(
-            UILayoutType uiLayoutType,
-            Action handler
-        )
-        {
-            m_uiLayoutHandlers[key: uiLayoutType] = handler;
-        }
+        protected abstract void HandleSwapToUILayoutToCode();
+
+        protected abstract void HandleSwapToUILayoutToDefault();
+
+        protected abstract void HandleSwapToUILayoutToMTG();
+
+        protected abstract void HandleSwapToUILayoutToTF2();
 
         private readonly Dictionary<UILayoutType, Action> m_uiLayoutHandlers = new()
         {
@@ -53,8 +58,15 @@ namespace Overlay
             {
                 m_currentUILayoutType = m_newUILayoutType;
                 m_uiLayoutHandlers[key: m_currentUILayoutType]?.Invoke();
-
             }
+        }
+
+        private void RegisterUILayoutHandlers()
+        {
+            m_uiLayoutHandlers[ key: UILayoutType.Code    ] = HandleSwapToUILayoutToCode;
+            m_uiLayoutHandlers[ key: UILayoutType.Default ] = HandleSwapToUILayoutToDefault;
+            m_uiLayoutHandlers[ key: UILayoutType.MTG     ] = HandleSwapToUILayoutToMTG;
+            m_uiLayoutHandlers[ key: UILayoutType.TF2     ] = HandleSwapToUILayoutToTF2;
         }
     }
 }

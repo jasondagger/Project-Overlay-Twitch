@@ -245,7 +245,6 @@ namespace Overlay
             { TwitchChatCommandType.Steam,        "!steam"		 },
             { TwitchChatCommandType.TextToSpeech, "!tts"		 },
             { TwitchChatCommandType.Time,         "!time"		 },
-            { TwitchChatCommandType.Unlurk,       "!unlurk"		 },
             { TwitchChatCommandType.YouTube,      "!youtube"	 },
         };
         private static readonly Dictionary<TwitchChatCommandInfoMessageType, string> c_commandInfoMessages = new()
@@ -607,12 +606,6 @@ namespace Overlay
                     );
                     break;
 
-                case TwitchChatCommandType.Unlurk:
-                    HandleWebSocketMessagePrivMsgUnlurk(
-                        webSocketMessage: webSocketMessage
-                    );
-                    break;
-
                 case TwitchChatCommandType.YouTube:
                     HandleWebSocketMessagePrivMsgYouTube(
 						webSocketMessage: webSocketMessage
@@ -815,6 +808,46 @@ namespace Overlay
             );
         }
 
+		private void HandleUserLurkingState(
+			TwitchChatWebSocketMessage webSocketMessage
+        )
+        {
+            var userName = webSocketMessage.UserName;
+            if (
+				m_usersLurking.Contains(
+					userName
+				) is true
+			)
+            {
+				var twitchUserName = GetTwitchUserName(
+				    webSocketMessage: webSocketMessage
+				);
+				var twitchChatMessageId = webSocketMessage.Tags[key: "id"];
+				var twitchMessage = webSocketMessage.Text;
+				var twitchMessageTrimmed = twitchMessage.Remove(startIndex: twitchMessage.Length - 2, count: 2);
+				var twitchMessageNormalized = twitchMessageTrimmed.ToLower();
+
+                if (
+                    twitchMessageNormalized.Equals(
+						c_commands[key: TwitchChatCommandType.Lurk]
+					) is false
+				)
+				{
+                    var message = $"{twitchUserName} disengaged lurk mode!";
+                    var onScreenMessage = $"{TwitchChatColorCodes.ConvertToUserMessage(message: twitchUserName)} disengaged lurk mode!";
+                    SendTwitchChatMessages(
+                        twitchChatMessageId: twitchChatMessageId,
+                        message: message,
+                        onScreenMessage: onScreenMessage
+                    );
+
+                    m_usersLurking.Remove(
+                        item: userName
+                    );
+                }
+            }
+        }
+
 		private void HandleUserNotFollowingMessage(
 			TwitchChatWebSocketMessage webSocketMessage
 		)
@@ -934,6 +967,10 @@ namespace Overlay
 			}
 			m_messageTimestamps.Enqueue(
                 item: Time.GetTicksMsec()
+			);
+
+			HandleUserLurkingState(
+				webSocketMessage: webSocketMessage	
 			);
 			
 			var chatCommandValidityType = ProcessChatCommand(
@@ -1319,15 +1356,13 @@ namespace Overlay
 			)
 			{
                 var message =
-                    $"{twitchUserName} tried to disengage lurk mode, " +
-                    $"but little did they know SmoothDagger knew they weren't lurking! " +
-                    $"Rekt. " +
-                    $"Try using !lurk first, noobie.";
+                    $"{twitchUserName} tried to engage lurk mode, " +
+                    $"but little did they know SmoothDagger knew they were already lurking! " +
+                    $"Rekt.";
                 var onScreenMessage =
                     $"{TwitchChatColorCodes.ConvertToUserMessage(message: twitchUserName)} tried to engage lurk mode, " +
                     $"but little did they know {TwitchChatColorCodes.ConvertToUserMessage(message: "SmoothDagger")} knew they were already lurking! " +
-                    $"Rekt. " +
-                    $"Try using {TwitchChatColorCodes.ConvertToSuccessMessage(message: "!unlurk")} first, noobie.";
+                    $"Rekt.";
 
                 SendTwitchChatMessages(
                     twitchChatMessageId: twitchChatMessageId,
@@ -1966,55 +2001,6 @@ namespace Overlay
             }
 		}
 
-		private void HandleWebSocketMessagePrivMsgUnlurk(
-			TwitchChatWebSocketMessage webSocketMessage
-		)
-		{
-            var userName = webSocketMessage.UserName;
-            var twitchUserName = GetTwitchUserName(
-                webSocketMessage: webSocketMessage
-            );
-            var twitchChatMessageId = webSocketMessage.Tags[key: "id"];
-
-            if (
-				m_usersLurking.Contains(
-					item: userName
-				) is false
-			)
-			{
-				var message = 
-					$"{twitchUserName} tried to disengage lurk mode, " +
-					$"but little did they know SmoothDagger knew they weren't lurking! " +
-					$"Rekt. " +
-					$"Try using !lurk first, noobie.";
-				var onScreenMessage =
-                    $"{TwitchChatColorCodes.ConvertToUserMessage(message: twitchUserName)} tried to disengage lurk mode, " +
-					$"but little did they know {TwitchChatColorCodes.ConvertToUserMessage(message: "SmoothDagger")} knew they weren't lurking! " +
-                    $"Rekt. " +
-                    $"Try using {TwitchChatColorCodes.ConvertToSuccessMessage(message: "!lurk")} first, noobie.";
-
-                SendTwitchChatMessages(
-                    twitchChatMessageId: twitchChatMessageId,
-                    message: message,
-                    onScreenMessage: onScreenMessage
-                );
-			}
-			else
-			{
-                var message = $"{twitchUserName} disengaged lurk mode!";
-                var onScreenMessage = $"{TwitchChatColorCodes.ConvertToUserMessage(message: twitchUserName)} disengaged lurk mode!";
-                SendTwitchChatMessages(
-                    twitchChatMessageId: twitchChatMessageId,
-                    message: message,
-                    onScreenMessage: onScreenMessage
-                );
-
-                m_usersLurking.Remove(
-                    item: userName
-                );
-            }
-        }
-
 		private void HandleWebSocketMessagePrivMsgYouTube(
             TwitchChatWebSocketMessage webSocketMessage
         )
@@ -2061,7 +2047,6 @@ namespace Overlay
                 TwitchChatCommandType.SongSkip or
 				TwitchChatCommandType.Specs or
 				TwitchChatCommandType.Steam or
-				TwitchChatCommandType.Unlurk or
 				TwitchChatCommandType.YouTube =>
 					IsOverlayCommandInputlessValid(
                         commandType: commandType,
@@ -2609,10 +2594,17 @@ namespace Overlay
 		    SpotifyTwitchData spotifyTwitchData
 		)
         {
-            var message = $"{spotifyTwitchData.TwitchUserName}, track was successfully skipped.";
+            var message = $"{spotifyTwitchData.TwitchUserName}, " +
+				$"{spotifyTwitchData.TrackName}" +
+				$" by " +
+				$"{spotifyTwitchData.ArtistName} " +
+				$"was successfully skipped.";
 			var onScreenMessage =
 				$"{TwitchChatColorCodes.ConvertToUserMessage(message: spotifyTwitchData.TwitchUserName)}, " +
-				$"{TwitchChatColorCodes.ConvertToSuccessMessage(message: "track was successfully skipped")}.";
+				$"{TwitchChatColorCodes.ConvertToSuccessMessage(message: $"{spotifyTwitchData.TrackName}")}" +
+				$" by " +
+				$"{TwitchChatColorCodes.ConvertToSuccessMessage(message: $"{spotifyTwitchData.ArtistName}")} " +
+				$"was successfully skipped.";
 
 			SendTwitchChatMessages(
 				twitchChatMessageId: spotifyTwitchData.TwitchChatMessageId,
