@@ -45,7 +45,7 @@ namespace Overlay
 
 		public override void _EnterTree()
 		{
-			RetrieveResources();
+            RetrieveResources();
         }
 
         public override void _ExitTree()
@@ -142,24 +142,7 @@ namespace Overlay
 
 		public override void _Ready()
 		{
-			ConnectWebSocket();
-
-			RequestUser(
-				userLogin: m_twitchData.AccountUserName
-			);
-
-			RequestChannelBadges();
-			RequestGlobalBadges();
-			RequestChannelPointRewardAdd();
-			RequestFollowers(
-				pageId: string.Empty
-			);
-			RequestModerators(
-                pageId: string.Empty
-            );
-			RequestSubscribers(
-				pageId: string.Empty
-			);
+            RequestAccessTokenWithRefreshToken();
 		}
 
 		public Dictionary<string, TwitchResponseChannelFollowersData> GetChannelFollowers()
@@ -264,14 +247,15 @@ namespace Overlay
             "subscriber"
         };
 
-        private const string c_urlAPI = "https://api.twitch.tv/helix";
-		private const string c_urlOAuth = "https://id.twitch.tv/oauth2/token";
-		private const string c_userAccessScopes = "bits:read channel:read:subscriptions channel:manage:redemptions moderation:read moderator:read:followers user:read:chat";
+        private const string c_twitchOAuthAccessCode = "26ds1k39di6o3u96rx6gwt05xq26vv";
+		private const string c_twitchUriRedirect = "http://localhost:3000";
+        private const string c_twitchUriAPI = "https://api.twitch.tv/helix";
+		private const string c_twitchUriOAuth = "https://id.twitch.tv/oauth2/token";
+		private const string c_twitchUserAccessScopes = "bits:read channel:read:subscriptions channel:manage:redemptions moderation:read moderator:read:followers user:read:chat";
+        private const string c_twitchWebSocketAddress = "wss://eventsub.wss.twitch.tv/ws";
+        private const char c_twitchUTCSuffix = 'S';
 
-        private const string c_webSocketAddress = "wss://eventsub.wss.twitch.tv/ws";
-		private const char c_twitchUTCSuffix = 'S';
-
-		private const string c_twitchBadgeRelativeDirectory = "user://Badges";
+        private const string c_twitchBadgeRelativeDirectory = "user://Badges";
 		private const string c_twitchBadgeApplicationDirectory = "Overlay/Badges";
         private const int c_twitchBadgeHeight = 16;
         private const int c_twitchBadgeWidth = 16;
@@ -305,9 +289,10 @@ namespace Overlay
 		private Dictionary<string, TwitchCustomUserData> m_customUserDatas = null;
         private AudioManager m_audioManager = null;
 		private HttpManager m_httpManager = null;
-		private TwitchChannelPointRewardsManager m_twitchChannelPointRewardsManager = null;
-		private TwitchData m_twitchData = null;
-		private bool m_shutdown = false;
+		private TwitchAccountAccessToken m_twitchAccountAccessToken = null;
+        private TwitchChannelPointRewardsManager m_twitchChannelPointRewardsManager = null;
+        private TwitchGlobalData m_twitchGlobalData = null;
+        private bool m_shutdown = false;
 
 		private void AddNewFollower(
             TwitchMessageChannelFollow message
@@ -378,7 +363,7 @@ namespace Overlay
 				{
 					// connect to Twitch websocket
 					var uri = new Uri(
-						uriString: c_webSocketAddress
+						uriString: c_twitchWebSocketAddress
 					);
 
 					await m_webSocket.ConnectAsync(
@@ -424,8 +409,8 @@ namespace Overlay
 		{
 			var headers = new List<string>()
             {
-				$"Authorization: Bearer {m_twitchData.AccountAccessToken}",
-				$"Client-Id: {m_twitchData.ClientId}"
+				$"Authorization: Bearer {m_twitchAccountAccessToken.AccessToken}",
+				$"Client-Id: {m_twitchGlobalData.ClientId}"
 			};
 
 			var twitchResponse = JsonSerializer.Deserialize<TwitchResponseEventSubSubscriptions>(
@@ -434,7 +419,7 @@ namespace Overlay
 			foreach (var data in twitchResponse.Data)
 			{
 				m_httpManager.SendHttpRequest(
-					url: $"{c_urlAPI}/eventsub/subscriptions?id={data.Id}",
+					url: $"{c_twitchUriAPI}/eventsub/subscriptions?id={data.Id}",
 					headers: headers,
 					method: Method.Delete,
 					json: string.Empty,
@@ -702,6 +687,88 @@ namespace Overlay
 				);
 			}
 #endif
+		}
+
+		private void OnRequestAccessTokenCompleted(
+            long result,
+            long responseCode,
+            string[] headers,
+            byte[] body
+        )
+		{
+			if (
+				HttpManager.IsResponseCodeSuccessful(
+					responseCode
+				) is true
+			)
+			{
+#if DEBUG
+                GD.Print(
+					what: $"{nameof(TwitchManager)}.{nameof(OnRequestAccessTokenCompleted)}() - Web request {responseCode} POST successful."
+				);
+#endif
+
+				WriteAccessToken(
+                    response: JsonSerializer.Deserialize<TwitchResponseAccessToken>(
+						json: Encoding.UTF8.GetString(
+						    bytes: body,
+						    index: 0,
+						    count: body.Length
+						)
+                    )
+                );
+
+				StartConnection();
+            }
+			else
+			{
+#if DEBUG
+				GD.PrintErr(
+					what: $"{nameof(TwitchManager)}.{nameof(OnRequestAccessTokenCompleted)}() - Web request POST failed with code {responseCode}."
+				);
+#endif
+			}
+		}
+
+		private void OnRequestAccessTokenWithRefreshTokenCompleted(
+            long result,
+            long responseCode,
+            string[] headers,
+            byte[] body
+        )
+		{
+			if (
+				HttpManager.IsResponseCodeSuccessful(
+					responseCode
+				) is true
+			)
+			{
+#if DEBUG
+                GD.Print(
+					what: $"{nameof(TwitchManager)}.{nameof(OnRequestAccessTokenWithRefreshTokenCompleted)}() - Web request {responseCode} POST successful."
+				);
+#endif
+
+                WriteAccessToken(
+                    response: JsonSerializer.Deserialize<TwitchResponseAccessToken>(
+                        json: Encoding.UTF8.GetString(
+                            bytes: body,
+                            index: 0,
+                            count: body.Length
+                        )
+                    )
+                );
+
+				StartConnection();
+            }
+            else
+			{
+#if DEBUG
+				GD.PrintErr(
+					what: $"{nameof(TwitchManager)}.{nameof(OnRequestAccessTokenWithRefreshTokenCompleted)}() - Web request POST failed with code {responseCode}."
+				);
+#endif
+			}
 		}
 
 		private void OnRequestChannelBadgesCompleted(
@@ -1506,8 +1573,8 @@ namespace Overlay
 		{
 			var headers = new List<string>()
             {
-				$"Authorization: Bearer {m_twitchData.AccountAccessToken}",
-				$"Client-Id: {m_twitchData.ClientId}",
+				$"Authorization: Bearer {m_twitchAccountAccessToken.AccessToken}",
+				$"Client-Id: {m_twitchGlobalData.ClientId}",
 				$"Content-Type: application/json"
 			};
 
@@ -1520,7 +1587,7 @@ namespace Overlay
 					case TwitchEventSubSubscriptionType.ChannelChatNotification:
 						payload = JsonSerializer.Serialize(
 							value: new TwitchRequestEventSubChannelChatNotification(
-                                userId: $"{m_twitchData.AccountId}",
+                                userId: $"{m_twitchGlobalData.AccountId}",
                                 sessionId: $"{sessionId}"
                             )
 						);
@@ -1529,7 +1596,7 @@ namespace Overlay
 					case TwitchEventSubSubscriptionType.ChannelCheer:
 						payload = JsonSerializer.Serialize(
                             value: new TwitchRequestEventSubChannelCheer(
-                                userId: $"{m_twitchData.AccountId}",
+                                userId: $"{m_twitchGlobalData.AccountId}",
                                 sessionId: $"{sessionId}"
                             )
 						);
@@ -1538,7 +1605,7 @@ namespace Overlay
 					case TwitchEventSubSubscriptionType.ChannelFollow:
 						payload = JsonSerializer.Serialize(
 							value: new TwitchRequestEventSubChannelFollow(
-                                userId: $"{m_twitchData.AccountId}",
+                                userId: $"{m_twitchGlobalData.AccountId}",
                                 sessionId: $"{sessionId}"
                             )
 						);
@@ -1547,7 +1614,7 @@ namespace Overlay
 					case TwitchEventSubSubscriptionType.ChannelRaid:
 						payload = JsonSerializer.Serialize(
 							value: new TwitchRequestEventSubChannelRaid(
-                                userId: $"{m_twitchData.AccountId}",
+                                userId: $"{m_twitchGlobalData.AccountId}",
                                 sessionId: $"{sessionId}"
                             )
 						);
@@ -1556,7 +1623,7 @@ namespace Overlay
 					case TwitchEventSubSubscriptionType.ChannelSubscribe:
 						payload = JsonSerializer.Serialize(
 							value: new TwitchRequestEventSubChannelSubscribe(
-                                userId: $"{m_twitchData.AccountId}",
+                                userId: $"{m_twitchGlobalData.AccountId}",
                                 sessionId: $"{sessionId}"
                             )
 						);
@@ -1565,7 +1632,7 @@ namespace Overlay
 					case TwitchEventSubSubscriptionType.ChannelSubscriptionGift:
 						payload = JsonSerializer.Serialize(
 							value: new TwitchRequestEventSubChannelSubscriptionGift(
-                                userId: $"{m_twitchData.AccountId}",
+                                userId: $"{m_twitchGlobalData.AccountId}",
                                 sessionId: $"{sessionId}"
                             )
 						);
@@ -1574,7 +1641,7 @@ namespace Overlay
 					case TwitchEventSubSubscriptionType.ChannelPointsCustomRewardRedeemed:
 						payload = JsonSerializer.Serialize(
 							value: new TwitchRequestEventSubChannelPointsRedemption(
-								userId: $"{m_twitchData.AccountId}",
+								userId: $"{m_twitchGlobalData.AccountId}",
 								sessionId: $"{sessionId}"
 							)
 						);
@@ -1586,7 +1653,7 @@ namespace Overlay
 				}
 
 				m_httpManager.SendHttpRequest(
-					url: $"{c_urlAPI}/eventsub/subscriptions",
+					url: $"{c_twitchUriAPI}/eventsub/subscriptions",
 					headers: headers,
 					method: Method.Post,
 					json: payload,
@@ -1599,11 +1666,11 @@ namespace Overlay
 		{
 			var headers = new List<string>()
             {
-                $"Authorization: Bearer {m_twitchData.AccountAccessToken}",
-                $"Client-Id: {m_twitchData.ClientId}"
+                $"Authorization: Bearer {m_twitchAccountAccessToken.AccessToken}",
+                $"Client-Id: {m_twitchGlobalData.ClientId}"
 			};
 			m_httpManager.SendHttpRequest(
-                url: $"{c_urlAPI}/chat/badges/?broadcaster_id={m_twitchData.AccountId}",
+                url: $"{c_twitchUriAPI}/chat/badges/?broadcaster_id={m_twitchGlobalData.AccountId}",
                 headers: headers,
                 method: Method.Get,
                 json: string.Empty,
@@ -1615,8 +1682,8 @@ namespace Overlay
 		{
 			var headers = new List<string>()
             {
-				$"Authorization: Bearer {m_twitchData.AccountAccessToken}",
-				$"Client-Id: {m_twitchData.ClientId}",
+				$"Authorization: Bearer {m_twitchAccountAccessToken.AccessToken}",
+				$"Client-Id: {m_twitchGlobalData.ClientId}",
 				$"Content-Type: application/json"
 			};
 
@@ -1650,7 +1717,7 @@ namespace Overlay
 																				$"\"title\":\"{channelPointRewardData.Title}\"" +
 				$"}}";
 				m_httpManager.SendHttpRequest(
-					url: $"{c_urlAPI}/channel_points/custom_rewards?broadcaster_id={m_twitchData.AccountId}",
+					url: $"{c_twitchUriAPI}/channel_points/custom_rewards?broadcaster_id={m_twitchGlobalData.AccountId}",
 					headers: headers,
 					method: Method.Post,
 					json: payload,
@@ -1663,15 +1730,15 @@ namespace Overlay
 		{
 			var headers = new List<string>()
             {
-				$"Authorization: Bearer {m_twitchData.AccountAccessToken}",
-				$"Client-Id: {m_twitchData.ClientId}",
+				$"Authorization: Bearer {m_twitchAccountAccessToken.AccessToken}",
+				$"Client-Id: {m_twitchGlobalData.ClientId}",
 			};
 
 			var customChannelPointRewardTypes = Enum.GetValues<ChannelPointRewardType>();
 			foreach (var customChannelPointRewardType in customChannelPointRewardTypes)
 			{
 				m_httpManager.SendHttpRequest(
-                    url: $"{c_urlAPI}/channel_points/custom_rewards?broadcaster_id={m_twitchData.AccountId}&id={m_channelPointRewardIds[customChannelPointRewardType]}",
+                    url: $"{c_twitchUriAPI}/channel_points/custom_rewards?broadcaster_id={m_twitchGlobalData.AccountId}&id={m_channelPointRewardIds[customChannelPointRewardType]}",
                     headers: headers,
                     method: Method.Delete,
                     json: string.Empty,
@@ -1684,8 +1751,8 @@ namespace Overlay
 		{
 			var headers = new List<string>()
             {
-				$"Authorization: Bearer {m_twitchData.AccountAccessToken}",
-				$"Client-Id: {m_twitchData.ClientId}",
+				$"Authorization: Bearer {m_twitchAccountAccessToken.AccessToken}",
+				$"Client-Id: {m_twitchGlobalData.ClientId}",
 				$"Content-Type: application/json"
 			};
 			var payload = $"{{" +
@@ -1696,7 +1763,7 @@ namespace Overlay
 			foreach (var pendingReward in pendingRewards)
 			{
 				m_httpManager.SendHttpRequest(
-                    url: $"{c_urlAPI}/channel_points/custom_rewards/redemptions?broadcaster_id={m_twitchData.AccountId}&reward_id={m_channelPointRewardIds[pendingReward.TwitchChannelPointRewardsType]}&id={pendingReward.Id}",
+                    url: $"{c_twitchUriAPI}/channel_points/custom_rewards/redemptions?broadcaster_id={m_twitchGlobalData.AccountId}&reward_id={m_channelPointRewardIds[pendingReward.TwitchChannelPointRewardsType]}&id={pendingReward.Id}",
                     headers: headers,
                     method: Method.Patch,
                     json: payload,
@@ -1717,11 +1784,11 @@ namespace Overlay
 
 			var headers = new List<string>()
             {
-				$"Authorization: Bearer {m_twitchData.AccountAccessToken}",
-				$"Client-Id: {m_twitchData.ClientId}"
+				$"Authorization: Bearer {m_twitchAccountAccessToken.AccessToken}",
+				$"Client-Id: {m_twitchGlobalData.ClientId}"
 			};
 			m_httpManager.SendHttpRequest(
-                url: $"{c_urlAPI}/channels/followers?broadcaster_id={m_twitchData.AccountId}&first=100&after={pageId}",
+                url: $"{c_twitchUriAPI}/channels/followers?broadcaster_id={m_twitchGlobalData.AccountId}&first=100&after={pageId}",
 				headers: headers,
                 method: Method.Get,
                 json: string.Empty,
@@ -1741,11 +1808,11 @@ namespace Overlay
 
 			var headers = new List<string>()
             {
-				$"Authorization: Bearer {m_twitchData.AccountAccessToken}",
-				$"Client-Id: {m_twitchData.ClientId}"
+				$"Authorization: Bearer {m_twitchAccountAccessToken.AccessToken}",
+				$"Client-Id: {m_twitchGlobalData.ClientId}"
 			};
 			m_httpManager.SendHttpRequest(
-				url: $"{c_urlAPI}/subscriptions?broadcaster_id={m_twitchData.AccountId}&first=100&after={pageId}",
+				url: $"{c_twitchUriAPI}/subscriptions?broadcaster_id={m_twitchGlobalData.AccountId}&first=100&after={pageId}",
 				headers: headers,
 				method: Method.Get,
 				json: string.Empty,
@@ -1757,11 +1824,11 @@ namespace Overlay
         {
             var headers = new List<string>()
             {
-                $"Authorization: Bearer {m_twitchData.AccountAccessToken}",
-                $"Client-Id: {m_twitchData.ClientId}"
+                $"Authorization: Bearer {m_twitchAccountAccessToken.AccessToken}",
+                $"Client-Id: {m_twitchGlobalData.ClientId}"
 			};
 			m_httpManager.SendHttpRequest(
-                url: $"{c_urlAPI}/chat/badges/global",
+                url: $"{c_twitchUriAPI}/chat/badges/global",
                 headers: headers,
                 method: Method.Get,
                 json: string.Empty,
@@ -1773,11 +1840,11 @@ namespace Overlay
         {
             var headers = new List<string>()
             {
-                $"Authorization: Bearer {m_twitchData.AccountAccessToken}",
-                $"Client-Id: {m_twitchData.ClientId}"
+                $"Authorization: Bearer {m_twitchAccountAccessToken.AccessToken}",
+                $"Client-Id: {m_twitchGlobalData.ClientId}"
             };
             m_httpManager.SendHttpRequest(
-                url: $"{c_urlAPI}/subscriptions?broadcaster_id={m_twitchData.AccountId}&first=1",
+                url: $"{c_twitchUriAPI}/subscriptions?broadcaster_id={m_twitchGlobalData.AccountId}&first=1",
                 headers: headers,
                 method: Method.Get,
                 json: string.Empty,
@@ -1791,11 +1858,11 @@ namespace Overlay
 		{
 			var headers = new List<string>()
             {
-				$"Authorization: Bearer {m_twitchData.AccountAccessToken}",
-				$"Client-Id: {m_twitchData.ClientId}"
+				$"Authorization: Bearer {m_twitchAccountAccessToken.AccessToken}",
+				$"Client-Id: {m_twitchGlobalData.ClientId}"
 			};
 			m_httpManager.SendHttpRequest(
-                url: $"{c_urlAPI}/moderation/moderators?broadcaster_id={m_twitchData.AccountId}&first=100&after={pageId}",
+                url: $"{c_twitchUriAPI}/moderation/moderators?broadcaster_id={m_twitchGlobalData.AccountId}&first=100&after={pageId}",
                 headers: headers,
                 method: Method.Get,
                 json: string.Empty,
@@ -1810,12 +1877,12 @@ namespace Overlay
 				$"application/x-www-form-urlencoded"
 			};
 			var payload = 
-				$"client_id={m_twitchData.ClientId}&" +
-				$"client_secret={m_twitchData.ClientSecret}&" +
+				$"client_id={m_twitchGlobalData.ClientId}&" +
+				$"client_secret={m_twitchGlobalData.ClientSecret}&" +
 				$"grant_type=client_credentials";
 
 			m_httpManager.SendHttpRequest(
-                url: $"{c_urlOAuth}",
+                url: $"{c_twitchUriOAuth}",
                 headers: headers,
                 method: Method.Post,
                 json: payload,
@@ -1835,11 +1902,11 @@ namespace Overlay
 
 			var headers = new List<string>()
             {
-				$"Authorization: Bearer {m_twitchData.AccountAccessToken}",
-				$"Client-Id: {m_twitchData.ClientId}"
+				$"Authorization: Bearer {m_twitchAccountAccessToken.AccessToken}",
+				$"Client-Id: {m_twitchGlobalData.ClientId}"
 			};
 			m_httpManager.SendHttpRequest(
-                url: $"{c_urlAPI}/subscriptions?broadcaster_id={m_twitchData.AccountId}&first=100&after={pageId}",
+                url: $"{c_twitchUriAPI}/subscriptions?broadcaster_id={m_twitchGlobalData.AccountId}&first=100&after={pageId}",
                 headers: headers,
                 method: Method.Get,
                 json: string.Empty,
@@ -1853,11 +1920,11 @@ namespace Overlay
 		{
 			var headers = new List<string>()
             {
-				$"Authorization: Bearer {m_twitchData.AccountAccessToken}",
-				$"Client-Id: {m_twitchData.ClientId}"
+				$"Authorization: Bearer {m_twitchAccountAccessToken.AccessToken}",
+				$"Client-Id: {m_twitchGlobalData.ClientId}"
 			};
 			m_httpManager.SendHttpRequest(
-                url: $"{c_urlAPI}/users?login={userLogin}",
+                url: $"{c_twitchUriAPI}/users?login={userLogin}",
                 headers: headers,
                 method: Method.Get,
                 json: string.Empty,
@@ -1869,11 +1936,11 @@ namespace Overlay
 		{
 			var headers = new List<string>()
             {
-				$"Authorization: Bearer {m_twitchData.AccountAccessToken}",
-				$"Client-Id: {m_twitchData.ClientId}"
+				$"Authorization: Bearer {m_twitchAccountAccessToken.AccessToken}",
+				$"Client-Id: {m_twitchGlobalData.ClientId}"
 			};
 			m_httpManager.SendHttpRequest(
-                url: $"{c_urlAPI}/eventsub/subscriptions",
+                url: $"{c_twitchUriAPI}/eventsub/subscriptions",
                 headers: headers,
                 method: Method.Get,
                 json: string.Empty,
@@ -1883,36 +1950,92 @@ namespace Overlay
 
 		private void RequestAccessToken()
 		{
-            OS.ShellOpen(
-			    uri: $"https://id.twitch.tv/oauth2/authorize?" +
-				     $"response_type=token&" +
-				     $"client_id={m_twitchData.ClientId}&" +
-				     $"redirect_uri=http://localhost:3000&" +
-				     $"scope={Uri.EscapeDataString(c_userAccessScopes)}"
-			);
+            var headers = new List<string>()
+            {
+                $"Content-Type: application/x-www-form-urlencoded",
+            };
+            m_httpManager.SendHttpRequest(
+                url: $"{c_twitchUriOAuth}",
+                headers: headers,
+                method: Method.Post,
+                json:
+					$"client_id={m_twitchGlobalData.ClientId}&" +
+					$"client_secret={m_twitchGlobalData.ClientSecret}&" +
+                    $"code={c_twitchOAuthAccessCode}&" +
+					$"grant_type=authorization_code&" +
+                    $"redirect_uri={c_twitchUriRedirect}",
+                requestCompletedHandler: OnRequestAccessTokenCompleted
+            );
         }
+
+        private void RequestAccessTokenWithRefreshToken()
+        {
+            var headers = new List<string>()
+            {
+                $"Content-Type: application/x-www-form-urlencoded",
+            };
+            m_httpManager.SendHttpRequest(
+                url: $"{c_twitchUriOAuth}",
+                headers: headers,
+                method: Method.Post,
+                json:
+                    $"client_id={m_twitchGlobalData.ClientId}&" +
+                    $"client_secret={m_twitchGlobalData.ClientSecret}&" +
+                    $"grant_type=refresh_token&" +
+                    $"refresh_token={m_twitchAccountAccessToken.RefreshToken}",
+                requestCompletedHandler: OnRequestAccessTokenWithRefreshTokenCompleted
+            );
+        }
+
+        private void RetrieveOAuthAccessCode()
+		{
+            _ = OS.ShellOpen(
+                uri: $"https://id.twitch.tv/oauth2/authorize?" +
+                     $"response_type=code&" +
+                     $"client_id={m_twitchGlobalData.ClientId}&" +
+                     $"redirect_uri={c_twitchUriRedirect}&" +
+                     $"scope={Uri.EscapeDataString(stringToEscape: c_twitchUserAccessScopes)}"
+            );
+		}
 
         private void RetrieveResources()
         {
-            var body = ApplicationManager.ReadRequiredFile(
-                requiredFileType: RequiredFileType.TwitchData
+            var twitchGlobalDataBody = ApplicationManager.ReadRequiredFile(
+                requiredFileType: RequiredFileType.TwitchGlobalData
             );
-            m_twitchData = JsonSerializer.Deserialize<TwitchData>(
+            m_twitchGlobalData = JsonSerializer.Deserialize<TwitchGlobalData>(
                 json: Encoding.UTF8.GetString(
-                    bytes: body,
+                    bytes: twitchGlobalDataBody,
                     index: 0,
-                    count: body.Length
+                    count: twitchGlobalDataBody.Length
+                )
+            );
+
+            var twitchAccountAccessTokenBody = ApplicationManager.ReadRequiredFile(
+                requiredFileType: RequiredFileType.TwitchAccountAccessToken
+            );
+            m_twitchAccountAccessToken = JsonSerializer.Deserialize<TwitchAccountAccessToken>(
+                json: Encoding.UTF8.GetString(
+                    bytes: twitchAccountAccessTokenBody,
+                    index: 0,
+                    count: twitchAccountAccessTokenBody.Length
                 )
             );
 
             m_audioManager = GetNode<AudioManager>(
-                path: NodeDirectory.NodePaths[key: NodeType.AudioManager]
+                path: NodeDirectory.GetNodePath(
+                    nodeType: NodeType.AudioManager
+                )
             );
             m_httpManager = GetNode<HttpManager>(
-                path: NodeDirectory.NodePaths[key: NodeType.HttpManager]
+                path: NodeDirectory.GetNodePath(
+                    nodeType: NodeType.HttpManager
+                )
             );
             m_twitchChannelPointRewardsManager = GetNode<TwitchChannelPointRewardsManager>(
-                path: NodeDirectory.NodePaths[key: NodeType.TwitchChannelPointRewardsManager]
+                path: NodeDirectory.GetNodePath(
+                    nodeType: NodeType.TwitchChannelPointRewardsManager
+                )
             );
 
 			LoadCustomSubscriberDatas();
@@ -2010,6 +2133,44 @@ namespace Overlay
                     }
                 }
             }
+        }
+
+		private void StartConnection()
+		{
+            ConnectWebSocket();
+
+            RequestUser(
+                userLogin: m_twitchGlobalData.AccountUserName
+            );
+            RequestChannelBadges();
+            RequestGlobalBadges();
+            RequestChannelPointRewardAdd();
+            RequestFollowers(
+                pageId: string.Empty
+            );
+            RequestModerators(
+                pageId: string.Empty
+            );
+            RequestSubscribers(
+                pageId: string.Empty
+            );
+        }
+
+		private void WriteAccessToken(
+            TwitchResponseAccessToken response
+        )
+        {
+            m_twitchAccountAccessToken.AccessToken = response.AccessToken;
+            m_twitchAccountAccessToken.RefreshToken = response.RefreshToken;
+
+            ApplicationManager.WriteRequiredFile(
+                requiredFileType: RequiredFileType.TwitchAccountAccessToken,
+                bytes: Encoding.UTF8.GetBytes(
+                    s: JsonSerializer.Serialize(
+                        value: m_twitchAccountAccessToken
+                    )
+                )
+            );
         }
     }
 }

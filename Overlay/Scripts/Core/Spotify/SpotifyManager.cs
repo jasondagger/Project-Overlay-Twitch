@@ -204,7 +204,9 @@ namespace Overlay
         private void BindTwitchChannelPointRewards()
         {
             var twitchChannelPointRewardsManager = GetNode<TwitchChannelPointRewardsManager>(
-                path: NodeDirectory.NodePaths[key: NodeType.TwitchChannelPointRewardsManager]
+                path: NodeDirectory.GetNodePath(
+                    nodeType: NodeType.TwitchChannelPointRewardsManager
+                )
             );
             
             twitchChannelPointRewardsManager.CommandRequestSongClaimed += OnChannelPointRewardsRedeemedRequestSong;
@@ -331,6 +333,7 @@ namespace Overlay
                     ),
                     wasRefreshed: false
                 );
+
                 QueueRequestAccessTokenWithRefreshToken();
             }
             else
@@ -1338,7 +1341,9 @@ namespace Overlay
             );
 
             m_httpManager = GetNode<HttpManager>(
-                path: NodeDirectory.NodePaths[NodeType.HttpManager]
+                path: NodeDirectory.GetNodePath(
+                    nodeType: NodeType.HttpManager
+                )
             );
 
             if (

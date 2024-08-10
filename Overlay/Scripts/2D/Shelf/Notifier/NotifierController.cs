@@ -6,7 +6,7 @@ namespace Overlay
 	using System.Collections.Generic;
 	using NodeType = NodeDirectory.NodeType;
 
-	public sealed partial class NotifierController : Node
+	public sealed partial class NotifierController : Control
 	{
 		public override void _EnterTree()
 		{
@@ -191,7 +191,9 @@ namespace Overlay
         private void RegisterForTwitchEvents()
         {
             var twitchManager = GetNode<TwitchManager>(
-                path: NodeDirectory.NodePaths[NodeType.TwitchManager]
+                path: NodeDirectory.GetNodePath(
+                    nodeType: NodeType.TwitchManager
+                )
             );
 
             twitchManager.ChannelCheered += OnChannelCheered;

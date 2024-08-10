@@ -166,8 +166,10 @@ namespace Overlay
 		private void RetrieveResources()
 		{
 			m_pastelInterpolator = GetNode<PastelInterpolator>(
-				path: NodeDirectory.NodePaths[key: NodeType.PastelInterpolator]
-			);
+                path: NodeDirectory.GetNodePath(
+                    nodeType: NodeType.PastelInterpolator
+                )
+            );
 		}
 
 		private void SetShaderMaterial()

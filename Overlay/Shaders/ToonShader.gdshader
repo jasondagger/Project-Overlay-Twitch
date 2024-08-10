@@ -1,12 +1,12 @@
 shader_type spatial;
 render_mode shadows_disabled, ambient_light_disabled, unshaded;
 
-uniform float minimumBrightness : hint_range(0.05f, 0.95f) = 0.05f;
-uniform float maximumBrightness : hint_range(0.05f, 0.95f)= 0.95f;
+uniform float minimumBrightness : hint_range(0.0f, 1.0f) = 0.0f;
+uniform float maximumBrightness : hint_range(0.0f, 1.0f)= 1.0f;
 uniform vec4 color : source_color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-uniform sampler2D colorRamp : hint_default_white;
+uniform sampler2D colorRamp : hint_default_white, filter_nearest;
 
-const vec3 c_inverseLightDirection = vec3(-1.0f, 0.5f, -0.5f);
+const vec3 c_inverseLightDirection = vec3(0.0f, 0.5f, -0.5f);
 const float c_rimPower = 4.0f;
 
 float Remap(

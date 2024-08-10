@@ -13,26 +13,37 @@ namespace Overlay
             InputManager,
             PastelInterpolator,
             Root,
+            ShelfManager,
             SpotifyManager,
             TwitchBot,
             TwitchChannelPointRewardsManager,
             TwitchChatManager,
-            TwitchManager
+            TwitchManager,
+            UIManager,
         }
 
-        public static readonly Dictionary<NodeType, string> NodePaths = new()
+        public static string GetNodePath(
+            NodeType nodeType    
+        )
         {
-            { NodeType.ApplicationManager,               $"{c_core}/ApplicationManager" },
-            { NodeType.AudioManager,                     $"{c_core}/AudioManager" },
-            { NodeType.HttpManager,                      $"{c_core}/HttpManager" },
-            { NodeType.InputManager,                     $"{c_core}/InputManager" },
-            { NodeType.PastelInterpolator,               $"{c_core}/PastelInterpolator" },
+            return c_nodePaths[key: nodeType];
+        }
+
+        private static readonly Dictionary<NodeType, string> c_nodePaths = new()
+        {
+            { NodeType.ApplicationManager,               $"{c_core}/{nameof(NodeType.ApplicationManager)}" },
+            { NodeType.AudioManager,                     $"{c_core}/{nameof(NodeType.AudioManager)}" },
+            { NodeType.HttpManager,                      $"{c_core}/{nameof(NodeType.HttpManager)}" },
+            { NodeType.InputManager,                     $"{c_core}/{nameof(NodeType.InputManager)}" },
+            { NodeType.PastelInterpolator,               $"{c_core}/{nameof(NodeType.PastelInterpolator)}" },
             { NodeType.Root,                             $"{c_root}" },
-            { NodeType.SpotifyManager,                   $"{c_core}/SpotifyManager" },
-            { NodeType.TwitchBot,                        $"{c_core}/TwitchBot" },
-            { NodeType.TwitchChannelPointRewardsManager, $"{c_core}/TwitchChannelPointRewardsManager" },
-            { NodeType.TwitchChatManager,                $"{c_2d}/TwitchChatManager" },
-            { NodeType.TwitchManager,                    $"{c_core}/TwitchManager" },
+            { NodeType.ShelfManager,                     $"{c_2d}/{nameof(NodeType.ShelfManager)}" },
+            { NodeType.SpotifyManager,                   $"{c_core}/{nameof(NodeType.SpotifyManager)}" },
+            { NodeType.TwitchBot,                        $"{c_core}/{nameof(NodeType.TwitchBot)}" },
+            { NodeType.TwitchChannelPointRewardsManager, $"{c_core}/{nameof(NodeType.TwitchChannelPointRewardsManager)}" },
+            { NodeType.TwitchChatManager,                $"{c_2d}/{nameof(NodeType.TwitchChatManager)}" },
+            { NodeType.TwitchManager,                    $"{c_core}/{nameof(NodeType.TwitchManager)}" },
+            { NodeType.UIManager,                        $"{c_2d}/{nameof(NodeType.UIManager)}" },
         };
 
         private const string c_root = "/root";

@@ -19,7 +19,9 @@ namespace Overlay
             SpotifyAccessToken,
             SpotifyData,
             SubscriberData,
-            TwitchData,
+            TwitchAccountAccessToken,
+            TwitchBotAccessToken,
+            TwitchGlobalData,
         }
 
         public override void _EnterTree()
@@ -142,31 +144,35 @@ namespace Overlay
 
         private static readonly Dictionary<UserDirectoryType, string> c_relativeDirectoryPaths = new()
         {
-            { UserDirectoryType.Badges,         $"{c_rootFolder}/Badges" },
+            { UserDirectoryType.Badges,         $"{c_rootFolder}/Badges"          },
             { UserDirectoryType.AnimatedEmotes, $"{c_rootFolder}/Emotes/Animated" },
-            { UserDirectoryType.StaticEmotes,   $"{c_rootFolder}/Emotes/Static" },
+            { UserDirectoryType.StaticEmotes,   $"{c_rootFolder}/Emotes/Static"   },
         };
         private static readonly Dictionary<UserDirectoryType, string> c_userDirectoryPaths = new()
         {
-            { UserDirectoryType.Badges,         $"{c_userFolder}://Badges" },
+            { UserDirectoryType.Badges,         $"{c_userFolder}://Badges"          },
             { UserDirectoryType.AnimatedEmotes, $"{c_userFolder}://Emotes/Animated" },
-            { UserDirectoryType.StaticEmotes,   $"{c_userFolder}://Emotes/Static" },
+            { UserDirectoryType.StaticEmotes,   $"{c_userFolder}://Emotes/Static"   },
         };
         private static readonly Dictionary<RequiredFileType, string> c_requiredFiles = new()
         {
-            { RequiredFileType.RecentSubscribers,  $"{RequiredFileType.RecentSubscribers}.txt" },
+            { RequiredFileType.RecentSubscribers,  $"{RequiredFileType.RecentSubscribers}.txt"  },
             { RequiredFileType.SpotifyAccessToken, $"{RequiredFileType.SpotifyAccessToken}.txt" },
-            { RequiredFileType.SpotifyData,        $"{RequiredFileType.SpotifyData}.txt" },
-            { RequiredFileType.SubscriberData,     $"{RequiredFileType.SubscriberData}.txt" },
-            { RequiredFileType.TwitchData,         $"{RequiredFileType.TwitchData}.txt" },
+            { RequiredFileType.SpotifyData,        $"{RequiredFileType.SpotifyData}.txt"        },
+            { RequiredFileType.SubscriberData,     $"{RequiredFileType.SubscriberData}.txt"     },
+            { RequiredFileType.TwitchAccountAccessToken,  $"{RequiredFileType.TwitchAccountAccessToken}.txt"  },
+            { RequiredFileType.TwitchBotAccessToken,      $"{RequiredFileType.TwitchBotAccessToken}.txt"      },
+            { RequiredFileType.TwitchGlobalData,   $"{RequiredFileType.TwitchGlobalData}.txt"   },
         };
 
         private void BindInputEvents()
         {
             var inputManager = GetNode<InputManager>(
-                path: NodeDirectory.NodePaths[NodeType.InputManager]
+                path: NodeDirectory.GetNodePath(
+                    nodeType: NodeType.InputManager
+                )
             );
-            inputManager.KeyBindPressed[KeyBindType.ApplicationManagerQuit] += OnPressedApplicationQuit;
+            inputManager.KeyBindPressed[key: KeyBindType.ApplicationManagerQuit] += OnPressedApplicationQuit;
         }
 
         private static void CreateDirectories()
@@ -229,7 +235,9 @@ namespace Overlay
 #endif
 
             var root = GetNode<Node>(
-                path: NodeDirectory.NodePaths[NodeType.Root]
+                path: NodeDirectory.GetNodePath(
+                    nodeType: NodeType.Root
+                )
             );
             root.PropagateNotification(
                 what: (int)NotificationWMCloseRequest

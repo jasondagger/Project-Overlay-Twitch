@@ -73,7 +73,9 @@ namespace Overlay
                 path: $"{c_nodePathRelativeViewportContainer}/Main"
             );
             m_pastelInterpolator = GetNode<PastelInterpolator>(
-                path: NodeDirectory.NodePaths[NodeType.PastelInterpolator]    
+                path: NodeDirectory.GetNodePath(
+                    nodeType: NodeType.PastelInterpolator
+                )
             );
             SubscribeToTwitchEvents();
         }
@@ -81,7 +83,9 @@ namespace Overlay
         private void SubscribeToTwitchEvents()
         {
             var twitchManager = GetNode<TwitchManager>(
-                path: NodeDirectory.NodePaths[NodeType.TwitchManager]
+                path: NodeDirectory.GetNodePath(
+                    nodeType: NodeType.TwitchManager
+                )
             );
             twitchManager.ChannelRaided += OnChannelRaided;
         }

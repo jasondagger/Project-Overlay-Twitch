@@ -9,8 +9,8 @@ namespace Overlay
 	using System.IO;
     using System.Linq;
 	using System.Runtime.Versioning;
-    using System.Text;
     using static Godot.HttpClient;
+    using NodeType = NodeDirectory.NodeType;
     using RainbowColorIndexType = PastelInterpolator.RainbowColorIndexType;
 
     [SupportedOSPlatform(platformName: "windows")]
@@ -19,19 +19,24 @@ namespace Overlay
 		public Action<TwitchChatMessage> Generated = null;
 		public Action Destroyed = null;
 
+        public override void _Ready()
+        {
+            RetrieveResources();
+        }
+
         public override void _Process(
 			double delta
 		)
 		{
-            switch (m_generatedState)
+            switch (m_generateState)
 			{
-				case GeneratedState.Generated:
+				case GenerateStateType.Complete:
 					Generated?.Invoke(
 						obj: this
 					);
-					m_generatedState = GeneratedState.Complete;
+					m_generateState = GenerateStateType.Active;
 					break;
-				case GeneratedState.Complete:
+				case GenerateStateType.Active:
 					HandleTextAnimation(
 						delta: (float)delta	
 					);
@@ -39,15 +44,13 @@ namespace Overlay
 						delta: (float)delta
 					);
 					break;
-				case GeneratedState.Generating:
+				case GenerateStateType.Inactive:
 				default:
 					break;
 			}
 		}
 
         public void Generate(
-			HttpManager httpManager,
-			PastelInterpolator pastelInterpolator,
 			string name,
 			string nameColor,
 			string message,
@@ -58,7 +61,6 @@ namespace Overlay
 			bool isSmoothGPT
 		)
 		{
-			m_pastelInterpolator = pastelInterpolator;
 			m_isSubscriber = isSubscriber;
             m_text =
                 $"{c_labelFontSize}" +
@@ -114,7 +116,6 @@ namespace Overlay
             }
 
 			InsertImages(
-				httpManager: httpManager,
 				message: message,
 				emotes: parsedEmotes,
 				badges: badges
@@ -126,22 +127,42 @@ namespace Overlay
 			return m_richTextLabel.GetContentHeight();
 		}
 
+        public void Reset()
+        {
+            m_richTextLabel.Text = string.Empty;
+
+            m_generateState = GenerateStateType.Inactive;
+            m_visibleState = VisibleStateType.Visible;
+            m_fadeElapsed = 0f;
+
+            m_hasAnimatedEmotes = false;
+            m_isSubscriber = false;
+            m_text = string.Empty;
+            m_emotesToLoad = 0u;
+
+            m_animatedEmoteCurrentFrameCounts.Clear();
+            m_animatedEmoteMaxFrameCounts.Clear();
+            m_animatedEmoteCurrentFrameRates.Clear();
+            m_animatedEmoteMaxFrameRates.Clear();
+            m_animatedEmotes.Clear();
+        }
+
 		public void ShowLabel()
 		{
 			m_richTextLabel.Visible = true;
 		}
 
-        private enum GeneratedState : uint
+        private enum GenerateStateType : uint
 		{
-			Generating = 0u,
-			Generated,
-			Complete,
-		}
+			Complete = 0u,
+			Active,
+            Inactive,
+        }
 
-		private enum FadeState : uint
+        private enum VisibleStateType : uint
 		{
-			Visible = 0u,
-			Fading,
+			Fade = 0u,
+            Visible,
 		}
 
 		private const string c_labelSubscriberColor = $"00000000";
@@ -149,7 +170,6 @@ namespace Overlay
 		private const string c_labelNameFont = $"[font=res://Overlay/Fonts/Roboto-Black.ttf]";
 		private const string c_labelMessageFont = $"[font=res://Overlay/Fonts/Roboto-Bold.ttf]";
 		private const string c_labelMessageColor = $"[color=#F2F2F2FF]";
-        private const string c_nameMessageDivisor = "[[[]]]";
 
         private const string c_twitchBadgeDirectory = "user://Badges";
         private const string c_twitchEmoteDirectoryAnimated = "user://Emotes/Animated";
@@ -164,10 +184,10 @@ namespace Overlay
         private const uint c_labelWidth = 678u;
         private const float c_defaultEmoteFramesPerSecondInMilliseconds = 0.04167f;
 
-        private static readonly Dictionary<FadeState, float> c_fadeDelays = new()
+        private static readonly Dictionary<VisibleStateType, float> c_fadeDelays = new()
 		{
-			{ FadeState.Visible, 32f },
-			{ FadeState.Fading,  2f },
+			{ VisibleStateType.Visible, 32f },
+			{ VisibleStateType.Fade,  2f },
 		};
         private static readonly Dictionary<string, string> c_twitchBaseEmojiIds = new()
         {
@@ -276,15 +296,15 @@ namespace Overlay
         private readonly HashSet<string> m_animatedEmotes = new();
         private readonly object m_textLock = new();
 
+        private HttpManager m_httpManager = null;
         private PastelInterpolator m_pastelInterpolator = null;
 		private RichTextLabel m_richTextLabel = new();
-		private GeneratedState m_generatedState = GeneratedState.Generating;
-		private FadeState m_fadeState = FadeState.Visible;
+		private GenerateStateType m_generateState = GenerateStateType.Inactive;
+		private VisibleStateType m_visibleState = VisibleStateType.Visible;
 		private float m_fadeElapsed = 0f;
 
         private bool m_hasAnimatedEmotes = false;
         private bool m_isSubscriber = false;
-        private string m_color = string.Empty;
 		private string m_text = string.Empty;
         private uint m_emotesToLoad = 0u;
 
@@ -463,29 +483,6 @@ namespace Overlay
 
         private void GenerateRichTextLabel()
 		{
-            /*
-             * [img]user://Badges\broadcaster\1.res[/img]  
-             * [img]user://Badges\subscriber\3066.res[/img]  
-             * [img]user://Badges\twitch-recap-2023\1.res[/img]  
-             * [font_size=22]
-             * [font=res://Overlay/Fonts/Roboto-Black.ttf]
-             * [color=#00000000]
-             * SmoothDagger
-             * [/color]
-             * [/font]
-             * [font=res://Overlay/Fonts/Roboto-Bold.ttf]  
-             * [img]user://Emotes/Animated/smooth210Backstab/animated_0.res[/img] 
-             * [img]user://Emotes/Animated/smooth210Brain/animated_0.res[/img] 
-             * [img]user://Emotes/Animated/smooth210Cannons/animated_0.res[/img] 
-             * [img]user://Emotes/Animated/smooth210Brain/animated_0.res[/img] 
-             * [img]user://Emotes/Animated/smooth210Backstab/animated_0.res[/img] 
-             * [img]user://Emotes/Static/LUL/static_0.res[/img] 
-             * [img]user://Emotes/Animated/PopNemo/animated_0.res[/img] 
-             * [img]user://Emotes/Static/Twitch11_2/static_0.res[/img] 
-             * [img]user://Emotes/Static/Twitch8_2/static_0.res[/img] 
-             * [img]E:\Programs\AppData\Roaming\Godot\app_userdata\Overlay/Emotes/Static/Twitch7_2\static_0.res[/img]
-             * 
-             */
             m_richTextLabel.SetSize(
 				size: new(
 					x: c_labelWidth,
@@ -497,48 +494,8 @@ namespace Overlay
 			m_richTextLabel.Text = m_text;
 			m_richTextLabel.Visible = false;
 
-			AddChild(
-				node: m_richTextLabel
-			);
-
-			m_generatedState = GeneratedState.Generated;
+			m_generateState = GenerateStateType.Complete;
 		}
-
-        private HashSet<int> RetrieveEmoteIndices(
-            List<string> emotes    
-        )
-        {
-            var parsedEmoteIndices = new HashSet<int>();
-
-            foreach (var emoteValue in emotes)
-            {
-                var emoteData = emoteValue.Split(
-                    separator: ':'
-                );
-
-                var emoteLink = emoteData[0u];
-                var emoteRanges = emoteData[1u].Split(
-                    separator: ','
-                );
-                foreach (var emoteRange in emoteRanges)
-                {
-                    var emoteIndices = emoteRange.Split(
-                        separator: '-'
-                    );
-                    var startIndex = emoteIndices[0u].ToInt();
-                    var endIndex = emoteIndices[1u].ToInt();
-
-                    for (var i = startIndex; i <= endIndex; i++)
-                    {
-                        _ = parsedEmoteIndices.Add(
-                            item: i    
-                        );
-                    }
-                }
-            }
-
-            return parsedEmoteIndices;
-        }
 
         private void HandleTextAnimation(
 			float delta
@@ -591,22 +548,22 @@ namespace Overlay
 		)
 		{
 			m_fadeElapsed += delta;
-			switch (m_fadeState)
+			switch (m_visibleState)
 			{
-				case FadeState.Visible:
-					if (m_fadeElapsed >= c_fadeDelays[key: FadeState.Visible])
+				case VisibleStateType.Visible:
+					if (m_fadeElapsed >= c_fadeDelays[key: VisibleStateType.Visible])
 					{
-						m_fadeState = FadeState.Fading;
+						m_visibleState = VisibleStateType.Fade;
 						m_fadeElapsed = 0f;
 					}
 					break;
-				case FadeState.Fading:
+				case VisibleStateType.Fade:
                     // todo: transparency
                     var height = m_richTextLabel.GetContentHeight();
-					if (m_fadeElapsed >= c_fadeDelays[key: FadeState.Fading])
+					if (m_fadeElapsed >= c_fadeDelays[key: VisibleStateType.Fade])
 					{
 						Destroyed?.Invoke();
-						QueueFree();
+                        m_generateState = GenerateStateType.Inactive;
 					}
 					break;
 
@@ -639,7 +596,6 @@ namespace Overlay
         }
 
         private void InsertEmotes(
-            HttpManager httpManager,
             string message,
             List<string> emotes
         )
@@ -787,7 +743,7 @@ namespace Overlay
                 var uri = new Uri(
                     $"{c_twitchEmoteUrlPrefix}/{emoteLink}/{c_twitchEmoteUrlSuffix}"
                 );
-                httpManager.SendHttpRequest(
+                m_httpManager.SendHttpRequest(
                     url: uri.OriginalString,
                     headers: new List<string>(),
                     method: Method.Get,
@@ -835,7 +791,6 @@ namespace Overlay
         }
 
         private void InsertImages(
-			HttpManager httpManager,
             string message,
             List<string> emotes,
             string badges
@@ -855,7 +810,6 @@ namespace Overlay
 			if (hasEmotes is true)
 			{
                 InsertEmotes(
-                    httpManager: httpManager,
                     message: message,
                     emotes: emotes
                 );
@@ -906,6 +860,60 @@ namespace Overlay
                     m_text += $"  {splitText[i].Replace(oldValue: originalEmoteName, newValue: $"[img]{emotePath}[/img]")}";
                 }
             }
+        }
+
+        private static HashSet<int> RetrieveEmoteIndices(
+            List<string> emotes    
+        )
+        {
+            var parsedEmoteIndices = new HashSet<int>();
+
+            foreach (var emoteValue in emotes)
+            {
+                var emoteData = emoteValue.Split(
+                    separator: ':'
+                );
+
+                var emoteLink = emoteData[0u];
+                var emoteRanges = emoteData[1u].Split(
+                    separator: ','
+                );
+                foreach (var emoteRange in emoteRanges)
+                {
+                    var emoteIndices = emoteRange.Split(
+                        separator: '-'
+                    );
+                    var startIndex = emoteIndices[0u].ToInt();
+                    var endIndex = emoteIndices[1u].ToInt();
+
+                    for (var i = startIndex; i <= endIndex; i++)
+                    {
+                        _ = parsedEmoteIndices.Add(
+                            item: i    
+                        );
+                    }
+                }
+            }
+
+            return parsedEmoteIndices;
+        }
+
+        private void RetrieveResources()
+        {
+            m_httpManager = GetNode<HttpManager>(
+                path: NodeDirectory.GetNodePath(
+                    nodeType: NodeType.HttpManager
+                )
+            );
+            m_pastelInterpolator = GetNode<PastelInterpolator>(
+                path: NodeDirectory.GetNodePath(
+                    nodeType: NodeType.PastelInterpolator
+                )
+            );
+
+            AddChild(
+				node: m_richTextLabel
+			);
         }
     }
 }

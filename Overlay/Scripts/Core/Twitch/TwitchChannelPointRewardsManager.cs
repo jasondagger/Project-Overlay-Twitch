@@ -594,8 +594,10 @@ namespace Overlay
 		private void SubscribeToTwitchEvents()
 		{
 			var twitchManager = GetNode<TwitchManager>(
-				path: NodeDirectory.NodePaths[key: NodeType.TwitchManager]
-			);
+                path: NodeDirectory.GetNodePath(
+                    nodeType: NodeType.TwitchManager
+                )
+            );
 
 			twitchManager.ChannelPointsCustomRewardRedeemed += OnChannelPointsCustomRewardRedemptionAdded;
 		}

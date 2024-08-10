@@ -8,7 +8,9 @@ namespace Overlay
 		public override void _EnterTree()
 		{
 			var twitchManager = GetNode<TwitchManager>(
-				NodeDirectory.NodePaths[NodeType.TwitchManager]
+                path: NodeDirectory.GetNodePath(
+                    nodeType: NodeType.TwitchManager
+                )
 			);
 			twitchManager.ChannelRaided += OnChannelRaided;
 

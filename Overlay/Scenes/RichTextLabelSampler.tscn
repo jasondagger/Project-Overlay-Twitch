@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://87vxcj1u7vxk"]
 
-[ext_resource type="Script" path="res://Overlay/Scripts/Shelf/RichTextLabelSampler.cs" id="1_cg6ux"]
+[ext_resource type="Script" path="res://Overlay/Scripts/2D/Shelf/RichTextLabelSampler.cs" id="1_cg6ux"]
 
 [node name="RichTextLabelSampler" type="Control"]
 layout_mode = 3

@@ -1,4 +1,4 @@
-[gd_scene load_steps=82 format=3 uid="uid://sb1smb8j0dq7"]
+[gd_scene load_steps=84 format=3 uid="uid://sb1smb8j0dq7"]
 
 [ext_resource type="Script" path="res://Overlay/Scripts/Core/ApplicationManager.cs" id="1_qamig"]
 [ext_resource type="Script" path="res://Overlay/Scripts/Core/AudioManager.cs" id="2_62y76"]
@@ -27,18 +27,17 @@
 [ext_resource type="Script" path="res://Overlay/Scripts/Core/Twitch/TwitchManager.cs" id="23_w0w6m"]
 [ext_resource type="Script" path="res://Overlay/Scripts/Core/Spotify/SpotifyManager.cs" id="23_yb1mc"]
 [ext_resource type="Material" uid="uid://br7ao53v1qf8x" path="res://Overlay/Materials/Shelf/ShelfBackground.tres" id="24_ksyjd"]
-[ext_resource type="Script" path="res://Overlay/Scripts/Chat/TwitchChatManager.cs" id="25_3slto"]
-[ext_resource type="Script" path="res://Overlay/Scripts/Shelf/ShelfImageBackground.cs" id="25_kcdqg"]
 [ext_resource type="Material" uid="uid://yfsp84t7mxt4" path="res://Overlay/Materials/Shelf/ShelfAudioWave.tres" id="26_q45yh"]
-[ext_resource type="Script" path="res://Overlay/Scripts/Shelf/ShelfImageAudioWave.cs" id="27_ivx7r"]
-[ext_resource type="Script" path="res://Overlay/Scripts/FX/FireworksController.cs" id="28_clv6x"]
-[ext_resource type="Script" path="res://Overlay/Scripts/Shelf/NameplateController.cs" id="28_grdrh"]
-[ext_resource type="Script" path="res://Overlay/Scripts/Events/RaidNotifier.cs" id="29_mcst1"]
+[ext_resource type="Script" path="res://Overlay/Scripts/2D/FX/FireworksController.cs" id="29_28fsq"]
 [ext_resource type="PackedScene" uid="uid://87vxcj1u7vxk" path="res://Overlay/Scenes/RichTextLabelSampler.tscn" id="29_qwike"]
 [ext_resource type="PackedScene" uid="uid://cdloqdmjtfn8g" path="res://Resources/Letters/NameplateName/UpperCase/S.tscn" id="30_7endr"]
+[ext_resource type="Script" path="res://Overlay/Scripts/2D/Shelf/ShelfManager.cs" id="30_f52x2"]
+[ext_resource type="Script" path="res://Overlay/Scripts/2D/Shelf/ShelfImageBackground.cs" id="31_gtpqm"]
 [ext_resource type="FontFile" uid="uid://beb0qxmiiif1t" path="res://Overlay/Fonts/Roboto-Bold.ttf" id="31_j7pkr"]
 [ext_resource type="PackedScene" uid="uid://dkh3py2sgoo0w" path="res://Resources/Letters/NotifierHeader/UpperCase/M.tscn" id="32_rwwr7"]
+[ext_resource type="Script" path="res://Overlay/Scripts/2D/Shelf/ShelfImageAudioWave.cs" id="33_b084v"]
 [ext_resource type="PackedScene" uid="uid://bs7qucp574k08" path="res://Resources/Letters/NotifierHeader/UpperCase/O.tscn" id="33_dwyab"]
+[ext_resource type="Script" path="res://Overlay/Scripts/2D/Shelf/NameplateController.cs" id="34_5lnku"]
 [ext_resource type="PackedScene" uid="uid://bb5r02pf2m07w" path="res://Resources/Letters/NotifierHeader/UpperCase/T.tscn" id="34_xt0gm"]
 [ext_resource type="Shader" path="res://Overlay/Shaders/TextGradient.gdshader" id="35_f1jv4"]
 [ext_resource type="PackedScene" uid="uid://d3huacqas7oaw" path="res://Resources/Letters/NotifierHeader/UpperCase/H.tscn" id="35_yb8go"]
@@ -48,26 +47,29 @@
 [ext_resource type="PackedScene" uid="uid://bof21hufvbodm" path="res://Resources/Letters/NotifierHeader/UpperCase/E.tscn" id="39_v35s1"]
 [ext_resource type="PackedScene" uid="uid://dg5b57t2dwqfx" path="res://Resources/Letters/NotifierHeader/UpperCase/R.tscn" id="40_7c75o"]
 [ext_resource type="Texture2D" uid="uid://tlpyk62n6hoy" path="res://Overlay/Textures/Icons/Icon_CorporateSpy.png" id="41_elbpv"]
-[ext_resource type="Script" path="res://Overlay/Scripts/Shelf/Notifier/NotifierController.cs" id="42_g7esr"]
-[ext_resource type="Script" path="res://Overlay/Scripts/Shelf/Notifier/NotifierControllerTextScrollerSocialDiscord.cs" id="44_fn7gf"]
-[ext_resource type="Script" path="res://Overlay/Scripts/Shelf/Notifier/NotifierControllerTextScrollerSocialTwitch.cs" id="56_60yfq"]
-[ext_resource type="Script" path="res://Overlay/Scripts/Shelf/Notifier/NotifierControllerTextScrollerSocialTwitter.cs" id="58_a4ly8"]
-[ext_resource type="Script" path="res://Overlay/Scripts/Shelf/Notifier/NotifierControllerTextScrollerSocialYoutube.cs" id="60_qst2h"]
+[ext_resource type="Script" path="res://Overlay/Scripts/2D/Shelf/Notifier/NotifierController.cs" id="49_bwqar"]
+[ext_resource type="Script" path="res://Overlay/Scripts/2D/Shelf/Notifier/NotifierControllerTextScrollerSocialDiscord.cs" id="50_cm51p"]
+[ext_resource type="Script" path="res://Overlay/Scripts/2D/Shelf/Notifier/NotifierControllerTextScrollerEventNewCheer.cs" id="52_783gj"]
+[ext_resource type="Script" path="res://Overlay/Scripts/2D/Shelf/Notifier/NotifierControllerTextScrollerEventNewFollower.cs" id="54_le71m"]
+[ext_resource type="Script" path="res://Overlay/Scripts/2D/Shelf/Notifier/NotifierControllerTextScrollerEventNewGiftedSubscription.cs" id="56_8vtyk"]
+[ext_resource type="Script" path="res://Overlay/Scripts/2D/Shelf/Notifier/NotifierControllerTextScrollerEventNewSubscriber.cs" id="58_ce804"]
+[ext_resource type="Script" path="res://Overlay/Scripts/2D/Shelf/Notifier/NotifierControllerTextScrollerRecentEventFollowers.cs" id="60_fac55"]
+[ext_resource type="Script" path="res://Overlay/Scripts/2D/Shelf/Notifier/NotifierControllerTextScrollerRecentEventSubscribers.cs" id="61_pjvd7"]
+[ext_resource type="Script" path="res://Overlay/Scripts/2D/Shelf/Notifier/NotifierControllerTextScrollerSocialTwitter.cs" id="62_4vlla"]
+[ext_resource type="Script" path="res://Overlay/Scripts/2D/Shelf/Notifier/NotifierControllerTextScrollerSocialTwitch.cs" id="64_0bhto"]
 [ext_resource type="Texture2D" uid="uid://caui8s0umkv3n" path="res://Overlay/Textures/Icons/Icon_Discord.png" id="65_omfnm"]
 [ext_resource type="Texture2D" uid="uid://dyou01qmkpw3e" path="res://Overlay/Textures/Particles/Cloud.png" id="65_yx55p"]
+[ext_resource type="Script" path="res://Overlay/Scripts/2D/Shelf/Notifier/NotifierControllerTextScrollerSocialYoutube.cs" id="66_4bk16"]
 [ext_resource type="Texture2D" uid="uid://d4ap28lomghor" path="res://Overlay/Textures/Icons/Icon_Cheer.png" id="66_iq8kd"]
 [ext_resource type="Texture2D" uid="uid://o6tx1u7yhfbq" path="res://Overlay/Textures/Particles/SmileyFace.png" id="66_ri0vm"]
-[ext_resource type="Script" path="res://Overlay/Scripts/Shelf/Notifier/NotifierControllerTextScrollerEventNewCheer.cs" id="67_k6j3w"]
-[ext_resource type="Script" path="res://Overlay/Scripts/Events/TwitchEventManager.cs" id="68_ofocr"]
-[ext_resource type="Script" path="res://Overlay/Scripts/Shelf/Notifier/NotifierControllerTextScrollerEventNewFollower.cs" id="69_jt3uc"]
+[ext_resource type="Script" path="res://Overlay/Scripts/2D/TwitchChat/TwitchChatManager.cs" id="68_supjw"]
+[ext_resource type="Script" path="res://Overlay/Scripts/2D/TwitchEvents/TwitchEventManager.cs" id="70_lnfub"]
+[ext_resource type="Script" path="res://Overlay/Scripts/2D/TwitchEvents/RaidNotifier.cs" id="71_ekh2h"]
+[ext_resource type="Script" path="res://Overlay/Scripts/2D/UIManager.cs" id="72_c2ect"]
 [ext_resource type="Texture2D" uid="uid://dvl6q3fg045w3" path="res://Overlay/Textures/Icons/Icon_Follower.png" id="72_gjb3l"]
-[ext_resource type="Script" path="res://Overlay/Scripts/Shelf/Notifier/NotifierControllerTextScrollerEventNewGiftedSubscription.cs" id="73_8bntq"]
 [ext_resource type="Texture2D" uid="uid://bhb6h71rgoyw1" path="res://Overlay/Textures/Icons/Icon_Twitch.png" id="78_51i4l"]
 [ext_resource type="Texture2D" uid="uid://v4gmq1ephid0" path="res://Overlay/Textures/Icons/Icon_GiftedSubscription.png" id="78_cc2w2"]
-[ext_resource type="Script" path="res://Overlay/Scripts/Shelf/Notifier/NotifierControllerTextScrollerEventNewSubscriber.cs" id="79_pn3i8"]
 [ext_resource type="Texture2D" uid="uid://bk8we6jfs3wb1" path="res://Overlay/Textures/Icons/Icon_Subscriber.png" id="80_6gpw6"]
-[ext_resource type="Script" path="res://Overlay/Scripts/Shelf/Notifier/NotifierControllerTextScrollerRecentEventFollowers.cs" id="81_7cx7o"]
-[ext_resource type="Script" path="res://Overlay/Scripts/Shelf/Notifier/NotifierControllerTextScrollerRecentEventSubscribers.cs" id="82_81j08"]
 [ext_resource type="Texture2D" uid="uid://b7806uf5ibd5y" path="res://Overlay/Textures/Icons/Icon_Twitter.png" id="86_c8ryg"]
 [ext_resource type="Texture2D" uid="uid://m7aw8oie1bxl" path="res://Overlay/Textures/Icons/Icon_YouTube.png" id="88_qtord"]
 
@@ -306,43 +308,47 @@ local_coords = true
 
 [node name="FireworksController" type="Node2D" parent="2D/FX"]
 position = Vector2(1280, 1440)
-script = ExtResource("28_clv6x")
+script = ExtResource("29_28fsq")
 
-[node name="Shelf" type="Node2D" parent="2D"]
-position = Vector2(32, 794)
+[node name="ShelfManager" type="Node2D" parent="2D"]
+script = ExtResource("30_f52x2")
 
-[node name="ShelfImageBackground" type="ColorRect" parent="2D/Shelf"]
+[node name="ShelfImageBackground" type="ColorRect" parent="2D/ShelfManager"]
 material = ExtResource("24_ksyjd")
-offset_right = 2760.0
-offset_bottom = 448.0
+offset_left = 32.0
+offset_top = 794.0
+offset_right = 2792.0
+offset_bottom = 1242.0
 scale = Vector2(0.25, 0.25)
-script = ExtResource("25_kcdqg")
+script = ExtResource("31_gtpqm")
 
-[node name="ShelfImageAudioWave" type="ColorRect" parent="2D/Shelf"]
+[node name="ShelfImageAudioWave" type="ColorRect" parent="2D/ShelfManager"]
 material = ExtResource("26_q45yh")
-offset_right = 2760.0
-offset_bottom = 448.0
+offset_left = 32.0
+offset_top = 794.0
+offset_right = 2792.0
+offset_bottom = 1242.0
 scale = Vector2(0.25, 0.25)
-script = ExtResource("27_ivx7r")
+script = ExtResource("33_b084v")
 
-[node name="NameplateController" type="Control" parent="2D/Shelf"]
+[node name="NameplateController" type="Control" parent="2D/ShelfManager"]
 layout_mode = 3
 anchors_preset = 0
-offset_left = 48.0
-offset_top = 28.0
-offset_right = 48.0
-offset_bottom = 28.0
-script = ExtResource("28_grdrh")
+offset_left = 80.0
+offset_top = 822.0
+offset_right = 80.0
+offset_bottom = 822.0
+script = ExtResource("34_5lnku")
 
-[node name="RichTextLabelSampler" parent="2D/Shelf/NameplateController" instance=ExtResource("29_qwike")]
+[node name="RichTextLabelSampler" parent="2D/ShelfManager/NameplateController" instance=ExtResource("29_qwike")]
 
-[node name="NameViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NameplateController"]
+[node name="NameViewportContainer" type="SubViewportContainer" parent="2D/ShelfManager/NameplateController"]
 material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_right = 258.0
 offset_bottom = 28.0
 
-[node name="NameViewport" type="SubViewport" parent="2D/Shelf/NameplateController/NameViewportContainer"]
+[node name="NameViewport" type="SubViewport" parent="2D/ShelfManager/NameplateController/NameViewportContainer"]
 process_mode = 3
 disable_3d = true
 transparent_bg = true
@@ -352,13 +358,13 @@ gui_snap_controls_to_pixels = false
 size = Vector2i(258, 28)
 render_target_update_mode = 4
 
-[node name="S" parent="2D/Shelf/NameplateController/NameViewportContainer/NameViewport" instance=ExtResource("30_7endr")]
+[node name="S" parent="2D/ShelfManager/NameplateController/NameViewportContainer/NameViewport" instance=ExtResource("30_7endr")]
 offset_bottom = 33.0
 pivot_offset = Vector2(9.5, 33)
 theme = SubResource("Theme_4prug")
 text = "[font_size=28][font=res://Overlay/Fonts/Roboto-Black.ttf][outline_size=1]S"
 
-[node name="M" parent="2D/Shelf/NameplateController/NameViewportContainer/NameViewport" instance=ExtResource("32_rwwr7")]
+[node name="M" parent="2D/ShelfManager/NameplateController/NameViewportContainer/NameViewport" instance=ExtResource("32_rwwr7")]
 offset_left = 19.0
 offset_right = 44.0
 offset_bottom = 33.0
@@ -366,7 +372,7 @@ pivot_offset = Vector2(9.5, 33)
 text = "[font_size=28][font=res://Overlay/Fonts/Roboto-Black.ttf][outline_size=1]M"
 visible_characters_behavior = 0
 
-[node name="O" parent="2D/Shelf/NameplateController/NameViewportContainer/NameViewport" instance=ExtResource("33_dwyab")]
+[node name="O" parent="2D/ShelfManager/NameplateController/NameViewportContainer/NameViewport" instance=ExtResource("33_dwyab")]
 offset_left = 44.0
 offset_right = 65.0
 offset_bottom = 33.0
@@ -374,7 +380,7 @@ pivot_offset = Vector2(9.5, 33)
 text = "[font_size=28][font=res://Overlay/Fonts/Roboto-Black.ttf][outline_size=1]O"
 visible_characters_behavior = 0
 
-[node name="O2" parent="2D/Shelf/NameplateController/NameViewportContainer/NameViewport" instance=ExtResource("33_dwyab")]
+[node name="O2" parent="2D/ShelfManager/NameplateController/NameViewportContainer/NameViewport" instance=ExtResource("33_dwyab")]
 offset_left = 65.0
 offset_right = 86.0
 offset_bottom = 33.0
@@ -382,7 +388,7 @@ pivot_offset = Vector2(9.5, 33)
 text = "[font_size=28][font=res://Overlay/Fonts/Roboto-Black.ttf][outline_size=1]O"
 visible_characters_behavior = 0
 
-[node name="T" parent="2D/Shelf/NameplateController/NameViewportContainer/NameViewport" instance=ExtResource("34_xt0gm")]
+[node name="T" parent="2D/ShelfManager/NameplateController/NameViewportContainer/NameViewport" instance=ExtResource("34_xt0gm")]
 offset_left = 86.0
 offset_right = 105.0
 offset_bottom = 33.0
@@ -390,7 +396,7 @@ pivot_offset = Vector2(9.5, 33)
 text = "[font_size=28][font=res://Overlay/Fonts/Roboto-Black.ttf][outline_size=1]T"
 visible_characters_behavior = 0
 
-[node name="H" parent="2D/Shelf/NameplateController/NameViewportContainer/NameViewport" instance=ExtResource("35_yb8go")]
+[node name="H" parent="2D/ShelfManager/NameplateController/NameViewportContainer/NameViewport" instance=ExtResource("35_yb8go")]
 offset_left = 105.0
 offset_right = 126.0
 offset_bottom = 33.0
@@ -398,7 +404,7 @@ pivot_offset = Vector2(9.5, 33)
 text = "[font_size=28][font=res://Overlay/Fonts/Roboto-Black.ttf][outline_size=1]H"
 visible_characters_behavior = 0
 
-[node name="D" parent="2D/Shelf/NameplateController/NameViewportContainer/NameViewport" instance=ExtResource("36_rv6a5")]
+[node name="D" parent="2D/ShelfManager/NameplateController/NameViewportContainer/NameViewport" instance=ExtResource("36_rv6a5")]
 offset_left = 126.0
 offset_right = 146.0
 offset_bottom = 33.0
@@ -406,13 +412,13 @@ pivot_offset = Vector2(9.5, 33)
 text = "[font_size=28][font=res://Overlay/Fonts/Roboto-Black.ttf][outline_size=1]D"
 visible_characters_behavior = 0
 
-[node name="A" parent="2D/Shelf/NameplateController/NameViewportContainer/NameViewport" instance=ExtResource("37_pk85l")]
+[node name="A" parent="2D/ShelfManager/NameplateController/NameViewportContainer/NameViewport" instance=ExtResource("37_pk85l")]
 offset_left = 146.0
 offset_right = 167.0
 pivot_offset = Vector2(9.5, 33)
 text = "[font_size=28][font=res://Overlay/Fonts/Roboto-Black.ttf][outline_size=1]A"
 
-[node name="G" parent="2D/Shelf/NameplateController/NameViewportContainer/NameViewport" instance=ExtResource("38_dt3wl")]
+[node name="G" parent="2D/ShelfManager/NameplateController/NameViewportContainer/NameViewport" instance=ExtResource("38_dt3wl")]
 offset_left = 167.0
 offset_right = 187.0
 offset_bottom = 33.0
@@ -420,7 +426,7 @@ pivot_offset = Vector2(9.5, 33)
 text = "[font_size=28][font=res://Overlay/Fonts/Roboto-Black.ttf][outline_size=1]G"
 visible_characters_behavior = 0
 
-[node name="G2" parent="2D/Shelf/NameplateController/NameViewportContainer/NameViewport" instance=ExtResource("38_dt3wl")]
+[node name="G2" parent="2D/ShelfManager/NameplateController/NameViewportContainer/NameViewport" instance=ExtResource("38_dt3wl")]
 offset_left = 187.0
 offset_right = 207.0
 offset_bottom = 33.0
@@ -428,7 +434,7 @@ pivot_offset = Vector2(9.5, 33)
 text = "[font_size=28][font=res://Overlay/Fonts/Roboto-Black.ttf][outline_size=1]G"
 visible_characters_behavior = 0
 
-[node name="E" parent="2D/Shelf/NameplateController/NameViewportContainer/NameViewport" instance=ExtResource("39_v35s1")]
+[node name="E" parent="2D/ShelfManager/NameplateController/NameViewportContainer/NameViewport" instance=ExtResource("39_v35s1")]
 offset_left = 207.0
 offset_right = 225.0
 offset_bottom = 33.0
@@ -436,7 +442,7 @@ pivot_offset = Vector2(9.5, 33)
 text = "[font_size=28][font=res://Overlay/Fonts/Roboto-Black.ttf][outline_size=1]E"
 visible_characters_behavior = 0
 
-[node name="R" parent="2D/Shelf/NameplateController/NameViewportContainer/NameViewport" instance=ExtResource("40_7c75o")]
+[node name="R" parent="2D/ShelfManager/NameplateController/NameViewportContainer/NameViewport" instance=ExtResource("40_7c75o")]
 offset_left = 225.0
 offset_right = 245.0
 offset_bottom = 33.0
@@ -444,7 +450,7 @@ pivot_offset = Vector2(9.5, 33)
 text = "[font_size=28][font=res://Overlay/Fonts/Roboto-Black.ttf][outline_size=1]R"
 visible_characters_behavior = 0
 
-[node name="TitleViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NameplateController"]
+[node name="TitleViewportContainer" type="SubViewportContainer" parent="2D/ShelfManager/NameplateController"]
 material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_left = 26.0
@@ -452,33 +458,33 @@ offset_top = 32.0
 offset_right = 256.0
 offset_bottom = 60.0
 
-[node name="TitleViewport" type="SubViewport" parent="2D/Shelf/NameplateController/TitleViewportContainer"]
+[node name="TitleViewport" type="SubViewport" parent="2D/ShelfManager/NameplateController/TitleViewportContainer"]
 transparent_bg = true
 handle_input_locally = false
 gui_snap_controls_to_pixels = false
 size = Vector2i(230, 28)
 render_target_update_mode = 4
 
-[node name="Title" type="Control" parent="2D/Shelf/NameplateController/TitleViewportContainer/TitleViewport"]
+[node name="Title" type="Control" parent="2D/ShelfManager/NameplateController/TitleViewportContainer/TitleViewport"]
 layout_mode = 3
 anchors_preset = 0
 offset_left = 232.0
 offset_right = 232.0
 
-[node name="ImageViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NameplateController"]
+[node name="ImageViewportContainer" type="SubViewportContainer" parent="2D/ShelfManager/NameplateController"]
 material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_top = 32.0
 offset_right = 26.0
 offset_bottom = 58.0
 
-[node name="ImageViewport" type="SubViewport" parent="2D/Shelf/NameplateController/ImageViewportContainer"]
+[node name="ImageViewport" type="SubViewport" parent="2D/ShelfManager/NameplateController/ImageViewportContainer"]
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(26, 26)
 render_target_update_mode = 4
 
-[node name="Icon" type="TextureRect" parent="2D/Shelf/NameplateController/ImageViewportContainer/ImageViewport"]
+[node name="Icon" type="TextureRect" parent="2D/ShelfManager/NameplateController/ImageViewportContainer/ImageViewport"]
 visible = false
 offset_right = 26.0
 offset_bottom = 26.0
@@ -486,44 +492,44 @@ pivot_offset = Vector2(13, 13)
 texture = ExtResource("41_elbpv")
 expand_mode = 1
 
-[node name="NotifierController" type="Control" parent="2D/Shelf"]
+[node name="NotifierController" type="Control" parent="2D/ShelfManager"]
 layout_mode = 3
 anchors_preset = 0
-offset_left = 316.0
-offset_top = 28.0
-offset_right = 316.0
-offset_bottom = 28.0
-script = ExtResource("42_g7esr")
+offset_left = 348.0
+offset_top = 822.0
+offset_right = 348.0
+offset_bottom = 822.0
+script = ExtResource("49_bwqar")
 
-[node name="NotifierControllerDiscord" type="Control" parent="2D/Shelf/NotifierController"]
+[node name="NotifierControllerDiscord" type="Control" parent="2D/ShelfManager/NotifierController"]
 anchors_preset = 0
-script = ExtResource("44_fn7gf")
+script = ExtResource("50_cm51p")
 
-[node name="RichTextLabelSamplerHeader" parent="2D/Shelf/NotifierController/NotifierControllerDiscord" instance=ExtResource("29_qwike")]
+[node name="RichTextLabelSamplerHeader" parent="2D/ShelfManager/NotifierController/NotifierControllerDiscord" instance=ExtResource("29_qwike")]
 offset_right = 0.0
 offset_bottom = 0.0
 
-[node name="RichTextLabelSamplerFooter" parent="2D/Shelf/NotifierController/NotifierControllerDiscord" instance=ExtResource("29_qwike")]
+[node name="RichTextLabelSamplerFooter" parent="2D/ShelfManager/NotifierController/NotifierControllerDiscord" instance=ExtResource("29_qwike")]
 offset_right = 0.0
 offset_bottom = 0.0
 
-[node name="HeaderViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerDiscord"]
+[node name="HeaderViewportContainer" type="SubViewportContainer" parent="2D/ShelfManager/NotifierController/NotifierControllerDiscord"]
 material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_right = 276.0
 offset_bottom = 28.0
 
-[node name="HeaderViewport" type="SubViewport" parent="2D/Shelf/NotifierController/NotifierControllerDiscord/HeaderViewportContainer"]
+[node name="HeaderViewport" type="SubViewport" parent="2D/ShelfManager/NotifierController/NotifierControllerDiscord/HeaderViewportContainer"]
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(326, 28)
 render_target_update_mode = 4
 
-[node name="Header" type="Control" parent="2D/Shelf/NotifierController/NotifierControllerDiscord/HeaderViewportContainer/HeaderViewport"]
+[node name="Header" type="Control" parent="2D/ShelfManager/NotifierController/NotifierControllerDiscord/HeaderViewportContainer/HeaderViewport"]
 layout_mode = 3
 anchors_preset = 0
 
-[node name="FooterViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerDiscord"]
+[node name="FooterViewportContainer" type="SubViewportContainer" parent="2D/ShelfManager/NotifierController/NotifierControllerDiscord"]
 material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_left = 26.0
@@ -531,30 +537,30 @@ offset_top = 32.0
 offset_right = 276.0
 offset_bottom = 60.0
 
-[node name="FooterViewport" type="SubViewport" parent="2D/Shelf/NotifierController/NotifierControllerDiscord/FooterViewportContainer"]
+[node name="FooterViewport" type="SubViewport" parent="2D/ShelfManager/NotifierController/NotifierControllerDiscord/FooterViewportContainer"]
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(300, 28)
 render_target_update_mode = 4
 
-[node name="Footer" type="Control" parent="2D/Shelf/NotifierController/NotifierControllerDiscord/FooterViewportContainer/FooterViewport"]
+[node name="Footer" type="Control" parent="2D/ShelfManager/NotifierController/NotifierControllerDiscord/FooterViewportContainer/FooterViewport"]
 layout_mode = 3
 anchors_preset = 0
 
-[node name="ImageViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerDiscord"]
+[node name="ImageViewportContainer" type="SubViewportContainer" parent="2D/ShelfManager/NotifierController/NotifierControllerDiscord"]
 material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_top = 32.0
 offset_right = 26.0
 offset_bottom = 58.0
 
-[node name="ImageViewport" type="SubViewport" parent="2D/Shelf/NotifierController/NotifierControllerDiscord/ImageViewportContainer"]
+[node name="ImageViewport" type="SubViewport" parent="2D/ShelfManager/NotifierController/NotifierControllerDiscord/ImageViewportContainer"]
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(26, 26)
 render_target_update_mode = 4
 
-[node name="Icon" type="TextureRect" parent="2D/Shelf/NotifierController/NotifierControllerDiscord/ImageViewportContainer/ImageViewport"]
+[node name="Icon" type="TextureRect" parent="2D/ShelfManager/NotifierController/NotifierControllerDiscord/ImageViewportContainer/ImageViewport"]
 visible = false
 offset_right = 26.0
 offset_bottom = 26.0
@@ -562,35 +568,35 @@ pivot_offset = Vector2(13, 13)
 texture = ExtResource("65_omfnm")
 expand_mode = 1
 
-[node name="NotifierControllerNewCheer" type="Control" parent="2D/Shelf/NotifierController"]
+[node name="NotifierControllerNewCheer" type="Control" parent="2D/ShelfManager/NotifierController"]
 anchors_preset = 0
-script = ExtResource("67_k6j3w")
+script = ExtResource("52_783gj")
 
-[node name="RichTextLabelSamplerHeader" parent="2D/Shelf/NotifierController/NotifierControllerNewCheer" instance=ExtResource("29_qwike")]
+[node name="RichTextLabelSamplerHeader" parent="2D/ShelfManager/NotifierController/NotifierControllerNewCheer" instance=ExtResource("29_qwike")]
 offset_right = 0.0
 offset_bottom = 0.0
 
-[node name="RichTextLabelSamplerFooter" parent="2D/Shelf/NotifierController/NotifierControllerNewCheer" instance=ExtResource("29_qwike")]
+[node name="RichTextLabelSamplerFooter" parent="2D/ShelfManager/NotifierController/NotifierControllerNewCheer" instance=ExtResource("29_qwike")]
 offset_right = 0.0
 offset_bottom = 0.0
 
-[node name="HeaderViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerNewCheer"]
+[node name="HeaderViewportContainer" type="SubViewportContainer" parent="2D/ShelfManager/NotifierController/NotifierControllerNewCheer"]
 material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_right = 276.0
 offset_bottom = 28.0
 
-[node name="HeaderViewport" type="SubViewport" parent="2D/Shelf/NotifierController/NotifierControllerNewCheer/HeaderViewportContainer"]
+[node name="HeaderViewport" type="SubViewport" parent="2D/ShelfManager/NotifierController/NotifierControllerNewCheer/HeaderViewportContainer"]
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(326, 28)
 render_target_update_mode = 4
 
-[node name="Header" type="Control" parent="2D/Shelf/NotifierController/NotifierControllerNewCheer/HeaderViewportContainer/HeaderViewport"]
+[node name="Header" type="Control" parent="2D/ShelfManager/NotifierController/NotifierControllerNewCheer/HeaderViewportContainer/HeaderViewport"]
 layout_mode = 3
 anchors_preset = 0
 
-[node name="FooterViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerNewCheer"]
+[node name="FooterViewportContainer" type="SubViewportContainer" parent="2D/ShelfManager/NotifierController/NotifierControllerNewCheer"]
 material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_left = 26.0
@@ -598,30 +604,30 @@ offset_top = 32.0
 offset_right = 276.0
 offset_bottom = 60.0
 
-[node name="FooterViewport" type="SubViewport" parent="2D/Shelf/NotifierController/NotifierControllerNewCheer/FooterViewportContainer"]
+[node name="FooterViewport" type="SubViewport" parent="2D/ShelfManager/NotifierController/NotifierControllerNewCheer/FooterViewportContainer"]
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(300, 28)
 render_target_update_mode = 4
 
-[node name="Footer" type="Control" parent="2D/Shelf/NotifierController/NotifierControllerNewCheer/FooterViewportContainer/FooterViewport"]
+[node name="Footer" type="Control" parent="2D/ShelfManager/NotifierController/NotifierControllerNewCheer/FooterViewportContainer/FooterViewport"]
 layout_mode = 3
 anchors_preset = 0
 
-[node name="ImageViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerNewCheer"]
+[node name="ImageViewportContainer" type="SubViewportContainer" parent="2D/ShelfManager/NotifierController/NotifierControllerNewCheer"]
 material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_top = 32.0
 offset_right = 26.0
 offset_bottom = 58.0
 
-[node name="ImageViewport" type="SubViewport" parent="2D/Shelf/NotifierController/NotifierControllerNewCheer/ImageViewportContainer"]
+[node name="ImageViewport" type="SubViewport" parent="2D/ShelfManager/NotifierController/NotifierControllerNewCheer/ImageViewportContainer"]
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(26, 26)
 render_target_update_mode = 4
 
-[node name="Icon" type="TextureRect" parent="2D/Shelf/NotifierController/NotifierControllerNewCheer/ImageViewportContainer/ImageViewport"]
+[node name="Icon" type="TextureRect" parent="2D/ShelfManager/NotifierController/NotifierControllerNewCheer/ImageViewportContainer/ImageViewport"]
 visible = false
 offset_right = 26.0
 offset_bottom = 26.0
@@ -629,35 +635,35 @@ pivot_offset = Vector2(13, 13)
 texture = ExtResource("66_iq8kd")
 expand_mode = 1
 
-[node name="NotifierControllerNewFollower" type="Control" parent="2D/Shelf/NotifierController"]
+[node name="NotifierControllerNewFollower" type="Control" parent="2D/ShelfManager/NotifierController"]
 anchors_preset = 0
-script = ExtResource("69_jt3uc")
+script = ExtResource("54_le71m")
 
-[node name="RichTextLabelSamplerHeader" parent="2D/Shelf/NotifierController/NotifierControllerNewFollower" instance=ExtResource("29_qwike")]
+[node name="RichTextLabelSamplerHeader" parent="2D/ShelfManager/NotifierController/NotifierControllerNewFollower" instance=ExtResource("29_qwike")]
 offset_right = 0.0
 offset_bottom = 0.0
 
-[node name="RichTextLabelSamplerFooter" parent="2D/Shelf/NotifierController/NotifierControllerNewFollower" instance=ExtResource("29_qwike")]
+[node name="RichTextLabelSamplerFooter" parent="2D/ShelfManager/NotifierController/NotifierControllerNewFollower" instance=ExtResource("29_qwike")]
 offset_right = 0.0
 offset_bottom = 0.0
 
-[node name="HeaderViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerNewFollower"]
+[node name="HeaderViewportContainer" type="SubViewportContainer" parent="2D/ShelfManager/NotifierController/NotifierControllerNewFollower"]
 material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_right = 276.0
 offset_bottom = 28.0
 
-[node name="HeaderViewport" type="SubViewport" parent="2D/Shelf/NotifierController/NotifierControllerNewFollower/HeaderViewportContainer"]
+[node name="HeaderViewport" type="SubViewport" parent="2D/ShelfManager/NotifierController/NotifierControllerNewFollower/HeaderViewportContainer"]
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(326, 28)
 render_target_update_mode = 4
 
-[node name="Header" type="Control" parent="2D/Shelf/NotifierController/NotifierControllerNewFollower/HeaderViewportContainer/HeaderViewport"]
+[node name="Header" type="Control" parent="2D/ShelfManager/NotifierController/NotifierControllerNewFollower/HeaderViewportContainer/HeaderViewport"]
 layout_mode = 3
 anchors_preset = 0
 
-[node name="FooterViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerNewFollower"]
+[node name="FooterViewportContainer" type="SubViewportContainer" parent="2D/ShelfManager/NotifierController/NotifierControllerNewFollower"]
 material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_left = 26.0
@@ -665,30 +671,30 @@ offset_top = 32.0
 offset_right = 276.0
 offset_bottom = 60.0
 
-[node name="FooterViewport" type="SubViewport" parent="2D/Shelf/NotifierController/NotifierControllerNewFollower/FooterViewportContainer"]
+[node name="FooterViewport" type="SubViewport" parent="2D/ShelfManager/NotifierController/NotifierControllerNewFollower/FooterViewportContainer"]
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(300, 28)
 render_target_update_mode = 4
 
-[node name="Footer" type="Control" parent="2D/Shelf/NotifierController/NotifierControllerNewFollower/FooterViewportContainer/FooterViewport"]
+[node name="Footer" type="Control" parent="2D/ShelfManager/NotifierController/NotifierControllerNewFollower/FooterViewportContainer/FooterViewport"]
 layout_mode = 3
 anchors_preset = 0
 
-[node name="ImageViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerNewFollower"]
+[node name="ImageViewportContainer" type="SubViewportContainer" parent="2D/ShelfManager/NotifierController/NotifierControllerNewFollower"]
 material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_top = 32.0
 offset_right = 26.0
 offset_bottom = 58.0
 
-[node name="ImageViewport" type="SubViewport" parent="2D/Shelf/NotifierController/NotifierControllerNewFollower/ImageViewportContainer"]
+[node name="ImageViewport" type="SubViewport" parent="2D/ShelfManager/NotifierController/NotifierControllerNewFollower/ImageViewportContainer"]
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(26, 26)
 render_target_update_mode = 4
 
-[node name="Icon" type="TextureRect" parent="2D/Shelf/NotifierController/NotifierControllerNewFollower/ImageViewportContainer/ImageViewport"]
+[node name="Icon" type="TextureRect" parent="2D/ShelfManager/NotifierController/NotifierControllerNewFollower/ImageViewportContainer/ImageViewport"]
 visible = false
 offset_right = 26.0
 offset_bottom = 26.0
@@ -696,33 +702,33 @@ pivot_offset = Vector2(13, 13)
 texture = ExtResource("72_gjb3l")
 expand_mode = 1
 
-[node name="NotifierControllerNewGiftedSubscription" type="Control" parent="2D/Shelf/NotifierController"]
+[node name="NotifierControllerNewGiftedSubscription" type="Control" parent="2D/ShelfManager/NotifierController"]
 anchors_preset = 0
-script = ExtResource("73_8bntq")
+script = ExtResource("56_8vtyk")
 
-[node name="RichTextLabelSamplerHeader" parent="2D/Shelf/NotifierController/NotifierControllerNewGiftedSubscription" instance=ExtResource("29_qwike")]
+[node name="RichTextLabelSamplerHeader" parent="2D/ShelfManager/NotifierController/NotifierControllerNewGiftedSubscription" instance=ExtResource("29_qwike")]
 offset_right = 0.0
 offset_bottom = 0.0
 
-[node name="RichTextLabelSamplerFooter" parent="2D/Shelf/NotifierController/NotifierControllerNewGiftedSubscription" instance=ExtResource("29_qwike")]
+[node name="RichTextLabelSamplerFooter" parent="2D/ShelfManager/NotifierController/NotifierControllerNewGiftedSubscription" instance=ExtResource("29_qwike")]
 
-[node name="HeaderViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerNewGiftedSubscription"]
+[node name="HeaderViewportContainer" type="SubViewportContainer" parent="2D/ShelfManager/NotifierController/NotifierControllerNewGiftedSubscription"]
 material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_right = 276.0
 offset_bottom = 28.0
 
-[node name="HeaderViewport" type="SubViewport" parent="2D/Shelf/NotifierController/NotifierControllerNewGiftedSubscription/HeaderViewportContainer"]
+[node name="HeaderViewport" type="SubViewport" parent="2D/ShelfManager/NotifierController/NotifierControllerNewGiftedSubscription/HeaderViewportContainer"]
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(326, 28)
 render_target_update_mode = 4
 
-[node name="Header" type="Control" parent="2D/Shelf/NotifierController/NotifierControllerNewGiftedSubscription/HeaderViewportContainer/HeaderViewport"]
+[node name="Header" type="Control" parent="2D/ShelfManager/NotifierController/NotifierControllerNewGiftedSubscription/HeaderViewportContainer/HeaderViewport"]
 layout_mode = 3
 anchors_preset = 0
 
-[node name="FooterViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerNewGiftedSubscription"]
+[node name="FooterViewportContainer" type="SubViewportContainer" parent="2D/ShelfManager/NotifierController/NotifierControllerNewGiftedSubscription"]
 material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_left = 26.0
@@ -730,30 +736,30 @@ offset_top = 32.0
 offset_right = 276.0
 offset_bottom = 60.0
 
-[node name="FooterViewport" type="SubViewport" parent="2D/Shelf/NotifierController/NotifierControllerNewGiftedSubscription/FooterViewportContainer"]
+[node name="FooterViewport" type="SubViewport" parent="2D/ShelfManager/NotifierController/NotifierControllerNewGiftedSubscription/FooterViewportContainer"]
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(300, 28)
 render_target_update_mode = 4
 
-[node name="Footer" type="Control" parent="2D/Shelf/NotifierController/NotifierControllerNewGiftedSubscription/FooterViewportContainer/FooterViewport"]
+[node name="Footer" type="Control" parent="2D/ShelfManager/NotifierController/NotifierControllerNewGiftedSubscription/FooterViewportContainer/FooterViewport"]
 layout_mode = 3
 anchors_preset = 0
 
-[node name="ImageViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerNewGiftedSubscription"]
+[node name="ImageViewportContainer" type="SubViewportContainer" parent="2D/ShelfManager/NotifierController/NotifierControllerNewGiftedSubscription"]
 material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_top = 32.0
 offset_right = 26.0
 offset_bottom = 58.0
 
-[node name="ImageViewport" type="SubViewport" parent="2D/Shelf/NotifierController/NotifierControllerNewGiftedSubscription/ImageViewportContainer"]
+[node name="ImageViewport" type="SubViewport" parent="2D/ShelfManager/NotifierController/NotifierControllerNewGiftedSubscription/ImageViewportContainer"]
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(26, 26)
 render_target_update_mode = 4
 
-[node name="Icon" type="TextureRect" parent="2D/Shelf/NotifierController/NotifierControllerNewGiftedSubscription/ImageViewportContainer/ImageViewport"]
+[node name="Icon" type="TextureRect" parent="2D/ShelfManager/NotifierController/NotifierControllerNewGiftedSubscription/ImageViewportContainer/ImageViewport"]
 visible = false
 offset_right = 26.0
 offset_bottom = 26.0
@@ -761,35 +767,35 @@ pivot_offset = Vector2(13, 13)
 texture = ExtResource("78_cc2w2")
 expand_mode = 1
 
-[node name="NotifierControllerNewSubscriber" type="Control" parent="2D/Shelf/NotifierController"]
+[node name="NotifierControllerNewSubscriber" type="Control" parent="2D/ShelfManager/NotifierController"]
 anchors_preset = 0
-script = ExtResource("79_pn3i8")
+script = ExtResource("58_ce804")
 
-[node name="RichTextLabelSamplerHeader" parent="2D/Shelf/NotifierController/NotifierControllerNewSubscriber" instance=ExtResource("29_qwike")]
+[node name="RichTextLabelSamplerHeader" parent="2D/ShelfManager/NotifierController/NotifierControllerNewSubscriber" instance=ExtResource("29_qwike")]
 offset_right = 0.0
 offset_bottom = 0.0
 
-[node name="RichTextLabelSamplerFooter" parent="2D/Shelf/NotifierController/NotifierControllerNewSubscriber" instance=ExtResource("29_qwike")]
+[node name="RichTextLabelSamplerFooter" parent="2D/ShelfManager/NotifierController/NotifierControllerNewSubscriber" instance=ExtResource("29_qwike")]
 offset_right = 0.0
 offset_bottom = 0.0
 
-[node name="HeaderViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerNewSubscriber"]
+[node name="HeaderViewportContainer" type="SubViewportContainer" parent="2D/ShelfManager/NotifierController/NotifierControllerNewSubscriber"]
 material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_right = 276.0
 offset_bottom = 28.0
 
-[node name="HeaderViewport" type="SubViewport" parent="2D/Shelf/NotifierController/NotifierControllerNewSubscriber/HeaderViewportContainer"]
+[node name="HeaderViewport" type="SubViewport" parent="2D/ShelfManager/NotifierController/NotifierControllerNewSubscriber/HeaderViewportContainer"]
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(326, 28)
 render_target_update_mode = 4
 
-[node name="Header" type="Control" parent="2D/Shelf/NotifierController/NotifierControllerNewSubscriber/HeaderViewportContainer/HeaderViewport"]
+[node name="Header" type="Control" parent="2D/ShelfManager/NotifierController/NotifierControllerNewSubscriber/HeaderViewportContainer/HeaderViewport"]
 layout_mode = 3
 anchors_preset = 0
 
-[node name="FooterViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerNewSubscriber"]
+[node name="FooterViewportContainer" type="SubViewportContainer" parent="2D/ShelfManager/NotifierController/NotifierControllerNewSubscriber"]
 material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_left = 26.0
@@ -797,30 +803,30 @@ offset_top = 32.0
 offset_right = 276.0
 offset_bottom = 60.0
 
-[node name="FooterViewport" type="SubViewport" parent="2D/Shelf/NotifierController/NotifierControllerNewSubscriber/FooterViewportContainer"]
+[node name="FooterViewport" type="SubViewport" parent="2D/ShelfManager/NotifierController/NotifierControllerNewSubscriber/FooterViewportContainer"]
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(300, 28)
 render_target_update_mode = 4
 
-[node name="Footer" type="Control" parent="2D/Shelf/NotifierController/NotifierControllerNewSubscriber/FooterViewportContainer/FooterViewport"]
+[node name="Footer" type="Control" parent="2D/ShelfManager/NotifierController/NotifierControllerNewSubscriber/FooterViewportContainer/FooterViewport"]
 layout_mode = 3
 anchors_preset = 0
 
-[node name="ImageViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerNewSubscriber"]
+[node name="ImageViewportContainer" type="SubViewportContainer" parent="2D/ShelfManager/NotifierController/NotifierControllerNewSubscriber"]
 material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_top = 32.0
 offset_right = 26.0
 offset_bottom = 58.0
 
-[node name="ImageViewport" type="SubViewport" parent="2D/Shelf/NotifierController/NotifierControllerNewSubscriber/ImageViewportContainer"]
+[node name="ImageViewport" type="SubViewport" parent="2D/ShelfManager/NotifierController/NotifierControllerNewSubscriber/ImageViewportContainer"]
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(26, 26)
 render_target_update_mode = 4
 
-[node name="Icon" type="TextureRect" parent="2D/Shelf/NotifierController/NotifierControllerNewSubscriber/ImageViewportContainer/ImageViewport"]
+[node name="Icon" type="TextureRect" parent="2D/ShelfManager/NotifierController/NotifierControllerNewSubscriber/ImageViewportContainer/ImageViewport"]
 visible = false
 offset_right = 26.0
 offset_bottom = 26.0
@@ -828,35 +834,35 @@ pivot_offset = Vector2(13, 13)
 texture = ExtResource("80_6gpw6")
 expand_mode = 1
 
-[node name="NotifierControllerRecentFollowers" type="Control" parent="2D/Shelf/NotifierController"]
+[node name="NotifierControllerRecentFollowers" type="Control" parent="2D/ShelfManager/NotifierController"]
 anchors_preset = 0
-script = ExtResource("81_7cx7o")
+script = ExtResource("60_fac55")
 
-[node name="RichTextLabelSamplerHeader" parent="2D/Shelf/NotifierController/NotifierControllerRecentFollowers" instance=ExtResource("29_qwike")]
+[node name="RichTextLabelSamplerHeader" parent="2D/ShelfManager/NotifierController/NotifierControllerRecentFollowers" instance=ExtResource("29_qwike")]
 offset_right = 0.0
 offset_bottom = 0.0
 
-[node name="RichTextLabelSamplerFooter" parent="2D/Shelf/NotifierController/NotifierControllerRecentFollowers" instance=ExtResource("29_qwike")]
+[node name="RichTextLabelSamplerFooter" parent="2D/ShelfManager/NotifierController/NotifierControllerRecentFollowers" instance=ExtResource("29_qwike")]
 offset_right = 0.0
 offset_bottom = 0.0
 
-[node name="HeaderViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerRecentFollowers"]
+[node name="HeaderViewportContainer" type="SubViewportContainer" parent="2D/ShelfManager/NotifierController/NotifierControllerRecentFollowers"]
 material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_right = 276.0
 offset_bottom = 28.0
 
-[node name="HeaderViewport" type="SubViewport" parent="2D/Shelf/NotifierController/NotifierControllerRecentFollowers/HeaderViewportContainer"]
+[node name="HeaderViewport" type="SubViewport" parent="2D/ShelfManager/NotifierController/NotifierControllerRecentFollowers/HeaderViewportContainer"]
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(326, 28)
 render_target_update_mode = 4
 
-[node name="Header" type="Control" parent="2D/Shelf/NotifierController/NotifierControllerRecentFollowers/HeaderViewportContainer/HeaderViewport"]
+[node name="Header" type="Control" parent="2D/ShelfManager/NotifierController/NotifierControllerRecentFollowers/HeaderViewportContainer/HeaderViewport"]
 layout_mode = 3
 anchors_preset = 0
 
-[node name="FooterViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerRecentFollowers"]
+[node name="FooterViewportContainer" type="SubViewportContainer" parent="2D/ShelfManager/NotifierController/NotifierControllerRecentFollowers"]
 material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_left = 26.0
@@ -864,30 +870,30 @@ offset_top = 32.0
 offset_right = 276.0
 offset_bottom = 60.0
 
-[node name="FooterViewport" type="SubViewport" parent="2D/Shelf/NotifierController/NotifierControllerRecentFollowers/FooterViewportContainer"]
+[node name="FooterViewport" type="SubViewport" parent="2D/ShelfManager/NotifierController/NotifierControllerRecentFollowers/FooterViewportContainer"]
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(300, 28)
 render_target_update_mode = 4
 
-[node name="Footer" type="Control" parent="2D/Shelf/NotifierController/NotifierControllerRecentFollowers/FooterViewportContainer/FooterViewport"]
+[node name="Footer" type="Control" parent="2D/ShelfManager/NotifierController/NotifierControllerRecentFollowers/FooterViewportContainer/FooterViewport"]
 layout_mode = 3
 anchors_preset = 0
 
-[node name="ImageViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerRecentFollowers"]
+[node name="ImageViewportContainer" type="SubViewportContainer" parent="2D/ShelfManager/NotifierController/NotifierControllerRecentFollowers"]
 material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_top = 32.0
 offset_right = 26.0
 offset_bottom = 58.0
 
-[node name="ImageViewport" type="SubViewport" parent="2D/Shelf/NotifierController/NotifierControllerRecentFollowers/ImageViewportContainer"]
+[node name="ImageViewport" type="SubViewport" parent="2D/ShelfManager/NotifierController/NotifierControllerRecentFollowers/ImageViewportContainer"]
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(26, 26)
 render_target_update_mode = 4
 
-[node name="Icon" type="TextureRect" parent="2D/Shelf/NotifierController/NotifierControllerRecentFollowers/ImageViewportContainer/ImageViewport"]
+[node name="Icon" type="TextureRect" parent="2D/ShelfManager/NotifierController/NotifierControllerRecentFollowers/ImageViewportContainer/ImageViewport"]
 visible = false
 offset_right = 26.0
 offset_bottom = 26.0
@@ -895,35 +901,35 @@ pivot_offset = Vector2(13, 13)
 texture = ExtResource("72_gjb3l")
 expand_mode = 1
 
-[node name="NotifierControllerRecentSubscribers" type="Control" parent="2D/Shelf/NotifierController"]
+[node name="NotifierControllerRecentSubscribers" type="Control" parent="2D/ShelfManager/NotifierController"]
 anchors_preset = 0
-script = ExtResource("82_81j08")
+script = ExtResource("61_pjvd7")
 
-[node name="RichTextLabelSamplerHeader" parent="2D/Shelf/NotifierController/NotifierControllerRecentSubscribers" instance=ExtResource("29_qwike")]
+[node name="RichTextLabelSamplerHeader" parent="2D/ShelfManager/NotifierController/NotifierControllerRecentSubscribers" instance=ExtResource("29_qwike")]
 offset_right = 0.0
 offset_bottom = 0.0
 
-[node name="RichTextLabelSamplerFooter" parent="2D/Shelf/NotifierController/NotifierControllerRecentSubscribers" instance=ExtResource("29_qwike")]
+[node name="RichTextLabelSamplerFooter" parent="2D/ShelfManager/NotifierController/NotifierControllerRecentSubscribers" instance=ExtResource("29_qwike")]
 offset_right = 0.0
 offset_bottom = 0.0
 
-[node name="HeaderViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerRecentSubscribers"]
+[node name="HeaderViewportContainer" type="SubViewportContainer" parent="2D/ShelfManager/NotifierController/NotifierControllerRecentSubscribers"]
 material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_right = 276.0
 offset_bottom = 28.0
 
-[node name="HeaderViewport" type="SubViewport" parent="2D/Shelf/NotifierController/NotifierControllerRecentSubscribers/HeaderViewportContainer"]
+[node name="HeaderViewport" type="SubViewport" parent="2D/ShelfManager/NotifierController/NotifierControllerRecentSubscribers/HeaderViewportContainer"]
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(326, 28)
 render_target_update_mode = 4
 
-[node name="Header" type="Control" parent="2D/Shelf/NotifierController/NotifierControllerRecentSubscribers/HeaderViewportContainer/HeaderViewport"]
+[node name="Header" type="Control" parent="2D/ShelfManager/NotifierController/NotifierControllerRecentSubscribers/HeaderViewportContainer/HeaderViewport"]
 layout_mode = 3
 anchors_preset = 0
 
-[node name="FooterViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerRecentSubscribers"]
+[node name="FooterViewportContainer" type="SubViewportContainer" parent="2D/ShelfManager/NotifierController/NotifierControllerRecentSubscribers"]
 material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_left = 26.0
@@ -931,30 +937,30 @@ offset_top = 32.0
 offset_right = 276.0
 offset_bottom = 60.0
 
-[node name="FooterViewport" type="SubViewport" parent="2D/Shelf/NotifierController/NotifierControllerRecentSubscribers/FooterViewportContainer"]
+[node name="FooterViewport" type="SubViewport" parent="2D/ShelfManager/NotifierController/NotifierControllerRecentSubscribers/FooterViewportContainer"]
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(300, 28)
 render_target_update_mode = 4
 
-[node name="Footer" type="Control" parent="2D/Shelf/NotifierController/NotifierControllerRecentSubscribers/FooterViewportContainer/FooterViewport"]
+[node name="Footer" type="Control" parent="2D/ShelfManager/NotifierController/NotifierControllerRecentSubscribers/FooterViewportContainer/FooterViewport"]
 layout_mode = 3
 anchors_preset = 0
 
-[node name="ImageViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerRecentSubscribers"]
+[node name="ImageViewportContainer" type="SubViewportContainer" parent="2D/ShelfManager/NotifierController/NotifierControllerRecentSubscribers"]
 material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_top = 32.0
 offset_right = 26.0
 offset_bottom = 58.0
 
-[node name="ImageViewport" type="SubViewport" parent="2D/Shelf/NotifierController/NotifierControllerRecentSubscribers/ImageViewportContainer"]
+[node name="ImageViewport" type="SubViewport" parent="2D/ShelfManager/NotifierController/NotifierControllerRecentSubscribers/ImageViewportContainer"]
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(26, 26)
 render_target_update_mode = 4
 
-[node name="Icon" type="TextureRect" parent="2D/Shelf/NotifierController/NotifierControllerRecentSubscribers/ImageViewportContainer/ImageViewport"]
+[node name="Icon" type="TextureRect" parent="2D/ShelfManager/NotifierController/NotifierControllerRecentSubscribers/ImageViewportContainer/ImageViewport"]
 visible = false
 offset_right = 26.0
 offset_bottom = 26.0
@@ -962,35 +968,35 @@ pivot_offset = Vector2(13, 13)
 texture = ExtResource("80_6gpw6")
 expand_mode = 1
 
-[node name="NotifierControllerReddit" type="Control" parent="2D/Shelf/NotifierController"]
+[node name="NotifierControllerReddit" type="Control" parent="2D/ShelfManager/NotifierController"]
 anchors_preset = 0
-script = ExtResource("58_a4ly8")
+script = ExtResource("62_4vlla")
 
-[node name="RichTextLabelSamplerHeader" parent="2D/Shelf/NotifierController/NotifierControllerReddit" instance=ExtResource("29_qwike")]
+[node name="RichTextLabelSamplerHeader" parent="2D/ShelfManager/NotifierController/NotifierControllerReddit" instance=ExtResource("29_qwike")]
 offset_right = 0.0
 offset_bottom = 0.0
 
-[node name="RichTextLabelSamplerFooter" parent="2D/Shelf/NotifierController/NotifierControllerReddit" instance=ExtResource("29_qwike")]
+[node name="RichTextLabelSamplerFooter" parent="2D/ShelfManager/NotifierController/NotifierControllerReddit" instance=ExtResource("29_qwike")]
 offset_right = 0.0
 offset_bottom = 0.0
 
-[node name="HeaderViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerReddit"]
+[node name="HeaderViewportContainer" type="SubViewportContainer" parent="2D/ShelfManager/NotifierController/NotifierControllerReddit"]
 material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_right = 276.0
 offset_bottom = 28.0
 
-[node name="HeaderViewport" type="SubViewport" parent="2D/Shelf/NotifierController/NotifierControllerReddit/HeaderViewportContainer"]
+[node name="HeaderViewport" type="SubViewport" parent="2D/ShelfManager/NotifierController/NotifierControllerReddit/HeaderViewportContainer"]
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(326, 28)
 render_target_update_mode = 4
 
-[node name="Header" type="Control" parent="2D/Shelf/NotifierController/NotifierControllerReddit/HeaderViewportContainer/HeaderViewport"]
+[node name="Header" type="Control" parent="2D/ShelfManager/NotifierController/NotifierControllerReddit/HeaderViewportContainer/HeaderViewport"]
 layout_mode = 3
 anchors_preset = 0
 
-[node name="FooterViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerReddit"]
+[node name="FooterViewportContainer" type="SubViewportContainer" parent="2D/ShelfManager/NotifierController/NotifierControllerReddit"]
 material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_left = 26.0
@@ -998,30 +1004,30 @@ offset_top = 32.0
 offset_right = 276.0
 offset_bottom = 60.0
 
-[node name="FooterViewport" type="SubViewport" parent="2D/Shelf/NotifierController/NotifierControllerReddit/FooterViewportContainer"]
+[node name="FooterViewport" type="SubViewport" parent="2D/ShelfManager/NotifierController/NotifierControllerReddit/FooterViewportContainer"]
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(300, 28)
 render_target_update_mode = 4
 
-[node name="Footer" type="Control" parent="2D/Shelf/NotifierController/NotifierControllerReddit/FooterViewportContainer/FooterViewport"]
+[node name="Footer" type="Control" parent="2D/ShelfManager/NotifierController/NotifierControllerReddit/FooterViewportContainer/FooterViewport"]
 layout_mode = 3
 anchors_preset = 0
 
-[node name="ImageViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerReddit"]
+[node name="ImageViewportContainer" type="SubViewportContainer" parent="2D/ShelfManager/NotifierController/NotifierControllerReddit"]
 material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_top = 32.0
 offset_right = 26.0
 offset_bottom = 58.0
 
-[node name="ImageViewport" type="SubViewport" parent="2D/Shelf/NotifierController/NotifierControllerReddit/ImageViewportContainer"]
+[node name="ImageViewport" type="SubViewport" parent="2D/ShelfManager/NotifierController/NotifierControllerReddit/ImageViewportContainer"]
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(26, 26)
 render_target_update_mode = 4
 
-[node name="Icon" type="TextureRect" parent="2D/Shelf/NotifierController/NotifierControllerReddit/ImageViewportContainer/ImageViewport"]
+[node name="Icon" type="TextureRect" parent="2D/ShelfManager/NotifierController/NotifierControllerReddit/ImageViewportContainer/ImageViewport"]
 visible = false
 offset_right = 26.0
 offset_bottom = 26.0
@@ -1029,36 +1035,36 @@ pivot_offset = Vector2(13, 13)
 texture = ExtResource("86_c8ryg")
 expand_mode = 1
 
-[node name="NotifierControllerTwitch" type="Control" parent="2D/Shelf/NotifierController"]
+[node name="NotifierControllerTwitch" type="Control" parent="2D/ShelfManager/NotifierController"]
 layout_mode = 3
 anchors_preset = 0
-script = ExtResource("56_60yfq")
+script = ExtResource("64_0bhto")
 
-[node name="RichTextLabelSamplerHeader" parent="2D/Shelf/NotifierController/NotifierControllerTwitch" instance=ExtResource("29_qwike")]
+[node name="RichTextLabelSamplerHeader" parent="2D/ShelfManager/NotifierController/NotifierControllerTwitch" instance=ExtResource("29_qwike")]
 offset_right = 0.0
 offset_bottom = 0.0
 
-[node name="RichTextLabelSamplerFooter" parent="2D/Shelf/NotifierController/NotifierControllerTwitch" instance=ExtResource("29_qwike")]
+[node name="RichTextLabelSamplerFooter" parent="2D/ShelfManager/NotifierController/NotifierControllerTwitch" instance=ExtResource("29_qwike")]
 offset_right = 0.0
 offset_bottom = 0.0
 
-[node name="HeaderViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerTwitch"]
+[node name="HeaderViewportContainer" type="SubViewportContainer" parent="2D/ShelfManager/NotifierController/NotifierControllerTwitch"]
 material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_right = 276.0
 offset_bottom = 28.0
 
-[node name="HeaderViewport" type="SubViewport" parent="2D/Shelf/NotifierController/NotifierControllerTwitch/HeaderViewportContainer"]
+[node name="HeaderViewport" type="SubViewport" parent="2D/ShelfManager/NotifierController/NotifierControllerTwitch/HeaderViewportContainer"]
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(326, 28)
 render_target_update_mode = 4
 
-[node name="Header" type="Control" parent="2D/Shelf/NotifierController/NotifierControllerTwitch/HeaderViewportContainer/HeaderViewport"]
+[node name="Header" type="Control" parent="2D/ShelfManager/NotifierController/NotifierControllerTwitch/HeaderViewportContainer/HeaderViewport"]
 layout_mode = 3
 anchors_preset = 0
 
-[node name="FooterViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerTwitch"]
+[node name="FooterViewportContainer" type="SubViewportContainer" parent="2D/ShelfManager/NotifierController/NotifierControllerTwitch"]
 material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_left = 26.0
@@ -1066,30 +1072,30 @@ offset_top = 32.0
 offset_right = 276.0
 offset_bottom = 60.0
 
-[node name="FooterViewport" type="SubViewport" parent="2D/Shelf/NotifierController/NotifierControllerTwitch/FooterViewportContainer"]
+[node name="FooterViewport" type="SubViewport" parent="2D/ShelfManager/NotifierController/NotifierControllerTwitch/FooterViewportContainer"]
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(300, 28)
 render_target_update_mode = 4
 
-[node name="Footer" type="Control" parent="2D/Shelf/NotifierController/NotifierControllerTwitch/FooterViewportContainer/FooterViewport"]
+[node name="Footer" type="Control" parent="2D/ShelfManager/NotifierController/NotifierControllerTwitch/FooterViewportContainer/FooterViewport"]
 layout_mode = 3
 anchors_preset = 0
 
-[node name="ImageViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerTwitch"]
+[node name="ImageViewportContainer" type="SubViewportContainer" parent="2D/ShelfManager/NotifierController/NotifierControllerTwitch"]
 material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_top = 32.0
 offset_right = 26.0
 offset_bottom = 58.0
 
-[node name="ImageViewport" type="SubViewport" parent="2D/Shelf/NotifierController/NotifierControllerTwitch/ImageViewportContainer"]
+[node name="ImageViewport" type="SubViewport" parent="2D/ShelfManager/NotifierController/NotifierControllerTwitch/ImageViewportContainer"]
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(26, 26)
 render_target_update_mode = 4
 
-[node name="Icon" type="TextureRect" parent="2D/Shelf/NotifierController/NotifierControllerTwitch/ImageViewportContainer/ImageViewport"]
+[node name="Icon" type="TextureRect" parent="2D/ShelfManager/NotifierController/NotifierControllerTwitch/ImageViewportContainer/ImageViewport"]
 visible = false
 offset_right = 26.0
 offset_bottom = 26.0
@@ -1097,35 +1103,35 @@ pivot_offset = Vector2(13, 13)
 texture = ExtResource("78_51i4l")
 expand_mode = 1
 
-[node name="NotifierControllerYouTube" type="Control" parent="2D/Shelf/NotifierController"]
+[node name="NotifierControllerYouTube" type="Control" parent="2D/ShelfManager/NotifierController"]
 anchors_preset = 0
-script = ExtResource("60_qst2h")
+script = ExtResource("66_4bk16")
 
-[node name="RichTextLabelSamplerHeader" parent="2D/Shelf/NotifierController/NotifierControllerYouTube" instance=ExtResource("29_qwike")]
+[node name="RichTextLabelSamplerHeader" parent="2D/ShelfManager/NotifierController/NotifierControllerYouTube" instance=ExtResource("29_qwike")]
 offset_right = 0.0
 offset_bottom = 0.0
 
-[node name="RichTextLabelSamplerFooter" parent="2D/Shelf/NotifierController/NotifierControllerYouTube" instance=ExtResource("29_qwike")]
+[node name="RichTextLabelSamplerFooter" parent="2D/ShelfManager/NotifierController/NotifierControllerYouTube" instance=ExtResource("29_qwike")]
 offset_right = 0.0
 offset_bottom = 0.0
 
-[node name="HeaderViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerYouTube"]
+[node name="HeaderViewportContainer" type="SubViewportContainer" parent="2D/ShelfManager/NotifierController/NotifierControllerYouTube"]
 material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_right = 276.0
 offset_bottom = 28.0
 
-[node name="HeaderViewport" type="SubViewport" parent="2D/Shelf/NotifierController/NotifierControllerYouTube/HeaderViewportContainer"]
+[node name="HeaderViewport" type="SubViewport" parent="2D/ShelfManager/NotifierController/NotifierControllerYouTube/HeaderViewportContainer"]
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(326, 28)
 render_target_update_mode = 4
 
-[node name="Header" type="Control" parent="2D/Shelf/NotifierController/NotifierControllerYouTube/HeaderViewportContainer/HeaderViewport"]
+[node name="Header" type="Control" parent="2D/ShelfManager/NotifierController/NotifierControllerYouTube/HeaderViewportContainer/HeaderViewport"]
 layout_mode = 3
 anchors_preset = 0
 
-[node name="FooterViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerYouTube"]
+[node name="FooterViewportContainer" type="SubViewportContainer" parent="2D/ShelfManager/NotifierController/NotifierControllerYouTube"]
 material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_left = 26.0
@@ -1133,30 +1139,30 @@ offset_top = 32.0
 offset_right = 276.0
 offset_bottom = 60.0
 
-[node name="FooterViewport" type="SubViewport" parent="2D/Shelf/NotifierController/NotifierControllerYouTube/FooterViewportContainer"]
+[node name="FooterViewport" type="SubViewport" parent="2D/ShelfManager/NotifierController/NotifierControllerYouTube/FooterViewportContainer"]
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(300, 28)
 render_target_update_mode = 4
 
-[node name="Footer" type="Control" parent="2D/Shelf/NotifierController/NotifierControllerYouTube/FooterViewportContainer/FooterViewport"]
+[node name="Footer" type="Control" parent="2D/ShelfManager/NotifierController/NotifierControllerYouTube/FooterViewportContainer/FooterViewport"]
 layout_mode = 3
 anchors_preset = 0
 
-[node name="ImageViewportContainer" type="SubViewportContainer" parent="2D/Shelf/NotifierController/NotifierControllerYouTube"]
+[node name="ImageViewportContainer" type="SubViewportContainer" parent="2D/ShelfManager/NotifierController/NotifierControllerYouTube"]
 material = SubResource("ShaderMaterial_igs6p")
 layout_mode = 0
 offset_top = 32.0
 offset_right = 26.0
 offset_bottom = 58.0
 
-[node name="ImageViewport" type="SubViewport" parent="2D/Shelf/NotifierController/NotifierControllerYouTube/ImageViewportContainer"]
+[node name="ImageViewport" type="SubViewport" parent="2D/ShelfManager/NotifierController/NotifierControllerYouTube/ImageViewportContainer"]
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(26, 26)
 render_target_update_mode = 4
 
-[node name="Icon" type="TextureRect" parent="2D/Shelf/NotifierController/NotifierControllerYouTube/ImageViewportContainer/ImageViewport"]
+[node name="Icon" type="TextureRect" parent="2D/ShelfManager/NotifierController/NotifierControllerYouTube/ImageViewportContainer/ImageViewport"]
 visible = false
 offset_right = 26.0
 offset_bottom = 26.0
@@ -1165,16 +1171,15 @@ texture = ExtResource("88_qtord")
 expand_mode = 1
 
 [node name="TwitchChatManager" type="Node2D" parent="2D"]
-position = Vector2(32, 906)
-script = ExtResource("25_3slto")
+script = ExtResource("68_supjw")
 
 [node name="ChatPivot" type="Control" parent="2D/TwitchChatManager"]
 layout_mode = 3
 anchors_preset = 0
-offset_left = 6.0
-offset_top = 6.0
-offset_right = 684.0
-offset_bottom = 426.0
+offset_left = 38.0
+offset_top = 912.0
+offset_right = 716.0
+offset_bottom = 1332.0
 
 [node name="_Example" parent="2D/TwitchChatManager/ChatPivot" instance=ExtResource("30_7endr")]
 visible = false
@@ -1188,10 +1193,10 @@ text = "[outline_size=2][outline_color=#202020FF][font_size=20][font=res://Overl
 [node name="TwitchEventManager" type="Node2D" parent="2D"]
 visible = false
 position = Vector2(1280, 256)
-script = ExtResource("68_ofocr")
+script = ExtResource("70_lnfub")
 
 [node name="RaidNotifier" type="Node2D" parent="2D/TwitchEventManager"]
-script = ExtResource("29_mcst1")
+script = ExtResource("71_ekh2h")
 
 [node name="ViewportContainer" type="SubViewportContainer" parent="2D/TwitchEventManager/RaidNotifier"]
 light_mask = 0
@@ -1224,3 +1229,6 @@ offset_bottom = 160.0
 theme = SubResource("Theme_4prug")
 text = "[font_size=68][font=res://Overlay/Fonts/Roboto-Black.ttf][center][wave amp=50][color=#00FFFFFF]SMOOTHDAGGER[/color][/wave] IS [wave][color=#00FF00FF]RAIDING[/color][/wave]
 WITH [wave][color=#FF0000FF]10 VIEWERS[/color][/wave]![/center][/font][/font_size]"
+
+[node name="UIManager" type="Node2D" parent="2D"]
+script = ExtResource("72_c2ect")

@@ -84,13 +84,14 @@ surface_material_override/4 = ExtResource("4_5gdhj")
 surface_material_override/5 = ExtResource("5_nrqo4")
 
 [node name="Clouds" type="MeshInstance3D" parent="3D/Rainbow2"]
-transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 1.07287, 0, 6)
+transform = Transform3D(-3.87406e-08, 0, -0.708751, 0, 0.670281, 0, 0.88628, 0, -3.09805e-08, 0.47287, 0.224059, 6.41121)
 mesh = ExtResource("11_gl1md")
 skeleton = NodePath("../..")
 surface_material_override/0 = ExtResource("12_c4jxe")
 
 [node name="Outline" type="Node3D" parent="3D"]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.26346, 0, 10)
+visible = false
 
 [node name="Rainbow" type="MeshInstance3D" parent="3D/Outline"]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, 0)

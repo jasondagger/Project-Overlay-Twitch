@@ -91,8 +91,10 @@ namespace Overlay
 		private void BindTwitchChannelPointRewards()
 		{
 			var twitchChannelPointRewardsManager = GetNode<TwitchChannelPointRewardsManager>(
-				path: NodeDirectory.NodePaths[key: NodeType.TwitchChannelPointRewardsManager]
-			);
+                path: NodeDirectory.GetNodePath(
+                    nodeType: NodeType.TwitchChannelPointRewardsManager
+                )
+            );
 
 			twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[key: ChannelPointRewardsType.SoundAlertApplause] = OnChannelPointRewardsRedeemedApplause;
 			twitchChannelPointRewardsManager.RedeemableRewardsWithNoInput[key: ChannelPointRewardsType.SoundAlertFirstBlood] = OnChannelPointRewardsRedeemedFirstBlood;
@@ -110,8 +112,10 @@ namespace Overlay
 		private void BindTwitchCheer()
 		{
 			var twitchManager = GetNode<TwitchManager>(
-				path: NodeDirectory.NodePaths[key: NodeType.TwitchManager]
-			);
+                path: NodeDirectory.GetNodePath(
+                    nodeType: NodeType.TwitchManager
+                )
+            );
 
 			twitchManager.ChannelChatNotification += OnChannelChatNotification;
 		}

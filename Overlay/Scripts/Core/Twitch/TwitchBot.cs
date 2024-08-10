@@ -12,11 +12,13 @@ namespace Overlay
     using System.Text.RegularExpressions;
     using System.Threading;
     using System.Threading.Tasks;
-	using ColorType = PastelInterpolator.ColorType;
+	using static Godot.HttpClient;
+    using ColorType = PastelInterpolator.ColorType;
     using FragmentType = TwitchWebSocketMessagePayloadEventChannelChatNotificationMessageFragment.FragmentType;
 	using NodeType = NodeDirectory.NodeType;
 	using RainbowColorIndexType = PastelInterpolator.RainbowColorIndexType;
     using RequiredFileType = ApplicationManager.RequiredFileType;
+	using UILayoutType = UIManager.UILayoutType;
 
     [SupportedOSPlatform(platformName: "windows")]
     public sealed partial class TwitchBot : Node
@@ -47,7 +49,7 @@ namespace Overlay
 
 		public override void _Ready()
 		{
-			ConnectWebSocket();
+            RequestAccessTokenWithRefreshToken();
 		}
 
         private enum TwitchChatAutomatedMessageType : uint
@@ -72,9 +74,11 @@ namespace Overlay
             Date,
             Discord,
             FollowAge,
+			Layout,
             Lurk,
             Queue,
             Rules,
+			SetLayout,
             SetColor,
             SetColour,
             Skip,
@@ -112,11 +116,17 @@ namespace Overlay
         private const int c_webSocketMessageDelimiterLength = 2;
         private const uint c_maxPacketSize = 8192u;
 		private const ulong c_minimumMessageTimerInMilliseconds = 900000u;
-        private const string c_webSocketAddress = "wss://irc-ws.chat.twitch.tv:443";
-        private const string c_webSocketMessagedelimiter = "\r\n";
-        private const string c_twitchBotDisplayName = "SmoothGPT";
-        private const string c_twitchBotUserName = "smoothgpt";
-        private const string c_twitchBotBadges = "moderator/1";
+
+        private const string c_twitchUriOAuth = "https://id.twitch.tv/oauth2/token";
+		private const string c_twitchUriRedirect = "http://localhost:3000";
+        private const string c_twitchWebSocketAddress = "wss://irc-ws.chat.twitch.tv:443";
+        private const string c_twitchWebSocketMessagedelimiter = "\r\n";
+
+        private const string c_twitchBadges = "moderator/1";
+        private const string c_twitchDisplayName = "SmoothGPT";
+        private const string c_twitchOAuthAccessCode = "3ajsbvh2psae7ryn3crkkcbi1oqfas";
+        private const string c_twitchUserAccessScopes = "chat:read chat:edit";
+        private const string c_twitchUserName = "smoothgpt";
 
         private static readonly Dictionary<TwitchChatAutomatedMessageType, string> c_automatedMessages = new()
 		{
@@ -157,40 +167,55 @@ namespace Overlay
             { TwitchChatAutomatedMessageType.YouTube,         $"looking for more content? Subscribe on YouTube @ \n{TwitchChatColorCodes.ConvertToLinkMessage(message: "https://www.youtube.com/@SmoothDagger")}" },
         };
 
-        private static readonly Dictionary<string, ColorType> c_colorStringsAsTypes = new()
-        {
-            { $"{ColorType.Red.ToString().ToLower()}",       ColorType.Red       },
-            { $"{ColorType.Orange.ToString().ToLower()}",    ColorType.Orange    },
-            { $"{ColorType.Yellow.ToString().ToLower()}",    ColorType.Yellow    },
-            { $"{ColorType.Lime.ToString().ToLower()}",      ColorType.Lime      },
-            { $"{ColorType.Green.ToString().ToLower()}",     ColorType.Green     },
-            { $"{ColorType.Turquoise.ToString().ToLower()}", ColorType.Turquoise },
-            { $"{ColorType.Cyan.ToString().ToLower()}",      ColorType.Cyan      },
-            { $"{ColorType.Teal.ToString().ToLower()}",      ColorType.Teal      },
-            { $"{ColorType.Blue.ToString().ToLower()}",      ColorType.Blue      },
-            { $"{ColorType.Purple.ToString().ToLower()}",    ColorType.Purple    },
-            { $"{ColorType.Magenta.ToString().ToLower()}",   ColorType.Magenta   },
-            { $"{ColorType.Pink.ToString().ToLower()}",      ColorType.Pink      },
-            { $"{ColorType.White.ToString().ToLower()}",     ColorType.White     },
-            { $"{ColorType.Rainbow.ToString().ToLower()}",   ColorType.Rainbow   },
-        };
         private static readonly Dictionary<ColorType, string> c_colorTypesAsStrings = new()
         {
-            { ColorType.Red,       $"{ColorType.Red.ToString().ToLower()}"       },
-            { ColorType.Orange,    $"{ColorType.Orange.ToString().ToLower()}"    },
-            { ColorType.Yellow,    $"{ColorType.Yellow.ToString().ToLower()}"    },
-            { ColorType.Lime,      $"{ColorType.Lime.ToString().ToLower()}"      },
-            { ColorType.Green,     $"{ColorType.Green.ToString().ToLower()}"     },
-            { ColorType.Turquoise, $"{ColorType.Turquoise.ToString().ToLower()}" },
-            { ColorType.Cyan,      $"{ColorType.Cyan.ToString().ToLower()}"      },
-            { ColorType.Teal,      $"{ColorType.Teal.ToString().ToLower()}"      },
-            { ColorType.Blue,      $"{ColorType.Blue.ToString().ToLower()}"      },
-            { ColorType.Purple,    $"{ColorType.Purple.ToString().ToLower()}"    },
-            { ColorType.Magenta,   $"{ColorType.Magenta.ToString().ToLower()}"   },
-            { ColorType.Pink,      $"{ColorType.Pink.ToString().ToLower()}"      },
-            { ColorType.White,     $"{ColorType.White.ToString().ToLower()}"     },
-            { ColorType.Rainbow,   $"{ColorType.Rainbow.ToString().ToLower()}"   },
+            { ColorType.Red,       $"{nameof(ColorType.Red).ToLower()}"       },
+            { ColorType.Orange,    $"{nameof(ColorType.Orange).ToLower()}"    },
+            { ColorType.Yellow,    $"{nameof(ColorType.Yellow).ToLower()}"    },
+            { ColorType.Lime,      $"{nameof(ColorType.Lime).ToLower()}"      },
+            { ColorType.Green,     $"{nameof(ColorType.Green).ToLower()}"     },
+            { ColorType.Turquoise, $"{nameof(ColorType.Turquoise).ToLower()}" },
+            { ColorType.Cyan,      $"{nameof(ColorType.Cyan).ToLower()}"      },
+            { ColorType.Teal,      $"{nameof(ColorType.Teal).ToLower()}"      },
+            { ColorType.Blue,      $"{nameof(ColorType.Blue).ToLower()}"      },
+            { ColorType.Purple,    $"{nameof(ColorType.Purple).ToLower()}"    },
+            { ColorType.Magenta,   $"{nameof(ColorType.Magenta).ToLower()}"   },
+            { ColorType.Pink,      $"{nameof(ColorType.Pink).ToLower()}"      },
+            { ColorType.White,     $"{nameof(ColorType.White).ToLower()}"     },
+            { ColorType.Rainbow,   $"{nameof(ColorType.Rainbow).ToLower()}"   },
         };
+        private static readonly Dictionary<string, ColorType> c_colorStringsAsTypes = new()
+        {
+            { c_colorTypesAsStrings[ key: ColorType.Red       ], ColorType.Red       },
+            { c_colorTypesAsStrings[ key: ColorType.Orange    ], ColorType.Orange    },
+            { c_colorTypesAsStrings[ key: ColorType.Yellow    ], ColorType.Yellow    },
+            { c_colorTypesAsStrings[ key: ColorType.Lime      ], ColorType.Lime      },
+            { c_colorTypesAsStrings[ key: ColorType.Green     ], ColorType.Green     },
+            { c_colorTypesAsStrings[ key: ColorType.Turquoise ], ColorType.Turquoise },
+            { c_colorTypesAsStrings[ key: ColorType.Cyan      ], ColorType.Cyan      },
+            { c_colorTypesAsStrings[ key: ColorType.Teal      ], ColorType.Teal      },
+            { c_colorTypesAsStrings[ key: ColorType.Blue      ], ColorType.Blue      },
+            { c_colorTypesAsStrings[ key: ColorType.Purple    ], ColorType.Purple    },
+            { c_colorTypesAsStrings[ key: ColorType.Magenta   ], ColorType.Magenta   },
+            { c_colorTypesAsStrings[ key: ColorType.Pink      ], ColorType.Pink      },
+            { c_colorTypesAsStrings[ key: ColorType.White     ], ColorType.White     },
+            { c_colorTypesAsStrings[ key: ColorType.Rainbow   ], ColorType.Rainbow   },
+        };
+
+		private static readonly Dictionary<UILayoutType, string> c_uiLayoutTypesAsStrings = new()
+		{
+			{ UILayoutType.Code,    $"{nameof(UILayoutType.Code).ToLower()}"    },
+			{ UILayoutType.Default, $"{nameof(UILayoutType.Default).ToLower()}" },
+			{ UILayoutType.MTG,     $"{nameof(UILayoutType.MTG).ToLower()}"     },
+            { UILayoutType.TF2,     $"{nameof(UILayoutType.TF2).ToLower()}"     },
+		};
+		private static readonly Dictionary<string, UILayoutType> c_uiLayoutStringsAsTypes = new()
+		{
+			{ c_uiLayoutTypesAsStrings[ key: UILayoutType.Code    ], UILayoutType.Code    },
+			{ c_uiLayoutTypesAsStrings[ key: UILayoutType.Default ], UILayoutType.Default },
+			{ c_uiLayoutTypesAsStrings[ key: UILayoutType.MTG     ], UILayoutType.MTG     },
+            { c_uiLayoutTypesAsStrings[ key: UILayoutType.TF2     ], UILayoutType.TF2     },
+		};
 
         private static readonly Dictionary<TwitchChatCommandType, string> c_commands = new()
 		{
@@ -203,11 +228,13 @@ namespace Overlay
             { TwitchChatCommandType.Date,         "!date"		 },
             { TwitchChatCommandType.Discord,      "!discord"	 },
             { TwitchChatCommandType.FollowAge,    "!followage"	 },
+            { TwitchChatCommandType.Layout,       "!layout"	     },
             { TwitchChatCommandType.Lurk,		  "!lurk"		 },
             { TwitchChatCommandType.Queue,	      "!queue"		 },
             { TwitchChatCommandType.Rules,        "!rules"		 },
             { TwitchChatCommandType.SetColor,     "!setcolor"	 },
             { TwitchChatCommandType.SetColour,    "!setcolour"	 },
+            { TwitchChatCommandType.SetLayout,    "!setlayout"	 },
             { TwitchChatCommandType.Skip,		  "!skip"		 },
             { TwitchChatCommandType.Song,		  "!song"		 },
             { TwitchChatCommandType.SongQueue,    "!songqueue"	 },
@@ -311,18 +338,31 @@ namespace Overlay
             $"{c_colorTypesAsStrings[ key: ColorType.White	   ]}|" +
 			$"{c_colorTypesAsStrings[ key: ColorType.Rainbow   ]})$";
 
+		private static readonly string c_setLayoutRegexPattern =
+			$"^(" +
+			$"{c_commands[ key: TwitchChatCommandType.Layout    ]}|" +
+			$"{c_commands[ key: TwitchChatCommandType.SetLayout ]}" +
+			$") (" +
+			$"{c_uiLayoutTypesAsStrings[ key: UILayoutType.Code    ]}|" +
+			$"{c_uiLayoutTypesAsStrings[ key: UILayoutType.Default ]}|" +
+            $"{c_uiLayoutTypesAsStrings[ key: UILayoutType.MTG     ]}|" +
+            $"{c_uiLayoutTypesAsStrings[ key: UILayoutType.TF2     ]})$";
+
         private readonly Dictionary<string, string> m_userNameColors = new();
 		private readonly HashSet<string> m_usersLurking = new();
         private readonly Queue<ulong> m_messageTimestamps = new();
         private readonly ClientWebSocket m_webSocket = new();
 
         private AudioManager m_audioManager = null;
+		private HttpManager m_httpManager = null;
 		private PastelInterpolator m_pastelInterpolator = null;
 		private SpotifyManager m_spotifyManager = null;
-		private TwitchChannelPointRewardsManager m_twitchChannelPointRewardsManager = null;
+        private TwitchBotAccessToken m_twitchBotAccessToken = null;
+        private TwitchChannelPointRewardsManager m_twitchChannelPointRewardsManager = null;
 		private TwitchChatManager m_twitchChatManager = null;
-        private TwitchData m_twitchData = null;
+        private TwitchGlobalData m_twitchGlobalData = null;
         private TwitchManager m_twitchManager = null;
+		private UIManager m_uiManager = null;
 		private TwitchChatAutomatedMessageType m_currentAutomatedMessageType =
             (TwitchChatAutomatedMessageType)(GD.Randi() % Enum.GetValues<TwitchChatAutomatedMessageType>().Length);
 		private bool m_shutdown = false;
@@ -339,12 +379,12 @@ namespace Overlay
 						millisecondsDelay: 5
 					);
 					m_twitchChatManager.AddTwitchChatMessage(
-						userName: c_twitchBotUserName,
-					    name: c_twitchBotDisplayName,
+						userName: c_twitchUserName,
+					    name: c_twitchDisplayName,
 						nameColor: string.Empty,
 						message: message,
 						emotes: string.Empty,
-						badges: c_twitchBotBadges,
+						badges: c_twitchBadges,
 						isSmoothGPT: true
 					);
 				}
@@ -355,7 +395,7 @@ namespace Overlay
 		{
 			// connect to Twitch IRC web socket
 			var uri = new Uri(
-                uriString: c_webSocketAddress
+                uriString: c_twitchWebSocketAddress
 			);
 
 			await m_webSocket.ConnectAsync(
@@ -367,10 +407,10 @@ namespace Overlay
                 message: $"CAP REQ :twitch.tv/commands twitch.tv/tags"
 			);
 			await SendWebSocketMessage(
-                message: $"PASS oauth:{m_twitchData.BotAccessToken}"
+                message: $"PASS oauth:{m_twitchBotAccessToken.AccessToken}"
 			);
 			await SendWebSocketMessage(
-                message: $"NICK {m_twitchData.BotUsername}"
+                message: $"NICK {m_twitchGlobalData.BotUserName}"
 			);
 
 			var bytes = new byte[c_maxPacketSize];
@@ -409,7 +449,7 @@ namespace Overlay
 #endif
 
 			await SendWebSocketMessage(
-                message: $"JOIN #{m_twitchData.TwitchChannel}"
+                message: $"JOIN #{m_twitchGlobalData.TwitchChannel}"
 			);
 
 			StartWebSocketMessageReader();
@@ -428,7 +468,7 @@ namespace Overlay
 					$"@reply-parent-msg-id={twitchChatMessageId} " :
 					string.Empty;
 
-            return $"{replyMessageTarget}PRIVMSG #{m_twitchData.TwitchChannel} :{message}";
+            return $"{replyMessageTarget}PRIVMSG #{m_twitchGlobalData.TwitchChannel} :{message}";
         }
 
 		private static string GetTwitchUserName(
@@ -492,6 +532,13 @@ namespace Overlay
 
                 case TwitchChatCommandType.Discord:
                     HandleWebSocketMessagePrivMsgDiscord(
+                        webSocketMessage: webSocketMessage
+                    );
+                    break;
+
+				case TwitchChatCommandType.Layout:
+                case TwitchChatCommandType.SetLayout:
+                    HandleWebSocketMessagePrivMsgLayout(
                         webSocketMessage: webSocketMessage
                     );
                     break;
@@ -598,7 +645,7 @@ namespace Overlay
             var userName = $"{@event.ChatterUserName}";
             var bitsBadgeTierText = $" Thank you so much for the {totalBits} bits! Congratulations on achieving the {bitsBadgeTier.Tier} bit tier!";
 			await SendWebSocketMessage(
-                message: $"PRIVMSG #{m_twitchData.TwitchChannel} :{userName}{bitsBadgeTierText}"
+                message: $"PRIVMSG #{m_twitchGlobalData.TwitchChannel} :{userName}{bitsBadgeTierText}"
 			);
 		}
 
@@ -611,7 +658,7 @@ namespace Overlay
             var isChatterAnonymous = @event.ChatterIsAnonymous ?? false;
             var userName = isChatterAnonymous ? "Anonymous" : $"{@event.ChatterUserName}";
 			await SendWebSocketMessage(
-                message: $"PRIVMSG #{m_twitchData.TwitchChannel} :{userName} This event was not set up yet. Shame SmoothDagger for being lazy! SHAME HIM"
+                message: $"PRIVMSG #{m_twitchGlobalData.TwitchChannel} :{userName} This event was not set up yet. Shame SmoothDagger for being lazy! SHAME HIM"
 			);
 		}
 
@@ -630,7 +677,7 @@ namespace Overlay
 			var communitySubGiftText = $" Thank you so much for the {communitySubGiftTotal} tier {communitySubGiftTier} gifted community sub{(communitySubGiftTotal > 1u ? "s" : string.Empty)}!";
 			var communitySubGiftCumulativeText = $" {userName} has gifted a total of {communitySubGiftCumulativeTotal} community sub{(communitySubGiftCumulativeTotal > 1u ? "s" : string.Empty)}!";
 			await SendWebSocketMessage(
-                message: $"PRIVMSG #{m_twitchData.TwitchChannel} :{userName}{communitySubGiftText}{communitySubGiftCumulativeText}"
+                message: $"PRIVMSG #{m_twitchGlobalData.TwitchChannel} :{userName}{communitySubGiftText}{communitySubGiftCumulativeText}"
 			);
 		}
 
@@ -643,7 +690,7 @@ namespace Overlay
 			var isChatterAnonymous = @event.ChatterIsAnonymous ?? false;
             var userName = isChatterAnonymous ? "Anonymous" : $"{@event.ChatterUserName}";
 			await SendWebSocketMessage(
-                message: $"PRIVMSG #{m_twitchData.TwitchChannel} :{userName} This event was not set up yet. Shame SmoothDagger for being lazy! SHAME HIM"
+                message: $"PRIVMSG #{m_twitchGlobalData.TwitchChannel} :{userName} This event was not set up yet. Shame SmoothDagger for being lazy! SHAME HIM"
 			);
 		}
 
@@ -656,7 +703,7 @@ namespace Overlay
             var isChatterAnonymous = @event.ChatterIsAnonymous ?? false;
             var userName = isChatterAnonymous ? "Anonymous" : $"{@event.ChatterUserName}";
 			await SendWebSocketMessage(
-                message: $"PRIVMSG #{m_twitchData.TwitchChannel} :{userName} This event was not set up yet. Shame SmoothDagger for being lazy! SHAME HIM"
+                message: $"PRIVMSG #{m_twitchGlobalData.TwitchChannel} :{userName} This event was not set up yet. Shame SmoothDagger for being lazy! SHAME HIM"
 			);
 		}
 
@@ -669,7 +716,7 @@ namespace Overlay
             var isChatterAnonymous = @event.ChatterIsAnonymous ?? false;
             var userName = isChatterAnonymous ? "Anonymous" : $"{@event.ChatterUserName}";
 			await SendWebSocketMessage(
-                message: $"PRIVMSG #{m_twitchData.TwitchChannel} :{userName} This event was not set up yet. Shame SmoothDagger for being lazy! SHAME HIM"
+                message: $"PRIVMSG #{m_twitchGlobalData.TwitchChannel} :{userName} This event was not set up yet. Shame SmoothDagger for being lazy! SHAME HIM"
 			);
 		}
 
@@ -697,7 +744,7 @@ namespace Overlay
 			var resubMonthsText = $" {userName} has been subbed for a total of {resubCumulativeMonths} months{(resubStreakMonths > 1u ? $" & is on a {resubStreakMonths} month sub streak!" : "!")}";
 			var resubCommandsText = " Make sure to check out the available sub commands in the Social section below for your sub benefits @ https://www.twitch.tv/smoothdagger/about";
 			await SendWebSocketMessage(
-                message: $"PRIVMSG #{m_twitchData.TwitchChannel} :{userName}{resubText}{resubGiftText}{resubMonthsText}{resubCommandsText}"
+                message: $"PRIVMSG #{m_twitchGlobalData.TwitchChannel} :{userName}{resubText}{resubGiftText}{resubMonthsText}{resubCommandsText}"
 			);
 		}
 
@@ -718,7 +765,7 @@ namespace Overlay
 				$" Thank you so much for the tier {subTier} {subDuration} month sub!";
 			var subCommandsText = " Make sure to check out the available sub commands in the Social section below for your sub benefits @ https://www.twitch.tv/smoothdagger/about";
 			await SendWebSocketMessage(
-                message: $"PRIVMSG #{m_twitchData.TwitchChannel} :{userName}{subText}{subCommandsText}"
+                message: $"PRIVMSG #{m_twitchGlobalData.TwitchChannel} :{userName}{subText}{subCommandsText}"
 			);
 		}
 
@@ -738,7 +785,7 @@ namespace Overlay
 			var subGiftText = $" Thank you so much for the tier {subGiftTier} {subGiftDuration} month gifted sub to {userNameRecipient}!";
 			var subGiftMonthsText = isChatterAnonymous ? string.Empty : $"{userName} has gifted a total of {subGiftCumulativeTotal} sub{(subGiftCumulativeTotal > 1u ? "s" : string.Empty)}!";
 			await SendWebSocketMessage(
-				$"PRIVMSG #{m_twitchData.TwitchChannel} :{userName}{subGiftText}{subGiftMonthsText}"
+				message: $"PRIVMSG #{m_twitchGlobalData.TwitchChannel} :{userName}{subGiftText}{subGiftMonthsText}"
 			);
 		}
 
@@ -790,6 +837,26 @@ namespace Overlay
                 onScreenMessage: onScreenMessage
             );
         }
+
+		private void HandleUserPrivilegeError(
+			TwitchChatWebSocketMessage webSocketMessage
+        )
+        {
+			var twitchUserName = GetTwitchUserName(
+				webSocketMessage: webSocketMessage
+			);
+            var twitchChatMessageId = webSocketMessage.Tags[key: "id"];
+            var message = $"{twitchUserName}, you do not have privileges to use this command.";
+			var onScreenMessage = 
+				$"{TwitchChatColorCodes.ConvertToUserMessage(message: twitchUserName)}, " +
+				$"{TwitchChatColorCodes.ConvertToErrorMessage(message: " you do not have privileges to use this command")}.";
+
+            SendTwitchChatMessages(
+                twitchChatMessageId: twitchChatMessageId,
+                message: message,
+                onScreenMessage: onScreenMessage
+            );
+		}
 
 		private void HandleWebSocketMessage(
 			string message
@@ -1185,6 +1252,56 @@ namespace Overlay
 			}
         }
 
+		private void HandleWebSocketMessagePrivMsgLayout(
+			TwitchChatWebSocketMessage webSocketMessage
+		)
+		{
+			var userName = webSocketMessage.UserName;
+			if (
+                userName.Equals(
+                     value: m_twitchGlobalData.AccountUserName
+                ) is true
+            )
+            {
+                var text = webSocketMessage.Text;
+                var trimmedText = text.Remove(
+                    startIndex: text.Length - c_webSocketMessageDelimiterLength
+                );
+                var normalizedText = trimmedText.ToLower();
+				var parsedText = normalizedText.Split(
+					separator: ' '
+				);
+				var uiLayoutText = parsedText[1];
+				var uiLayoutType = c_uiLayoutStringsAsTypes[key: uiLayoutText];
+                m_uiManager.ChangeLayoutType(
+					uiLayoutType: uiLayoutType
+                );
+
+                var twitchUserName = GetTwitchUserName(
+				    webSocketMessage: webSocketMessage
+				);
+				var twitchChatMessageId = webSocketMessage.Tags[key: "id"];
+                var message =
+                    $"{twitchUserName}, overlay layout set to " +
+					$"{uiLayoutType} Mode.";
+                var onScreenMessage =
+                    $"{TwitchChatColorCodes.ConvertToUserMessage(message: twitchUserName)}, overlay layout set to " +
+                    $"{TwitchChatColorCodes.ConvertToSuccessMessage(message: $"{uiLayoutType} Mode")}.";
+
+                SendTwitchChatMessages(
+                    twitchChatMessageId: twitchChatMessageId,
+                    message: message,
+                    onScreenMessage: onScreenMessage
+                );
+            }
+			else
+			{
+				HandleUserPrivilegeError(
+					webSocketMessage: webSocketMessage
+				);
+            }
+        }
+
 		private void HandleWebSocketMessagePrivMsgLurk(
 			TwitchChatWebSocketMessage webSocketMessage
 		)
@@ -1394,7 +1511,7 @@ namespace Overlay
             var userName = webSocketMessage.UserName;
             if (
                 userName.Equals(
-                     value: m_twitchData.AccountUserName
+                     value: m_twitchGlobalData.AccountUserName
                 ) is true
             )
             {
@@ -1547,7 +1664,7 @@ namespace Overlay
             );
             if (
                 userName.Equals(
-                     value: m_twitchData.AccountUserName
+                     value: m_twitchGlobalData.AccountUserName
                 ) is false
 			)
 			{
@@ -1628,7 +1745,7 @@ namespace Overlay
             var userName = webSocketMessage.UserName;
             if (
                 userName.Equals(
-                     value: m_twitchData.AccountUserName
+                     value: m_twitchGlobalData.AccountUserName
                 ) is true
             )
             {
@@ -1960,6 +2077,11 @@ namespace Overlay
                         commandLength: commandLength
                     ),
 
+				TwitchChatCommandType.SetLayout =>
+					IsOverlayCommandLayoutValid(
+						text: text
+					),
+
 				TwitchChatCommandType.SetColor or
                 TwitchChatCommandType.SetColour =>
 					IsOverlayCommandSetColorValid(
@@ -2044,6 +2166,21 @@ namespace Overlay
                 );
 		}
 
+		private static bool IsOverlayCommandLayoutValid(
+			string text	
+		)
+		{
+			var trimmedText = text.Remove(
+				startIndex: text.Length - c_webSocketMessageDelimiterLength
+			);
+			var normalizedText = trimmedText.ToLower();
+
+			return Regex.IsMatch(
+				input: normalizedText,
+				pattern: c_setLayoutRegexPattern
+			);
+		}
+
 		private static bool IsOverlayCommandSetColorValid(
 			string text
 		)
@@ -2106,7 +2243,7 @@ namespace Overlay
 			string userName
 		)
 		{
-			return userName is c_twitchBotUserName;
+			return userName is c_twitchUserName;
 		}
 
 		private void OnChannelChatNotification(
@@ -2183,15 +2320,16 @@ namespace Overlay
         {
 			var userName = @event.IsAnonymous ? "Anonymous" : @event.UserName;
 			var bitCount = @event.Bits;
-            var message = 
+			var bitMessage = $"{bitCount} bit{(bitCount > 1u ? "ties" : string.Empty)}";
+            var message =
 				$"{userName} " +
 				$"cheered with " +
-				$"{bitCount} bit{(bitCount > 1u ? string.Empty : "ties")}! " +
+				$"{bitMessage}! " +
 				$"Cheers!";
-            var onScreenMessage = 
+            var onScreenMessage =
 				$"{TwitchChatColorCodes.ConvertToUserMessage(message: userName)} " +
 				$"cheered with " +
-				$"{TwitchChatColorCodes.ConvertToSuccessMessage(message: $"{bitCount} bit{(bitCount > 1u ? string.Empty : "ties")}")}! " +
+				$"{TwitchChatColorCodes.ConvertToSuccessMessage(message: $"{bitMessage}")}! " +
 				$"Cheers!";
 
 			SendTwitchChatMessages(
@@ -2321,7 +2459,89 @@ namespace Overlay
             );
         }
 
-		private void OnSpotifyCurrentTrackRetrieved(
+        private void OnRequestAccessTokenCompleted(
+            long result,
+            long responseCode,
+            string[] headers,
+            byte[] body
+        )
+        {
+			if (
+				HttpManager.IsResponseCodeSuccessful(
+					responseCode
+				) is true
+			)
+			{
+#if DEBUG
+                GD.Print(
+					what: $"{nameof(TwitchBot)}.{nameof(OnRequestAccessTokenCompleted)}() - Web request {responseCode} POST successful."
+				);
+#endif
+
+				WriteAccessToken(
+                    response: JsonSerializer.Deserialize<TwitchResponseAccessToken>(
+						json: Encoding.UTF8.GetString(
+						    bytes: body,
+						    index: 0,
+						    count: body.Length
+						)
+                    )
+                );
+
+                ConnectWebSocket();
+            }
+            else
+			{
+#if DEBUG
+				GD.PrintErr(
+					what: $"{nameof(TwitchBot)}.{nameof(OnRequestAccessTokenCompleted)}() - Web request POST failed with code {responseCode}."
+				);
+#endif
+			}
+        }
+
+        private void OnRequestAccessTokenWithRefreshTokenCompleted(
+            long result,
+            long responseCode,
+            string[] headers,
+            byte[] body
+        )
+        {
+			if (
+				HttpManager.IsResponseCodeSuccessful(
+					responseCode
+				) is true
+			)
+			{
+#if DEBUG
+                GD.Print(
+					what: $"{nameof(TwitchBot)}.{nameof(OnRequestAccessTokenWithRefreshTokenCompleted)}() - Web request {responseCode} POST successful."
+				);
+#endif
+
+                WriteAccessToken(
+                    response: JsonSerializer.Deserialize<TwitchResponseAccessToken>(
+                        json: Encoding.UTF8.GetString(
+                            bytes: body,
+                            index: 0,
+                            count: body.Length
+                        )
+                    )
+                );
+
+                ConnectWebSocket();
+            }
+            else
+			{
+#if DEBUG
+				GD.PrintErr(
+					what: $"{nameof(TwitchBot)}.{nameof(OnRequestAccessTokenWithRefreshTokenCompleted)}() - Web request POST failed with code {responseCode}."
+				);
+#endif
+			}
+        }
+
+        private void OnSpotifyCurrentTrackRetrieved(
             SpotifyTwitchData spotifyTwitchData
         )
         {
@@ -2561,7 +2781,7 @@ namespace Overlay
 
 				if (
 					webSocketMessage.Command.EndsWith(
-						value: c_webSocketMessagedelimiter
+						value: c_twitchWebSocketMessagedelimiter
 					)
 				)
 				{
@@ -2579,7 +2799,7 @@ namespace Overlay
 						parse += message[index: index++];
 						if (
 							parse.EndsWith(
-								value: c_webSocketMessagedelimiter
+								value: c_twitchWebSocketMessagedelimiter
 							) is true
 						)
 						{
@@ -2590,7 +2810,7 @@ namespace Overlay
 					// parse text message up to delimiter
 					if (
 						parse.EndsWith(
-							value: c_webSocketMessagedelimiter
+							value: c_twitchWebSocketMessagedelimiter
 						) is false
 					)
 					{
@@ -2599,7 +2819,7 @@ namespace Overlay
 						{
 							if (
 								webSocketMessage.Text.EndsWith(
-									value: c_webSocketMessagedelimiter
+									value: c_twitchWebSocketMessagedelimiter
 								) is true
 							)
 							{
@@ -2723,18 +2943,46 @@ namespace Overlay
 			);
 		}
 
-		private void RequestAccessToken()
-		{
-            _ = OS.ShellOpen(
-                $"https://id.twitch.tv/oauth2/authorize" +
-                $"?response_type=token" +
-                $"&client_id={m_twitchData.ClientId}" +
-                $"&redirect_uri=http://localhost:3000" +
-                $"&scope={Uri.EscapeDataString(stringToEscape: "chat:read+chat:edit")}"
+        private void RequestAccessToken()
+        {
+            var headers = new List<string>()
+            {
+                $"Content-Type: application/x-www-form-urlencoded",
+            };
+            m_httpManager.SendHttpRequest(
+                url: $"{c_twitchUriOAuth}",
+                headers: headers,
+                method: Method.Post,
+                json:
+                    $"client_id={m_twitchGlobalData.ClientId}&" +
+                    $"client_secret={m_twitchGlobalData.ClientSecret}&" +
+                    $"code={c_twitchOAuthAccessCode}&" +
+                    $"grant_type=authorization_code&" +
+                    $"redirect_uri={c_twitchUriRedirect}",
+                requestCompletedHandler: OnRequestAccessTokenCompleted
             );
         }
 
-		private void RequestSpotifyTrack(
+        private void RequestAccessTokenWithRefreshToken()
+        {
+            var headers = new List<string>()
+            {
+                $"Content-Type: application/x-www-form-urlencoded",
+            };
+            m_httpManager.SendHttpRequest(
+                url: $"{c_twitchUriOAuth}",
+                headers: headers,
+                method: Method.Post,
+                json:
+                    $"client_id={m_twitchGlobalData.ClientId}&" +
+                    $"client_secret={m_twitchGlobalData.ClientSecret}&" +
+                    $"grant_type=refresh_token&" +
+                    $"refresh_token={m_twitchBotAccessToken.RefreshToken}",
+                requestCompletedHandler: OnRequestAccessTokenWithRefreshTokenCompleted
+            );
+        }
+
+        private void RequestSpotifyTrack(
 			TwitchChatWebSocketMessage webSocketMessage	
 		)
 		{
@@ -2778,36 +3026,80 @@ namespace Overlay
             }
         }
 
-		private void RetrieveResources()
-		{
-			var body = ApplicationManager.ReadRequiredFile(
-                requiredFileType: RequiredFileType.TwitchData
+        private void RetrieveOAuthAccessCode()
+        {
+            _ = OS.ShellOpen(
+                uri: $"https://id.twitch.tv/oauth2/authorize?" +
+                     $"response_type=code&" +
+                     $"client_id={m_twitchGlobalData.ClientId}&" +
+                     $"redirect_uri=http://localhost:3000&" +
+                     $"scope={Uri.EscapeDataString(stringToEscape: c_twitchUserAccessScopes)}"
             );
-            m_twitchData = JsonSerializer.Deserialize<TwitchData>(
+        }
+
+        private void RetrieveResources()
+		{
+			var twitchGlobalDataBody = ApplicationManager.ReadRequiredFile(
+                requiredFileType: RequiredFileType.TwitchGlobalData
+            );
+            m_twitchGlobalData = JsonSerializer.Deserialize<TwitchGlobalData>(
                 json: Encoding.UTF8.GetString(
-                    bytes: body,
+                    bytes: twitchGlobalDataBody,
                     index: 0,
-                    count: body.Length
+                    count: twitchGlobalDataBody.Length
+                )
+            );
+
+			var twitchBotAccessTokenBody = ApplicationManager.ReadRequiredFile(
+                requiredFileType: RequiredFileType.TwitchBotAccessToken
+            );
+            m_twitchBotAccessToken = JsonSerializer.Deserialize<TwitchBotAccessToken>(
+                json: Encoding.UTF8.GetString(
+                    bytes: twitchBotAccessTokenBody,
+                    index: 0,
+                    count: twitchBotAccessTokenBody.Length
                 )
             );
 
 			m_audioManager = GetNode<AudioManager>(
-				path: NodeDirectory.NodePaths[key: NodeType.AudioManager]
+				path: NodeDirectory.GetNodePath(
+					nodeType: NodeType.AudioManager
+				)
+			);
+			m_httpManager = GetNode<HttpManager>(
+				path: NodeDirectory.GetNodePath(
+					nodeType: NodeType.HttpManager
+				)
 			);
 			m_pastelInterpolator = GetNode<PastelInterpolator>(
-                path: NodeDirectory.NodePaths[key: NodeType.PastelInterpolator]
-			);
+                path: NodeDirectory.GetNodePath(
+                    nodeType: NodeType.PastelInterpolator
+                )
+            );
 			m_spotifyManager = GetNode<SpotifyManager>(
-                path: NodeDirectory.NodePaths[key: NodeType.SpotifyManager]
-			);
+                path: NodeDirectory.GetNodePath(
+                    nodeType: NodeType.SpotifyManager
+                )
+            );
 			m_twitchChannelPointRewardsManager = GetNode<TwitchChannelPointRewardsManager>(
-				path: NodeDirectory.NodePaths[key: NodeType.TwitchChannelPointRewardsManager]
-			);
+                path: NodeDirectory.GetNodePath(
+                    nodeType: NodeType.TwitchChannelPointRewardsManager
+                )
+            );
 			m_twitchChatManager = GetNode<TwitchChatManager>(
-                path: NodeDirectory.NodePaths[key: NodeType.TwitchChatManager]
-			);
+                path: NodeDirectory.GetNodePath(
+                    nodeType: NodeType.TwitchChatManager
+                )
+            );
 			m_twitchManager = GetNode<TwitchManager>(
-                path: NodeDirectory.NodePaths[key: NodeType.TwitchManager]
+                path: NodeDirectory.GetNodePath(
+                    nodeType: NodeType.TwitchManager
+                )
+            );
+			m_uiManager = GetNode<UIManager>(
+				path: NodeDirectory.GetNodePath(
+					nodeType: NodeType.UIManager
+				)
 			);
 
             SubscribeToSpotifyManagerEvents();
@@ -2817,7 +3109,7 @@ namespace Overlay
 		private async void SendAutomatedMessage()
 		{
 			await SendWebSocketMessage(
-				message: $"PRIVMSG #{m_twitchData.TwitchChannel} :{c_automatedMessages[key: m_currentAutomatedMessageType]}"
+				message: $"PRIVMSG #{m_twitchGlobalData.TwitchChannel} :{c_automatedMessages[key: m_currentAutomatedMessageType]}"
 			);
 			AddBotChatMessage(
 				message: $"{c_onScreenAutomatedMessages[key: m_currentAutomatedMessageType]}"
@@ -2921,7 +3213,7 @@ namespace Overlay
 		private async void StartWebSocketMessageReader()
 		{
 			await Task.Run(
-				function: 
+				function:
 				async () =>
 				{
 #if DEBUG
@@ -2931,14 +3223,14 @@ namespace Overlay
 #endif
 
 					var cancellationToken = new CancellationToken();
-					while (m_shutdown is false)
+					var bytes = new byte[c_maxPacketSize];
+                    while (m_shutdown is false)
 					{
 						if (
 							m_webSocket.State is WebSocketState.Open && 
 							cancellationToken.IsCancellationRequested is false
 						)
 						{
-							var bytes = new byte[c_maxPacketSize];
 							var result = await m_webSocket.ReceiveAsync(
 								buffer: bytes,
 								cancellationToken: cancellationToken
@@ -2959,5 +3251,22 @@ namespace Overlay
 				}
 			);
 		}
+
+		private void WriteAccessToken(
+            TwitchResponseAccessToken response
+        )
+        {
+            m_twitchBotAccessToken.AccessToken = response.AccessToken;
+            m_twitchBotAccessToken.RefreshToken = response.RefreshToken;
+
+            ApplicationManager.WriteRequiredFile(
+                requiredFileType: RequiredFileType.TwitchBotAccessToken,
+                bytes: Encoding.UTF8.GetBytes(
+                    s: JsonSerializer.Serialize(
+                        value: m_twitchBotAccessToken
+                    )
+                )
+            );
+        }
     }
 }
